@@ -9,7 +9,7 @@ const Stack = createStackNavigator();
 
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-
+// koleeeee teste teste teste
   return (
     <UserProvider>
       <NavigationContainer>
