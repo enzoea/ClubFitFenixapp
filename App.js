@@ -3,13 +3,14 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import Login from './src/telas/Login';
 import Cadastro from './src/telas/Cadastro';
+import Menu from './src/telas/Menu';
+import ControlePonto from './src/telas/ControlePonto'
 import { UserProvider } from './src/context/UserContext'; // Certifique-se de que o UserProvider está sendo importado corretamente
 
 const Stack = createStackNavigator();
-
+// criei um stack screen tanto para menu quanto para o controle de ponto. quando for acessar a pagina, entrar no arquivos selecionados
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-// koleeeee teste teste teste
   return (
     <UserProvider>
       <NavigationContainer>
@@ -18,7 +19,10 @@ export default function App() {
             {(props) => <Login {...props} setIsAuthenticated={setIsAuthenticated} />}
           </Stack.Screen>
           <Stack.Screen name="Cadastro" component={Cadastro} />
+          <Stack.Screen name="Menu" component={Menu} /> 
+          <Stack.Screen name="ControlePonto" component={ControlePonto} />
         </Stack.Navigator>
+        
       </NavigationContainer>
     </UserProvider>
   );

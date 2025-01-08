@@ -4,18 +4,21 @@ import logo from '../../assets/logo.png';
 import { useUser } from '../context/UserContext';
 
 export default function Login({ setIsAuthenticated, navigation }) {
-  const { usuarios } = useUser();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
+//contrui um teste com credenciais fixas com email: teste senha: 123
+// com a credenciais fixas, o cadastro não está funcionando
   const handleLogin = () => {
-    const usuarioEncontrado = usuarios.find(
-      (usuario) => usuario.email === email && usuario.senha === password
-    );
-    if (usuarioEncontrado) {
+    const emailfixo = "teste";
+    const senhaFixa = "123";
+
+    if(email === emailfixo && password === senhaFixa){
       setIsAuthenticated(true);
-    } else {
-      alert('Credenciais inválidas!');
+      alert("login realizado com sucesso!");
+      navigation.navigate("Menu"); // função para direcionar o menu
+    } else{
+      alert("Credenciais inválidas!")
     }
   };
 

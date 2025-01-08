@@ -1,37 +1,46 @@
-import React, { createContext, useState, useContext } from 'react';
-import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
-import Login from '../telas/Login';
-import Cadastro from '../telas/Cadastro';
+import React, { createContext, useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const UserContext = createContext();
+export const UserContext = createContext();
 
 export const UserProvider = ({ children }) => {
-  const [usuarios, setUsuarios] = useState([]);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  const checkAuthentication = async () => {
+    try {
+      const token = await AsyncStorage.getItem('userToken');
+      setIsAuthenticated(!!token); // Autenticado se existir um token
+    } catch (error) {
+      console.error('Erro ao verificar autenticação:', error);
+    }
+  };
+
+  const login = async (token) => {
+    try {
+      await AsyncStorage.setItem('userToken', token);
+      setIsAuthenticated(true);
+    } catch (error) {
+      console.error('Erro ao salvar token:', error);
+    }
+  };
+
+  const logout = async () => {
+    try {
+      await AsyncStorage.removeItem('userToken');
+      setIsAuthenticated(false);
+    } catch (error) {
+      console.error('Erro ao remover token:', error);
+    }
+  };
+
   return (
-    <UserContext.Provider value={{ usuarios, setUsuarios }}>
+    <UserContext.Provider value={{ isAuthenticated, setIsAuthenticated, login, logout, checkAuthentication }}>
       {children}
     </UserContext.Provider>
   );
 };
 
-export const useUser = () => useContext(UserContext);
 
-const Stack = createStackNavigator();
-
-export default function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-
-  return (
-    <UserProvider>
-      <NavigationContainer>
-        <Stack.Navigator>
-          <Stack.Screen name="Login">
-            {(props) => <Login {...props} setIsAuthenticated={setIsAuthenticated} />}
-          </Stack.Screen>
-          <Stack.Screen name="Cadastro" component={Cadastro} />
-        </Stack.Navigator>
-      </NavigationContainer>
-    </UserProvider>
-  );
-}
+// Ele esta definindo e gerenciando o contexto de usuario para autentiação no app do react
+// o "UserProvider" envolve o aplicativo, fornecendo funções comom login, logout, checkAuthentication, e o estado isAuthenticates
+//O AsyncStorage é usado para armazenar o teken de autenticação no disposito, permitindo persistir o estado do usuario mesmo que ele feche o app
