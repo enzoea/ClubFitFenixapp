@@ -1,46 +1,49 @@
-import React, { createContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const UserContext = createContext();
 
 export const UserProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [usuarios, setUsuarios] = useState([]);
 
-  const checkAuthentication = async () => {
-    try {
-      const token = await AsyncStorage.getItem('userToken');
-      setIsAuthenticated(!!token); // Autenticado se existir um token
-    } catch (error) {
-      console.error('Erro ao verificar autenticação:', error);
-    }
-  };
+  useEffect(() => {
+    const carregarUsuarios = async () => {
+      try {
+        const usuariosSalvos = await AsyncStorage.getItem('usuarios');
+        if (usuariosSalvos) {
+          setUsuarios(JSON.parse(usuariosSalvos));
+        }
+      } catch (error) {
+        console.error('Erro ao carregar usuários:', error);
+      }
+    };
 
-  const login = async (token) => {
-    try {
-      await AsyncStorage.setItem('userToken', token);
-      setIsAuthenticated(true);
-    } catch (error) {
-      console.error('Erro ao salvar token:', error);
-    }
-  };
+    carregarUsuarios();
+  }, []);
 
-  const logout = async () => {
+  const addUsuario = async (usuario) => {
     try {
-      await AsyncStorage.removeItem('userToken');
-      setIsAuthenticated(false);
+      const novosUsuarios = [...usuarios, usuario];
+      setUsuarios(novosUsuarios);
+      await AsyncStorage.setItem('usuarios', JSON.stringify(novosUsuarios));
     } catch (error) {
-      console.error('Erro ao remover token:', error);
+      console.error('Erro ao salvar usuário:', error);
     }
   };
 
   return (
-    <UserContext.Provider value={{ isAuthenticated, setIsAuthenticated, login, logout, checkAuthentication }}>
+    <UserContext.Provider
+      value={{
+        isAuthenticated,
+        setIsAuthenticated,
+        usuarios,
+        addUsuario,
+      }}
+    >
       {children}
     </UserContext.Provider>
   );
 };
 
-
-// Ele esta definindo e gerenciando o contexto de usuario para autentiação no app do react
-// o "UserProvider" envolve o aplicativo, fornecendo funções comom login, logout, checkAuthentication, e o estado isAuthenticates
-//O AsyncStorage é usado para armazenar o teken de autenticação no disposito, permitindo persistir o estado do usuario mesmo que ele feche o app
+export const useUser = () => useContext(UserContext);

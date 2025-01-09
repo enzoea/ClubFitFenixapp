@@ -4,7 +4,7 @@ import logo from '../../assets/logo.png';
 import { useUser } from '../context/UserContext';
 
 export default function Cadastro({ navigation }) {
-  const { usuarios, setUsuarios } = useUser();
+  const { usuarios, addUsuario } = useUser();
   const [nome, setNome] = useState('');
   const [telefone, setTelefone] = useState('');
   const [email, setEmail] = useState('');
@@ -17,12 +17,12 @@ export default function Cadastro({ navigation }) {
       alert('Por favor, preencha todos os campos obrigatórios!');
       return;
     }
-
+  
     const novoUsuario = { nome, telefone, email, dataNascimento, objetivo, senha };
-    setUsuarios([...usuarios, novoUsuario]);
+    addUsuario(novoUsuario); // Adiciona o usuário ao contexto
     alert('Usuário cadastrado com sucesso!');
     navigation.navigate('Login');
-  };
+  };  
 
   return (
     <ImageBackground

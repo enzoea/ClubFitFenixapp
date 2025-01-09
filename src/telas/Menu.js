@@ -11,6 +11,8 @@ export default function HomeScreen({ navigation }) {
       >
         <Text style={styles.buttonText}>Iniciar Treino</Text>
       </TouchableOpacity>
+      <Text style={styles.title}>Feed de treinos</Text>
+      
     </View>
   );
 }
