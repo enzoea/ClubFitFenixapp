@@ -20,8 +20,8 @@ export default function App() {
             {(props) => <Login {...props} setIsAuthenticated={setIsAuthenticated} />}
           </Stack.Screen>
           <Stack.Screen name="Cadastro" component={Cadastro} />
-          <Stack.Screen name="Menu" component={Menu} />
-          <Stack.Screen name="ControlePonto" component={ControlePonto} />
+          <Stack.Screen name="Menu" component={Menu} options={{ title: 'Menu' }} />
+          <Stack.Screen name="ControlePonto" component={ControlePonto} options={{ title: 'Cadastro de Ponto' }} />
         </Stack.Navigator>
       </NavigationContainer>
     </UserProvider>

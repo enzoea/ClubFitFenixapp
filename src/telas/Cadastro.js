@@ -4,13 +4,14 @@ import logo from '../../assets/logo.png';
 import { useUser } from '../context/UserContext';
 
 export default function Cadastro({ navigation }) {
-  const { usuarios, addUsuario } = useUser();
+  const { usuarios, addUsuario, setUsuarioLogado } = useUser();
   const [nome, setNome] = useState('');
   const [telefone, setTelefone] = useState('');
   const [email, setEmail] = useState('');
   const [dataNascimento, setDataNascimento] = useState('');
   const [objetivo, setObjetivo] = useState('');
   const [senha, setSenha] = useState('');
+  
 
   const handleCadastro = () => {
     if (!nome || !email || !senha) {
@@ -20,9 +21,11 @@ export default function Cadastro({ navigation }) {
   
     const novoUsuario = { nome, telefone, email, dataNascimento, objetivo, senha };
     addUsuario(novoUsuario); // Adiciona o usuário ao contexto
+    setUsuarioLogado(novoUsuario); // Define o usuário logado
     alert('Usuário cadastrado com sucesso!');
-    navigation.navigate('Login');
-  };  
+    navigation.navigate('Login'); // Navega para a tela de login ou menu
+  };
+  
 
   return (
     <ImageBackground

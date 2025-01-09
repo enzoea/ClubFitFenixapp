@@ -61,25 +61,33 @@ export default function ControlePonto() {
   const handleFinalizarTreino = async () => {
     const now = new Date();
     setFimTreino(now);
-
+  
     try {
       const treino = JSON.parse(await AsyncStorage.getItem('treinoAtual'));
       treino.fim = now.toISOString();
-
+  
+      // Adicione o nome do usuário ao treino (deve ser configurado na tela de login)
+      const usuarioAtual = await AsyncStorage.getItem('usuarioAtual');
+      treino.usuario = usuarioAtual;
+  
+      // Salvar nos treinos semanais do usuário
       let treinosRealizados = JSON.parse(await AsyncStorage.getItem('treinosSemana')) || [];
       treinosRealizados.push(treino);
-
       await AsyncStorage.setItem('treinosSemana', JSON.stringify(treinosRealizados));
-      await AsyncStorage.setItem('treinoAnterior', JSON.stringify(treino));
-
+  
+      // Salvar no feed global
+      let feedGlobal = JSON.parse(await AsyncStorage.getItem('feedGlobal')) || [];
+      feedGlobal.push(treino);
+      await AsyncStorage.setItem('feedGlobal', JSON.stringify(feedGlobal));
+  
       setTreinosSemana(treinosRealizados.length);
-
       setTreinoFinalizado(true);
-      setMensagem('Você só poderá realizar um novo treino a partir de amanhã. Caso tenha preenchido o treino anterior incorretamente, clique em "Excluir treino anterior".');
+      setMensagem('Treino finalizado! Ele está visível para outros usuários.');
     } catch (error) {
       console.error("Erro ao finalizar o treino:", error);
     }
   };
+  
 
   return (
     <ImageBackground

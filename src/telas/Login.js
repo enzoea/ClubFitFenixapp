@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet, ImageBackground } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import logo from '../../assets/logo.png';
 import { useUser } from '../context/UserContext';
 
@@ -8,15 +9,21 @@ export default function Login({ setIsAuthenticated, navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     const emailFixo = "teste";
     const senhaFixa = "1234";
 
     // Verifica credenciais fixas
     if (email === emailFixo && password === senhaFixa) {
-      setIsAuthenticated(true);
-      alert("Login realizado com sucesso!");
-      navigation.navigate("Menu");
+      try {
+        await AsyncStorage.setItem('usuarioLogado', 'Usuário Teste'); // Nome fixo para o usuário teste
+        setIsAuthenticated(true);
+        alert("Login realizado com sucesso!");
+        navigation.navigate("Menu");
+      } catch (error) {
+        console.error("Erro ao salvar o nome do usuário:", error);
+        alert("Erro ao realizar login. Tente novamente.");
+      }
       return;
     }
 
@@ -26,14 +33,19 @@ export default function Login({ setIsAuthenticated, navigation }) {
     );
 
     if (usuarioEncontrado) {
-      setIsAuthenticated(true);
-      alert("Login realizado com sucesso!");
-      navigation.navigate("Menu");
+      try {
+        await AsyncStorage.setItem('usuarioLogado', usuarioEncontrado.nome); // Salva o nome do usuário autenticado
+        setIsAuthenticated(true);
+        alert("Login realizado com sucesso!");
+        navigation.navigate("Menu");
+      } catch (error) {
+        console.error("Erro ao salvar o nome do usuário:", error);
+        alert("Erro ao realizar login. Tente novamente.");
+      }
     } else {
       alert("Credenciais inválidas!");
     }
   };
-
 
   return (
     <ImageBackground
@@ -116,7 +128,7 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 5,
     alignItems: 'center',
-    width:300,
+    width: 300,
   },
   buttonText: {
     color: '#fff',
@@ -131,7 +143,7 @@ const styles = StyleSheet.create({
     marginBottom: 32,
     borderRadius: 5,
     alignItems: 'center',
-    width:300,
+    width: 300,
   },
   buttonText2: {
     color: '#febc02',

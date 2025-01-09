@@ -6,6 +6,8 @@ export const UserContext = createContext();
 export const UserProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [usuarios, setUsuarios] = useState([]);
+  const [usuarioLogado, setUsuarioLogado] = useState(null);
+  const [pontos, setPontos] = useState([]);
 
   useEffect(() => {
     const carregarUsuarios = async () => {
@@ -22,6 +24,22 @@ export const UserProvider = ({ children }) => {
     carregarUsuarios();
   }, []);
 
+  const addPonto = async (descricao) => {
+    try {
+      const novoPonto = {
+        id: Date.now().toString(),
+        usuario: usuarioLogado?.nome || 'Anônimo',
+        descricao,
+        data: new Date().toLocaleDateString(),
+      };
+      const novosPontos = [...pontos, novoPonto];
+      setPontos(novosPontos);
+      await AsyncStorage.setItem('pontos', JSON.stringify(novosPontos));
+    } catch (error) {
+      console.error('Erro ao adicionar ponto:', error);
+    }
+  };
+
   const addUsuario = async (usuario) => {
     try {
       const novosUsuarios = [...usuarios, usuario];
@@ -32,6 +50,19 @@ export const UserProvider = ({ children }) => {
     }
   };
 
+  const loginUsuario = (email, senha) => {
+    const usuarioEncontrado = usuarios.find(
+      (usuario) => usuario.email === email && usuario.senha === senha
+    );
+    if (usuarioEncontrado) {
+      setUsuarioLogado(usuarioEncontrado); // Define o usuário logado
+      setIsAuthenticated(true); // Define o estado de autenticação como verdadeiro
+      return true;
+    } else {
+      return false; // Login inválido
+    }
+  };
+
   return (
     <UserContext.Provider
       value={{
@@ -39,6 +70,11 @@ export const UserProvider = ({ children }) => {
         setIsAuthenticated,
         usuarios,
         addUsuario,
+        usuarioLogado,
+        setUsuarioLogado,
+        loginUsuario,
+        pontos,
+        addPonto
       }}
     >
       {children}
