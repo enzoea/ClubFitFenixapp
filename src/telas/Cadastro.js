@@ -94,7 +94,7 @@ export default function Cadastro({ navigation }) {
     </ImageBackground>
   );
 }
-
+// testando
 const styles = StyleSheet.create({
     imageBackground: {
         flex: 1,
