@@ -35,48 +35,54 @@ export default function Cadastro({ navigation }) {
         <View style={styles.container}>
             <Image source={logo} style={styles.logo} />
             <Text style={styles.title}>Cadastro</Text>
+            <Text style={styles.text}>Nome</Text>
             <TextInput
                 style={styles.input}
                 placeholder="Nome"
-                placeholderTextColor="#FFFFFF"
+                placeholderTextColor="#febc02"
                 value={nome}
                 onChangeText={setNome}
             />
+            <Text style={styles.text}>Telefone</Text>
             <TextInput
                 style={styles.input}
                 placeholder="Telefone"
-                placeholderTextColor="#FFFFFF"
+                placeholderTextColor="#febc02"
                 value={telefone}
                 keyboardType="phone-pad"
                 onChangeText={setTelefone}
             />
+            <Text style={styles.text}>Email</Text>
             <TextInput
                 style={styles.input}
                 placeholder="Email"
-                placeholderTextColor="#FFFFFF"
+                placeholderTextColor="#febc02"
                 value={email}
                 keyboardType="email-address"
                 autoCapitalize="none"
                 onChangeText={setEmail}
             />
+            <Text style={styles.text}>Data de Nascimento</Text>
             <TextInput
                 style={styles.input}
-                placeholder="Data de Nascimento"
-                placeholderTextColor="#FFFFFF"
+                placeholder="xx/xx/xxxx"
+                placeholderTextColor="#febc02"
                 value={dataNascimento}
                 onChangeText={setDataNascimento}
             />
+            <Text style={styles.text}>Objetivos na Academia</Text>
             <TextInput
                 style={styles.input}
-                placeholder="Objetivo na Academia (Ex.: Ganhar massa)"
-                placeholderTextColor="#FFFFFF"
+                placeholder="Ex: Ganhar massa"
+                placeholderTextColor="#febc02"
                 value={objetivo}
                 onChangeText={setObjetivo}
             />
+            <Text style={styles.text}>Senha</Text>
             <TextInput
                 style={styles.input}
                 placeholder="Senha"
-                placeholderTextColor="#FFFFFF"
+                placeholderTextColor="#febc02"
                 secureTextEntry
                 value={senha}
                 onChangeText={setSenha}
@@ -108,6 +114,12 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         color: '#ffffff',
     },
+    
+    text:{
+        fontSize: 16,
+        color: '#febc02',
+    },
+
     input: {
         borderWidth: 1,
         borderColor: '#ccc',

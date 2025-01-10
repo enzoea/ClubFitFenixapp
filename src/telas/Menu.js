@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, ImageBackground } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 
 export default function Menu({ navigation }) {
   const [feedGlobal, setFeedGlobal] = useState([]);
@@ -23,7 +25,7 @@ export default function Menu({ navigation }) {
 
   const renderTreino = ({ item }) => (
     <View style={styles.treinoContainer}>
-      <Text style={styles.usuario}>Usuário: {item.usuario}</Text>
+      <Text style={styles.usuario}> {item.usuario}</Text>
       <Text>Tipo de Treino: {item.tipo}</Text>
       <Text>Início: {new Date(item.inicio).toLocaleString()}</Text>
       <Text>Fim: {new Date(item.fim).toLocaleString()}</Text>
@@ -76,14 +78,16 @@ const styles = StyleSheet.create({
     color: '#ffffff',
   },
   treinoContainer: {
-    backgroundColor: '#fff',
+    backgroundColor: 'rgba(255,255,255,0.2)',
     padding: 10,
-    borderRadius: 5,
+    borderRadius: 15,
     marginBottom: 10,
+    
   },
   usuario: {
     fontWeight: 'bold',
     marginBottom: 5,
+    color: '#febc02'
   },
   button: {
     backgroundColor: '#febc02',
