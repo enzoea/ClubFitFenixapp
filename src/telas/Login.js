@@ -13,7 +13,6 @@ export default function Login({ setIsAuthenticated, navigation }) {
     const emailFixo = "teste";
     const senhaFixa = "1234";
 
-    // Verifica credenciais fixas
     if (email === emailFixo && password === senhaFixa) {
       try {
         await AsyncStorage.setItem('usuarioLogado', 'Usuário Teste'); // Nome fixo para o usuário teste
@@ -27,7 +26,6 @@ export default function Login({ setIsAuthenticated, navigation }) {
       return;
     }
 
-    // Verifica credenciais de usuários cadastrados
     const usuarioEncontrado = usuarios.find(
       (usuario) => usuario.email === email && usuario.senha === password
     );

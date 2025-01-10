@@ -1,22 +1,25 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, ImageBackground } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect } from '@react-navigation/native';
 
 export default function Menu({ navigation }) {
   const [feedGlobal, setFeedGlobal] = useState([]);
 
-  useEffect(() => {
-    const carregarFeed = async () => {
-      try {
-        const feed = JSON.parse(await AsyncStorage.getItem('feedGlobal')) || [];
-        setFeedGlobal(feed);
-      } catch (error) {
-        console.error("Erro ao carregar o feed:", error);
-      }
-    };
+  const carregarFeed = async () => {
+    try {
+      const feed = JSON.parse(await AsyncStorage.getItem('feedGlobal')) || [];
+      setFeedGlobal(feed);
+    } catch (error) {
+      console.error("Erro ao carregar o feed:", error);
+    }
+  };
 
-    carregarFeed();
-  }, []);
+  useFocusEffect(
+    React.useCallback(() => {
+      carregarFeed();
+    }, [])
+  );
 
   const renderTreino = ({ item }) => (
     <View style={styles.treinoContainer}>
@@ -41,7 +44,11 @@ export default function Menu({ navigation }) {
         />
         <TouchableOpacity 
           style={styles.button} 
-          onPress={() => navigation.navigate('ControlePonto')} // Navega para a tela de Cadastro
+          onPress={() =>
+            navigation.navigate('ControlePonto', {
+              atualizarFeed: setFeedGlobal,
+            })
+          }
         >
           <Text style={styles.buttonText}>Registrar Novo Treino</Text>
         </TouchableOpacity>

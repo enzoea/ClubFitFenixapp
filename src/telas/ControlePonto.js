@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, Alert, ImageBackground } from
 import { Picker } from '@react-native-picker/picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export default function ControlePonto() {
+export default function ControlePonto({ navigation, route }) {
   const [treinoTipo, setTreinoTipo] = useState('');
   const [inicioTreino, setInicioTreino] = useState(null);
   const [fimTreino, setFimTreino] = useState(null);
@@ -11,14 +11,20 @@ export default function ControlePonto() {
   const [treinoFinalizado, setTreinoFinalizado] = useState(false);
   const [mensagem, setMensagem] = useState('');
   const [treinoAnterior, setTreinoAnterior] = useState(null);
+  const { atualizarFeed } = route.params || {}; // Recebe o callback para atualizar o feed
 
   useEffect(() => {
-    // Carrega os treinos realizados na semana e o treino anterior
     const carregarTreinos = async () => {
       try {
+        const treinoAtual = JSON.parse(await AsyncStorage.getItem('treinoAtual'));
         const treinosRealizados = await AsyncStorage.getItem('treinosSemana');
         const treinoAnterior = await AsyncStorage.getItem('treinoAnterior');
-        
+
+        if (treinoAtual && !treinoAtual.fim) {
+          setInicioTreino(new Date(treinoAtual.inicio));
+          setTreinoTipo(treinoAtual.tipo);
+        }
+
         if (treinosRealizados) {
           setTreinosSemana(JSON.parse(treinosRealizados).length);
         }
@@ -27,7 +33,7 @@ export default function ControlePonto() {
           setTreinoAnterior(JSON.parse(treinoAnterior));
         }
       } catch (error) {
-        console.error("Erro ao carregar os dados:", error);
+        console.error('Erro ao carregar os dados:', error);
       }
     };
 
@@ -54,45 +60,49 @@ export default function ControlePonto() {
     try {
       await AsyncStorage.setItem('treinoAtual', JSON.stringify(treino));
     } catch (error) {
-      console.error("Erro ao armazenar o treino atual:", error);
+      console.error('Erro ao armazenar o treino atual:', error);
     }
   };
 
   const handleFinalizarTreino = async () => {
     const now = new Date();
     setFimTreino(now);
-  
+
     try {
       const treino = JSON.parse(await AsyncStorage.getItem('treinoAtual'));
       treino.fim = now.toISOString();
-  
-      // Adicione o nome do usuário ao treino (deve ser configurado na tela de login)
-      const usuarioAtual = await AsyncStorage.getItem('usuarioAtual');
+
+      const usuarioAtual = await AsyncStorage.getItem('usuarioLogado');
       treino.usuario = usuarioAtual;
-  
-      // Salvar nos treinos semanais do usuário
+
       let treinosRealizados = JSON.parse(await AsyncStorage.getItem('treinosSemana')) || [];
       treinosRealizados.push(treino);
       await AsyncStorage.setItem('treinosSemana', JSON.stringify(treinosRealizados));
-  
-      // Salvar no feed global
+
       let feedGlobal = JSON.parse(await AsyncStorage.getItem('feedGlobal')) || [];
       feedGlobal.push(treino);
       await AsyncStorage.setItem('feedGlobal', JSON.stringify(feedGlobal));
-  
+
       setTreinosSemana(treinosRealizados.length);
       setTreinoFinalizado(true);
       setMensagem('Treino finalizado! Ele está visível para outros usuários.');
+
+      await AsyncStorage.removeItem('treinoAtual'); // Remove o treino atual ao finalizar
+
+      if (atualizarFeed) {
+        atualizarFeed(feedGlobal); // Atualiza o feed no Menu
+      }
+
+      navigation.goBack(); // Retorna ao menu após finalizar o treino
     } catch (error) {
-      console.error("Erro ao finalizar o treino:", error);
+      console.error('Erro ao finalizar o treino:', error);
     }
   };
-  
 
   return (
     <ImageBackground
-          source={require('../../assets/background-club.png')}
-          style={styles.imageBackground}
+      source={require('../../assets/background-club.png')}
+      style={styles.imageBackground}
     >
       <View style={styles.container}>
         <Text style={styles.title}>Controle de Ponto</Text>
@@ -100,7 +110,9 @@ export default function ControlePonto() {
         <Picker
           selectedValue={treinoTipo}
           style={styles.picker}
-          onValueChange={(itemValue) => setTreinoTipo(itemValue)}>
+          onValueChange={(itemValue) => setTreinoTipo(itemValue)}
+          enabled={!inicioTreino} // Desativa o Picker se o treino já foi iniciado
+        >
           <Picker.Item label="Selecione o tipo de treino" value="" />
           <Picker.Item label="Academia" value="academia" />
           <Picker.Item label="Futebol" value="futebol" />
@@ -110,18 +122,19 @@ export default function ControlePonto() {
         </Picker>
 
         <Text style={styles.texto}>
-          {inicioTreino ? `Início: ${inicioTreino.toLocaleString()}` : "Nenhum treino iniciado"}
+          {inicioTreino ? `Início: ${inicioTreino.toLocaleString()}` : 'Nenhum treino iniciado'}
         </Text>
         <Text style={styles.texto}>
-          {fimTreino ? `Fim: ${fimTreino.toLocaleString()}` : "Treino não finalizado"}
+          {fimTreino ? `Fim: ${fimTreino.toLocaleString()}` : 'Treino não finalizado'}
         </Text>
 
-        <TouchableOpacity 
-          style={styles.button} 
+        <TouchableOpacity
+          style={styles.button}
           onPress={inicioTreino ? handleFinalizarTreino : handleIniciarTreino}
-          disabled={treinoFinalizado}>
+          disabled={treinoFinalizado}
+        >
           <Text style={styles.buttonText}>
-            {inicioTreino ? "Finalizar Treino" : "Iniciar Treino"}
+            {inicioTreino ? 'Finalizar Treino' : 'Iniciar Treino'}
           </Text>
         </TouchableOpacity>
 
@@ -138,28 +151,27 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    zIndex:0,
+    zIndex: 0,
   },
   container: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
-    
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 20,
     textAlign: 'center',
-    color: '#ffffff'
+    color: '#ffffff',
   },
   title2: {
     fontSize: 16,
     fontWeight: 'bold',
     marginBottom: 20,
     textAlign: 'center',
-    color: '#ffffff'
+    color: '#ffffff',
   },
   picker: {
     width: 300,
