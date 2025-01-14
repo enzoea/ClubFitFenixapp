@@ -40,6 +40,21 @@ export const UserProvider = ({ children }) => {
     }
   };
 
+  const atualizarFotoPerfil = async (fotoUri) => {
+    if (usuarioLogado) {
+      const usuarioAtualizado = { ...usuarioLogado, foto: fotoUri };
+      setUsuarioLogado(usuarioAtualizado);
+  
+      // Atualizar a lista de usuários
+      const usuariosAtualizados = usuarios.map((usuario) =>
+        usuario.email === usuarioLogado.email ? usuarioAtualizado : usuario
+      );
+      setUsuarios(usuariosAtualizados);
+      await AsyncStorage.setItem('usuarios', JSON.stringify(usuariosAtualizados));
+    }
+  };
+  
+
   const addUsuario = async (usuario) => {
     try {
       const novosUsuarios = [...usuarios, usuario];

@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Alert, ImageBackground } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+/*import { launchCamera, launchImageLibrary } from 'react-native-image-picker';*/
 
 export default function ControlePonto({ navigation, route }) {
   const [treinoTipo, setTreinoTipo] = useState('');
   const [inicioTreino, setInicioTreino] = useState(null);
   const [fimTreino, setFimTreino] = useState(null);
+  /*const [imagem, setImagem] = useState(null); // Estado para armazenar a imagem*/
   const [treinosSemana, setTreinosSemana] = useState(0);
   const [treinoFinalizado, setTreinoFinalizado] = useState(false);
   const [mensagem, setMensagem] = useState('');
@@ -64,6 +66,34 @@ export default function ControlePonto({ navigation, route }) {
     }
   };
 
+  // função da imagem
+  /*const handleSelecionarImagem = () => {
+    launchImageLibrary(
+      {
+        mediaType: 'photo',
+        maxWidth: 300,
+        maxHeight: 300,
+        quality: 0.8,
+      },
+      (response) => {
+        if (response.didCancel) {
+          console.log('Usuário cancelou a seleção de imagem');
+        } else if (response.errorCode) {
+          console.error(`Erro (${response.errorCode}): ${response.errorMessage}`);
+          Alert.alert('Erro', 'Não foi possível acessar a galeria. Verifique as permissões.');
+        } else if (response.assets && response.assets.length > 0) {
+          const source = { uri: response.assets[0].uri };
+          setImagem(source); // Salva a URI da imagem no estado
+          console.log('Imagem selecionada:', source);
+        } else {
+          console.error('Nenhuma imagem retornada');
+        }
+      }
+    );
+  };*/
+  
+
+
   const handleFinalizarTreino = async () => {
     const now = new Date();
     setFimTreino(now);
@@ -71,6 +101,7 @@ export default function ControlePonto({ navigation, route }) {
     try {
       const treino = JSON.parse(await AsyncStorage.getItem('treinoAtual'));
       treino.fim = now.toISOString();
+      treino.imagem = imagem?.uri; // Adiciona a imagem ao treino
 
       const usuarioAtual = await AsyncStorage.getItem('usuarioLogado');
       treino.usuario = usuarioAtual;
@@ -107,6 +138,15 @@ export default function ControlePonto({ navigation, route }) {
       <View style={styles.container}>
         <Text style={styles.title}>Controle de Ponto</Text>
         <Text style={styles.title2}>Por favor, selecione a categoria do treino de hoje</Text>
+        {/*<TouchableOpacity style={styles.button} onPress={handleSelecionarImagem}>
+        <Text style={styles.buttonText}>
+          {imagem ? 'Alterar Imagem' : 'Adicionar Imagem'}
+        </Text>
+      </TouchableOpacity>*/}
+
+      {/*{imagem && (
+        <Image source={imagem} style={{ width: 100, height: 100, marginBottom: 20 }} />
+      )}*/}
         <Picker
           selectedValue={treinoTipo}
           style={styles.picker}
@@ -120,6 +160,7 @@ export default function ControlePonto({ navigation, route }) {
           <Picker.Item label="Corrida/Caminhada" value="corrida" />
           <Picker.Item label="Esporte Radical" value="esporteRadical" />
         </Picker>
+        
 
         <Text style={styles.texto}>
           {inicioTreino ? `Início: ${inicioTreino.toLocaleString()}` : 'Nenhum treino iniciado'}
