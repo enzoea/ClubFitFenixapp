@@ -1,11 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, ImageBackground } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image, ImageBackground } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Ionicons';
 
 export default function Menu({ navigation }) {
   const [feedGlobal, setFeedGlobal] = useState([]);
+  const [userProfile, setUserProfile] = useState({
+    name: 'Mateus Lopes',
+    profilePicture: '../../assets/logo.png', // Substitua pela URL da foto real
+  });
 
   const carregarFeed = async () => {
     try {
@@ -22,19 +26,6 @@ export default function Menu({ navigation }) {
     }, [])
   );
 
-  // Constantes para adicionar curtidas e comentários
-  const handleLike = (index) => {
-    const updatedFeed = [...feedGlobal];
-    updatedFeed[index].liked = !updatedFeed[index].liked;
-    setFeedGlobal(updatedFeed);
-  };
-
-  const handleComment = (index) => {
-    const post = feedGlobal[index];
-    navigation.navigate('Comentarios', { post, index });
-  };
-  
-
   const renderTreino = ({ item, index }) => (
     <View style={styles.treinoContainer}>
       <Text style={styles.usuario}>{item.usuario}</Text>
@@ -50,19 +41,14 @@ export default function Menu({ navigation }) {
 
       {/* Botões de Interação */}
       <View style={styles.interactionContainer}>
-        <TouchableOpacity onPress={() => handleLike(index)} style={styles.iconButton}>
-          <Icon
-            name={item.liked ? 'heart' : 'heart-outline'}
-            size={24}
-            color={item.liked ? 'red' : 'gray'}
-          />
-          <Text>{item.liked ? 1 : 0}</Text>
+        <TouchableOpacity style={styles.iconButton}>
+          <Icon name="heart-outline" size={24} color="gray" />
+          <Text>0</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => handleComment(index)} style={styles.iconButton}>
-  <Icon name="chatbubble-outline" size={24} color="gray" />
-  <Text>{item.comments || 0}</Text>
-</TouchableOpacity>
-
+        <TouchableOpacity style={styles.iconButton}>
+          <Icon name="chatbubble-outline" size={24} color="gray" />
+          <Text>0</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -73,20 +59,21 @@ export default function Menu({ navigation }) {
       style={styles.imageBackground}
     >
       <View style={styles.container}>
+        {/* Barra de Menu */}
+        <View style={styles.menuBar}>
+          <Image source={{ uri: userProfile.profilePicture }} style={styles.profilePicture} />
+          <Text style={styles.profileName}>{userProfile.name}</Text>
+          <TouchableOpacity>
+            <Icon name="menu" size={28} color="white" />
+          </TouchableOpacity>
+        </View>
+
         <Text style={styles.title}>Feed de Treinos</Text>
         <FlatList
           data={feedGlobal}
           keyExtractor={(item, index) => index.toString()}
           renderItem={renderTreino}
         />
-        
-        {/* Botão para redirecionar para a tela de perfil */}
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => navigation.navigate('Perfil')}
-        >
-          <Text style={styles.buttonText}>Ir para o Perfil</Text>
-        </TouchableOpacity>
 
         <TouchableOpacity
           style={styles.button}
@@ -108,16 +95,40 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    zIndex: 0,
   },
   container: {
     flex: 1,
     padding: 20,
   },
+  menuBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: 'black',
+    padding: 15,
+    width: '100%',
+    top: 0,
+    bottom: 0,
+    left: -20,
+    height: 100,
+    zIndex: 10,
+  },
+  profilePicture: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+  },
+  profileName: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: 'bold',
+    flex: 1,
+    marginLeft: 10,
+  },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 20,
+    marginVertical: 100, // Ajuste para dar espaço para a barra de menu
     textAlign: 'center',
     color: '#ffffff',
   },
@@ -125,7 +136,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.2)',
     padding: 10,
     borderRadius: 10,
-    marginBottom: 100,
+    marginBottom: 20,
   },
   usuario: {
     fontWeight: 'bold',
@@ -147,7 +158,6 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     alignItems: 'center',
     marginTop: 20,
-    width: 300,
   },
   buttonText: {
     color: '#fff',
