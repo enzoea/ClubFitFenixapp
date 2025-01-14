@@ -30,10 +30,10 @@ export default function Menu({ navigation }) {
   };
 
   const handleComment = (index) => {
-    const updatedFeed = [...feedGlobal];
-    updatedFeed[index].comments = (updatedFeed[index].comments || 0) + 1;
-    setFeedGlobal(updatedFeed);
+    const post = feedGlobal[index];
+    navigation.navigate('Comentarios', { post, index });
   };
+  
 
   const renderTreino = ({ item, index }) => (
     <View style={styles.treinoContainer}>
@@ -59,9 +59,10 @@ export default function Menu({ navigation }) {
           <Text>{item.liked ? 1 : 0}</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={() => handleComment(index)} style={styles.iconButton}>
-          <Icon name="chatbubble-outline" size={24} color="gray" />
-          <Text>{item.comments || 0}</Text>
-        </TouchableOpacity>
+  <Icon name="chatbubble-outline" size={24} color="gray" />
+  <Text>{item.comments || 0}</Text>
+</TouchableOpacity>
+
       </View>
     </View>
   );
