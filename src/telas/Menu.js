@@ -3,13 +3,29 @@ import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image, ImageBackgro
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import BarraMenu from './componentes/BarraMenu'; // Importa o componente BarraMenu
 
 export default function Menu({ navigation }) {
   const [feedGlobal, setFeedGlobal] = useState([]);
   const [userProfile, setUserProfile] = useState({
-    name: 'Mateus Lopes',
-    profilePicture: '../../assets/logo.png', // Substitua pela URL da foto real
+    profilePicture: '',
+    name: 'Usuário',
   });
+
+  useEffect(() => {
+    const carregarPerfil = async () => {
+      try {
+        const profile = JSON.parse(await AsyncStorage.getItem('userProfile'));
+        if (profile) {
+          setUserProfile(profile);
+        }
+      } catch (error) {
+        console.error('Erro ao carregar o perfil do usuário:', error);
+      }
+    };
+
+    carregarPerfil();
+  }, []);
 
   const carregarFeed = async () => {
     try {
@@ -39,7 +55,6 @@ export default function Menu({ navigation }) {
         />
       )}
 
-      {/* Botões de Interação */}
       <View style={styles.interactionContainer}>
         <TouchableOpacity style={styles.iconButton}>
           <Icon name="heart-outline" size={24} color="gray" />
@@ -55,18 +70,12 @@ export default function Menu({ navigation }) {
 
   return (
     <ImageBackground
-      source={require('../../assets/background-club.png')}
+      
       style={styles.imageBackground}
     >
       <View style={styles.container}>
-        {/* Barra de Menu */}
-        <View style={styles.menuBar}>
-          <Image source={{ uri: userProfile.profilePicture }} style={styles.profilePicture} />
-          <Text style={styles.profileName}>{userProfile.name}</Text>
-          <TouchableOpacity>
-            <Icon name="menu" size={28} color="white" />
-          </TouchableOpacity>
-        </View>
+        {/* Utiliza o componente BarraMenu */}
+        <BarraMenu userProfile={userProfile} />
 
         <Text style={styles.title}>Feed de Treinos</Text>
         <FlatList
@@ -98,50 +107,24 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    padding: 20,
-  },
-  menuBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: 'black',
-    padding: 15,
-    width: '100%',
-    top: 0,
-    bottom: 0,
-    left: -20,
-    height: 100,
-    zIndex: 10,
-  },
-  profilePicture: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-  },
-  profileName: {
-    color: 'white',
-    fontSize: 18,
-    fontWeight: 'bold',
-    flex: 1,
-    marginLeft: 10,
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginVertical: 100, // Ajuste para dar espaço para a barra de menu
+    marginVertical: 10, // Ajuste para dar espaço para a barra de menu
     textAlign: 'center',
-    color: '#ffffff',
+    color: 'rgb(0,0,0)',
   },
   treinoContainer: {
-    backgroundColor: 'rgba(255,255,255,0.2)',
+    backgroundColor: 'rgba(255,255,255,0.9)',
     padding: 10,
-    borderRadius: 10,
+    borderRadius: 7,
     marginBottom: 20,
   },
   usuario: {
     fontWeight: 'bold',
     marginBottom: 5,
-    color: '#febc02',
+    color: 'rgb(0,0,0)',
   },
   interactionContainer: {
     flexDirection: 'row',

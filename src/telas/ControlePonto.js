@@ -132,7 +132,7 @@ export default function ControlePonto({ navigation, route }) {
 
   return (
     <ImageBackground
-      source={require('../../assets/background-club.png')}
+      
       style={styles.imageBackground}
     >
       <View style={styles.container}>
@@ -205,14 +205,14 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 20,
     textAlign: 'center',
-    color: '#ffffff',
+    color: '#rgb(0,0,0)',
   },
   title2: {
     fontSize: 16,
     fontWeight: 'bold',
     marginBottom: 20,
     textAlign: 'center',
-    color: '#ffffff',
+    color: '#rgb(0,0,0)',
   },
   picker: {
     width: 300,
@@ -224,7 +224,7 @@ const styles = StyleSheet.create({
   texto: {
     fontSize: 16,
     marginBottom: 10,
-    color: '#ffffff',
+    color: '#rgb(0,0,0)',
   },
   button: {
     backgroundColor: '#febc02',
@@ -235,7 +235,7 @@ const styles = StyleSheet.create({
     width: 300,
   },
   buttonText: {
-    color: '#fff',
+    color: '#rgb(0,0,0)',
     fontWeight: 'bold',
     fontSize: 16,
   },
