@@ -10,40 +10,34 @@ export default function Login({ setIsAuthenticated, navigation }) {
   const [password, setPassword] = useState('');
 
   const handleLogin = async () => {
-    const emailFixo = "teste";
-    const senhaFixa = "1234";
-
-    if (email === emailFixo && password === senhaFixa) {
-      try {
-        await AsyncStorage.setItem('usuarioLogado', 'Usuário Teste'); // Nome fixo para o usuário teste
-        setIsAuthenticated(true);
-        alert("Login realizado com sucesso!");
-        navigation.navigate("Menu");
-      } catch (error) {
-        console.error("Erro ao salvar o nome do usuário:", error);
-        alert("Erro ao realizar login. Tente novamente.");
-      }
+    if (!email || !password) {
+      alert('Por favor, preencha todos os campos.');
       return;
     }
-
-    const usuarioEncontrado = usuarios.find(
-      (usuario) => usuario.email === email && usuario.senha === password
-    );
-
-    if (usuarioEncontrado) {
-      try {
-        await AsyncStorage.setItem('usuarioLogado', usuarioEncontrado.nome); // Salva o nome do usuário autenticado
+  
+    try {
+      const response = await fetch('http://192.168.1.6:3000/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, senha: password }),
+      });
+  
+      if (response.ok) {
+        const data = await response.json();
+        await AsyncStorage.setItem('usuarioLogado', data.nome); // Salva o usuário autenticado
         setIsAuthenticated(true);
-        alert("Login realizado com sucesso!");
-        navigation.navigate("Menu");
-      } catch (error) {
-        console.error("Erro ao salvar o nome do usuário:", error);
-        alert("Erro ao realizar login. Tente novamente.");
+        alert('Login realizado com sucesso!');
+        navigation.navigate('Menu');
+      } else {
+        alert('Credenciais inválidas.');
       }
-    } else {
-      alert("Credenciais inválidas!");
+    } catch (error) {
+      console.error(error);
+      alert('Erro de conexão.');
     }
-  };
+  };  
 
   return (
     <ImageBackground

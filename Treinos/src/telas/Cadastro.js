@@ -13,18 +13,33 @@ export default function Cadastro({ navigation }) {
   const [senha, setSenha] = useState('');
   
 
-  const handleCadastro = () => {
+  const handleCadastro = async () => {
     if (!nome || !email || !senha) {
       alert('Por favor, preencha todos os campos obrigatórios!');
       return;
     }
   
-    const novoUsuario = { nome, telefone, email, dataNascimento, objetivo, senha };
-    addUsuario(novoUsuario); // Adiciona o usuário ao contexto
-    setUsuarioLogado(novoUsuario); // Define o usuário logado
-    alert('Usuário cadastrado com sucesso!');
-    navigation.navigate('Login'); // Navega para a tela de login ou menu
-  };
+    try {
+      const response = await fetch('http://192.168.1.6:3000/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ nome, email, senha }),
+      });
+  
+      if (response.ok) {
+        const data = await response.json();
+        alert('Usuário cadastrado com sucesso!');
+        navigation.navigate('Login');
+      } else {
+        alert('Erro ao cadastrar usuário.');
+      }
+    } catch (error) {
+      console.error(error);
+      alert('Erro de conexão.');
+    }
+  };  
   
 
   return (
@@ -32,21 +47,14 @@ export default function Cadastro({ navigation }) {
         source={require('../../assets/background-club.png')}
         style={styles.imageBackground}
     >
+    
         <View style={styles.container}>
-            <Image source={logo} style={styles.logo} />
+            
             <Text style={styles.title}>Cadastro</Text>
             <Text style={styles.text}>Nome</Text>
             <TextInput
                 style={styles.input}
                 placeholder="Nome"
-                placeholderTextColor="#febc02"
-                value={nome}
-                onChangeText={setNome}
-            />
-            <Text style={styles.text}>Escolha um nome de usuário</Text>
-            <TextInput
-                style={styles.input}
-                placeholder="@seunome123"
                 placeholderTextColor="#febc02"
                 value={nome}
                 onChangeText={setNome}
