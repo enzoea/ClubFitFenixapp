@@ -101,7 +101,7 @@ export default function ControlePonto({ navigation, route }) {
     try {
       const treino = JSON.parse(await AsyncStorage.getItem('treinoAtual'));
       treino.fim = now.toISOString();
-      treino.imagem = imagem?.uri; // Adiciona a imagem ao treino
+      //treino.imagem = imagem?.uri;  Adiciona a imagem ao treino
 
       const usuarioAtual = await AsyncStorage.getItem('usuarioLogado');
       treino.usuario = usuarioAtual;
@@ -136,7 +136,7 @@ export default function ControlePonto({ navigation, route }) {
       style={styles.imageBackground}
     >
       <View style={styles.container}>
-        <Text style={styles.title}>Controle de Ponto</Text>
+        <Text style={styles.title}>Registro de treino</Text>
         <Text style={styles.title2}>Por favor, selecione a categoria do treino de hoje</Text>
         {/*<TouchableOpacity style={styles.button} onPress={handleSelecionarImagem}>
         <Text style={styles.buttonText}>
@@ -150,10 +150,11 @@ export default function ControlePonto({ navigation, route }) {
         <Picker
           selectedValue={treinoTipo}
           style={styles.picker}
+          itemStyle={{ color: '#000' }}
           onValueChange={(itemValue) => setTreinoTipo(itemValue)}
           enabled={!inicioTreino} // Desativa o Picker se o treino já foi iniciado
         >
-          <Picker.Item label="Selecione o tipo de treino" value="" />
+          <Picker.Item style={styles.label} label="Selecione o tipo de treino" value="" />
           <Picker.Item label="Academia" value="academia" />
           <Picker.Item label="Futebol" value="futebol" />
           <Picker.Item label="Natação" value="natacao" />
@@ -218,7 +219,7 @@ const styles = StyleSheet.create({
     width: 300,
     marginBottom: 20,
     borderRadius: 5,
-    color: '#000',
+    color: '#000', // Altere para preto caso necessário
     elevation: 3,
   },
   texto: {

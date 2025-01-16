@@ -43,6 +43,14 @@ export default function Cadastro({ navigation }) {
                 value={nome}
                 onChangeText={setNome}
             />
+            <Text style={styles.text}>Escolha um nome de usuário</Text>
+            <TextInput
+                style={styles.input}
+                placeholder="@seunome123"
+                placeholderTextColor="#febc02"
+                value={nome}
+                onChangeText={setNome}
+            />
             <Text style={styles.text}>Telefone</Text>
             <TextInput
                 style={styles.input}
