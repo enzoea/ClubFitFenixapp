@@ -1,33 +1,41 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import { launchImageLibrary } from 'react-native-image-picker';
-import { useUser } from '../context/UserContext'; // Assumindo que o contexto de usuário está configurado
+import { useUser } from '../context/UserContext';
+
 
 export default function Perfil() {
-  const { usuarioLogado } = useUser(); // Obtém os dados do usuário logado
-  const [fotoPerfil, setFotoPerfil] = useState(null); // Estado para a foto do perfil
-  const { atualizarFotoPerfil } = useUser();
+  const { usuarioLogado, atualizarFotoPerfil } = useUser(); // Obtém o contexto do usuário
+  const [fotoPerfil, setFotoPerfil] = useState(usuarioLogado?.foto || null); // Inicializa com a foto do usuário
 
-const selecionarImagem = () => {
-  launchImageLibrary(
-    {
-      mediaType: 'photo',
-      quality: 1,
-    },
-    (response) => {
-      if (response.didCancel) {
-        console.log('Seleção de imagem cancelada.');
-      } else if (response.errorMessage) {
-        console.error('Erro ao selecionar imagem:', response.errorMessage);
-      } else {
-        const { uri } = response.assets[0];
-        setFotoPerfil(uri);
-        atualizarFotoPerfil(uri); // Atualiza a foto no contexto
-      }
+  useEffect(() => {
+    // Atualiza a foto de perfil local quando o contexto muda
+    if (usuarioLogado?.foto) {
+      setFotoPerfil(usuarioLogado.foto);
     }
-  );
-};
+  }, [usuarioLogado]);
 
+  const selecionarImagem = async () => {
+    
+    try {
+      launchImageLibrary(
+        { mediaType: 'photo', quality: 1 },
+        async (response) => {
+          if (response.didCancel) {
+            console.log('Usuário cancelou a seleção de imagem.');
+          } else if (response.errorMessage) {
+            console.error('Erro ao selecionar imagem:', response.errorMessage);
+          } else if (response.assets && response.assets.length > 0) {
+            const { uri } = response.assets[0];
+            await atualizarFotoPerfil(uri);
+            setFotoPerfil(uri); // Atualiza o estado local imediatamente
+          }
+        }
+      );
+    } catch (error) {
+      console.error('Erro ao selecionar imagem:', error);
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -39,7 +47,7 @@ const selecionarImagem = () => {
           source={
             fotoPerfil
               ? { uri: fotoPerfil }
-              : require('../../assets/logo.png') // Substitua pelo caminho do placeholder
+              : require('../../assets/logo.png') // Placeholder
           }
           style={styles.fotoPerfil}
         />
@@ -71,7 +79,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: '#000', // Fundo escuro para combinar com o tema
+    backgroundColor: '#000', // Fundo escuro
   },
   title: {
     fontSize: 24,

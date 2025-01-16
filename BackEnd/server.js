@@ -1,6 +1,5 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const { Pool } = require('pg');
 const cors = require('cors');
 const mysql = require('mysql2/promise');
 
@@ -12,7 +11,7 @@ const pool = mysql.createPool({
     host: '127.0.0.1', 
     port: 3306,  
     user: 'root', 
-    password: 'enzo123', 
+    password: 'enzo321', 
     database: 'clubfit',
   });
 

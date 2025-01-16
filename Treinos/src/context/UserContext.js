@@ -42,18 +42,23 @@ export const UserProvider = ({ children }) => {
 
   const atualizarFotoPerfil = async (fotoUri) => {
     if (usuarioLogado) {
-      const usuarioAtualizado = { ...usuarioLogado, foto: fotoUri };
+      const usuarioAtualizado = { ...usuarioLogado, fotoPerfil: fotoUri };
       setUsuarioLogado(usuarioAtualizado);
-  
+
       // Atualizar a lista de usuários
       const usuariosAtualizados = usuarios.map((usuario) =>
         usuario.email === usuarioLogado.email ? usuarioAtualizado : usuario
       );
       setUsuarios(usuariosAtualizados);
-      await AsyncStorage.setItem('usuarios', JSON.stringify(usuariosAtualizados));
+
+      // Salvar no AsyncStorage
+      try {
+        await AsyncStorage.setItem('usuarios', JSON.stringify(usuariosAtualizados));
+      } catch (error) {
+        console.error('Erro ao salvar foto no AsyncStorage:', error);
+      }
     }
   };
-  
 
   const addUsuario = async (usuario) => {
     try {
@@ -70,11 +75,11 @@ export const UserProvider = ({ children }) => {
       (usuario) => usuario.email === email && usuario.senha === senha
     );
     if (usuarioEncontrado) {
-      setUsuarioLogado(usuarioEncontrado); // Define o usuário logado
-      setIsAuthenticated(true); // Define o estado de autenticação como verdadeiro
+      setUsuarioLogado(usuarioEncontrado);
+      setIsAuthenticated(true);
       return true;
     } else {
-      return false; // Login inválido
+      return false;
     }
   };
 
@@ -89,7 +94,8 @@ export const UserProvider = ({ children }) => {
         setUsuarioLogado,
         loginUsuario,
         pontos,
-        addPonto
+        addPonto,
+        atualizarFotoPerfil,
       }}
     >
       {children}

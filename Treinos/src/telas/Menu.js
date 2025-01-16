@@ -30,11 +30,11 @@ export default function Menu({ navigation }) {
   const carregarFeed = async () => {
     try {
       const feed = JSON.parse(await AsyncStorage.getItem('feedGlobal')) || [];
-      setFeedGlobal(feed.reverse());
+      setFeedGlobal(feed);
     } catch (error) {
       console.error('Erro ao carregar o feed:', error);
     }
-  };  
+  };
 
   useFocusEffect(
     React.useCallback(() => {
@@ -42,15 +42,22 @@ export default function Menu({ navigation }) {
     }, [])
   );
 
+  // cosntante para adicionar curtidas em cada post
+  const handleLike = (index) => {
+    const updatedFeed = [...feedGlobal];
+    updatedFeed[index].liked = !updatedFeed[index].liked;
+    setFeedGlobal(updatedFeed);
+  };
+// constante para adicionar comentarios... os comentario estão apenas clicaveis, ainda nao adicionamos para utilizar corretamente
+const handleComment = (index) => {
+  const post = feedGlobal[index];
+  navigation.navigate('Comentarios', { post, index });
+};
+
+
   const renderTreino = ({ item, index }) => (
     <View style={styles.treinoContainer}>
-      <View style={styles.user}>
-        <Image 
-          source={require('../../assets/logo.png')} // Imagem local
-          style={styles.image}
-        />
-        <Text style={styles.usuario}>{item.usuario}</Text>
-      </View>
+      <Text style={styles.usuario}>{item.usuario}</Text>
       <Text>Tipo de Treino: {item.tipo}</Text>
       <Text>Início: {new Date(item.inicio).toLocaleString()}</Text>
       <Text>Fim: {new Date(item.fim).toLocaleString()}</Text>
@@ -60,61 +67,65 @@ export default function Menu({ navigation }) {
           style={{ width: 100, height: 100, marginTop: 10 }}
         />
       )}
-  
+
+       {/* Botões de Interação */}
+
+      {/* botão de like */}
       <View style={styles.interactionContainer}>
-        <TouchableOpacity style={styles.iconButton}>
-          <Icon name="heart-outline" size={24} color="gray" />
-          <Text>0</Text>
+        <TouchableOpacity onPress={() => handleLike(index)} style={styles.iconButton}>
+          <Icon
+            name={item.liked ? 'heart' : 'heart-outline'}
+            size={24}
+            color={item.liked ? 'red' : 'gray'}
+          />
+          <Text>{item.liked ? 1 : 0}</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.iconButton}>
-          <Icon name="chatbubble-outline" size={24} color="gray" />
-          <Text>0</Text>
-        </TouchableOpacity>
+        {/* botão de comentar */}
+          <TouchableOpacity onPress={() => handleComment(index)} style={styles.iconButton}>
+    <Icon name="chatbubble-outline" size={24} color="gray" />
+    <Text>{item.comments || 0}</Text>
+  </TouchableOpacity>
+
       </View>
     </View>
   );
 
   return (
-    
+    <ImageBackground
+      
+      style={styles.imageBackground}
+    >
       <View style={styles.container}>
         {/* Utiliza o componente BarraMenu */}
         <BarraMenu userProfile={userProfile} />
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() =>
-            navigation.navigate('ControlePonto', {
-              atualizarFeed: (novoFeed) => setFeedGlobal([novoFeed, ...feedGlobal]),
-            })
-          }          
-        >
-          <Text style={styles.buttonText}>Registrar Novo Treino</Text>
-        </TouchableOpacity>
 
         <Text style={styles.title}>Feed de Treinos</Text>
-
         <FlatList
           data={feedGlobal}
           keyExtractor={(item, index) => index.toString()}
           renderItem={renderTreino}
-          style={styles.cardTreino}
         />
 
-        
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() =>
+            navigation.navigate('ControlePonto', {
+              atualizarFeed: setFeedGlobal,
+            })
+          }
+        >
+          <Text style={styles.buttonText}>Registrar Novo Treino</Text>
+        </TouchableOpacity>
       </View>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  user: {
-    flexDirection: 'row', // Alinha os itens na horizontal
-    alignItems: 'center', // Centraliza verticalmente
-    marginBottom: 10, // Espaçamento inferior
-  },
-  image: {
-    width: 50, // Ajuste o tamanho da imagem
-    height: 50,
-    borderRadius: 25, // Deixa a imagem redonda
-    marginRight: 10, // Espaço entre a imagem e o texto
+  imageBackground: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   container: {
     flex: 1,
@@ -122,7 +133,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginVertical: 10,
+    marginVertical: 10, // Ajuste para dar espaço para a barra de menu
     textAlign: 'center',
     color: 'rgb(0,0,0)',
   },
@@ -131,17 +142,15 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 7,
     marginBottom: 20,
-    width: '100%', // Faz com que ocupe toda a largura da tela
-    alignSelf: 'center', // Centraliza o container se houver margens externas
   },
   usuario: {
     fontWeight: 'bold',
-    fontSize: 16,
+    marginBottom: 5,
     color: 'rgb(0,0,0)',
   },
   interactionContainer: {
     flexDirection: 'row',
-    gap: 16,
+    justifyContent: 'space-between',
     marginTop: 10,
   },
   iconButton: {
@@ -154,15 +163,10 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     alignItems: 'center',
     marginTop: 20,
-    marginHorizontal: 16,
   },
   buttonText: {
     color: '#fff',
     fontWeight: 'bold',
     fontSize: 16,
   },
-  cardTreino: {
-    marginHorizontal: 16,
-  },
-  
 });
