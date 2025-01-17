@@ -20,7 +20,7 @@ export default function Cadastro({ navigation }) {
     }
   
     try {
-      const response = await fetch('http://192.168.1.6:3000/register', {
+      const response = await fetch('http://192.168.100.113:3000/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
