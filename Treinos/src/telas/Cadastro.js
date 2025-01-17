@@ -15,7 +15,7 @@ export default function Cadastro({ navigation }) {
 
   const handleCadastro = async () => {
     if (!nome || !email || !senha) {
-      alert('Por favor, preencha todos os campos obrigatórios!');
+      alert('Preencha todos os campos obrigatórios!');
       return;
     }
   
@@ -29,18 +29,17 @@ export default function Cadastro({ navigation }) {
       });
   
       if (response.ok) {
-        const data = await response.json();
         alert('Usuário cadastrado com sucesso!');
         navigation.navigate('Login');
       } else {
-        alert('Erro ao cadastrar usuário.');
+        const error = await response.json();
+        alert(error.error || 'Erro ao cadastrar usuário.');
       }
     } catch (error) {
-      console.error(error);
-      alert('Erro de conexão.');
+      console.error('Erro de conexão:', error);
+      alert('Erro ao conectar ao servidor.');
     }
-  };  
-  
+  };   
 
   return (
     <ImageBackground

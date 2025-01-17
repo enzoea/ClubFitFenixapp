@@ -11,7 +11,7 @@ export default function Login({ setIsAuthenticated, navigation }) {
 
   const handleLogin = async () => {
     if (!email || !password) {
-      alert('Por favor, preencha todos os campos.');
+      alert('Preencha todos os campos!');
       return;
     }
   
@@ -26,16 +26,16 @@ export default function Login({ setIsAuthenticated, navigation }) {
   
       if (response.ok) {
         const data = await response.json();
-        await AsyncStorage.setItem('usuarioLogado', data.nome); // Salva o usuário autenticado
-        setIsAuthenticated(true);
+        await AsyncStorage.setItem('usuarioLogado', data.nome);
         alert('Login realizado com sucesso!');
         navigation.navigate('Menu');
       } else {
-        alert('Credenciais inválidas.');
+        const error = await response.json();
+        alert(error.error || 'Erro ao autenticar usuário.');
       }
     } catch (error) {
-      console.error(error);
-      alert('Erro de conexão.');
+      console.error('Erro de conexão:', error);
+      alert('Erro ao conectar ao servidor.');
     }
   };  
 

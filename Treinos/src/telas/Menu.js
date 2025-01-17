@@ -101,11 +101,11 @@ const handleComment = (index) => {
 
         <Text style={styles.title}>Feed de Treinos</Text>
         <FlatList
+          
           data={feedGlobal}
           keyExtractor={(item, index) => index.toString()}
           renderItem={renderTreino}
         />
-
         <TouchableOpacity
           style={styles.button}
           onPress={() =>
