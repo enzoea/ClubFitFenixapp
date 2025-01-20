@@ -3,7 +3,8 @@ import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image, ImageBackgro
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Ionicons';
-import BarraMenu from './componentes/BarraMenu'; // Importa o componente BarraMenu
+import BarraMenu from './componentes/BarraMenu';
+import { useUser } from '../context/UserContext'; // Importa o componente BarraMenu
 
 export default function Menu({ navigation }) {
   const [feedGlobal, setFeedGlobal] = useState([]);
@@ -11,6 +12,14 @@ export default function Menu({ navigation }) {
     profilePicture: '',
     name: 'Usuário',
   });
+  const {usuarioLogado} = useUser(); // Esta acessando as informações do usuario logado
+
+  const imagens =  {
+    perfil: usuarioLogado?.perfil
+  }
+
+  
+
 
   useEffect(() => {
     const carregarPerfil = async () => {
@@ -30,11 +39,17 @@ export default function Menu({ navigation }) {
   const carregarFeed = async () => {
     try {
       const feed = JSON.parse(await AsyncStorage.getItem('feedGlobal')) || [];
-      setFeedGlobal(feed);
+      const feedAtualizado = feed.map(item => ({
+        ...item,
+        usuarioFoto: item.usuarioFoto || '../../assets/exercicios/perfil.png', // Valor padrão
+      }));
+      console.log('Feed atualizado:', feedAtualizado);
+      setFeedGlobal(feedAtualizado);
     } catch (error) {
       console.error('Erro ao carregar o feed:', error);
     }
   };
+  
 
   useFocusEffect(
     React.useCallback(() => {
@@ -55,33 +70,31 @@ export default function Menu({ navigation }) {
     navigation.navigate('Comentarios', { post, index });
   };
 
-  const renderTreino = ({ item, index }) => (
+  const renderTreino = ({ item, index }) => {
+  console.log('Caminho da foto do usuário:', item.usuarioFoto); // Exibe o caminho da foto
+
+  return (
     <View style={styles.treinoContainer}>
       <View style={styles.usuarioContainer}>
-        {/* Foto de perfil ao lado do nome */}
         {item.usuarioFoto ? (
           <Image
-            source={require(`../../assets/logo.png`)}  // Caminho da imagem local
+            source={
+              item.usuarioFoto.startsWith('http')
+                ? { uri: item.usuarioFoto } // Imagem remota
+                : require('../../assets/exercicios/perfil.png') // Imagem local
+            }
             style={styles.usuarioFoto}
           />
         ) : (
-          <Text style={styles.usuario}>Sem foto</Text>  // Caso não haja imagem
+          <Text style={styles.usuario}>Sem foto</Text>
         )}
-        <Text style={styles.usuario}>{item.usuario}</Text>
+        <Text style={styles.usuario}>{item.usuario || 'Anônimo'}</Text>
       </View>
       <Text>Tipo de Treino: {item.tipo}</Text>
       <Text>Início: {new Date(item.inicio).toLocaleString()}</Text>
       <Text>Fim: {new Date(item.fim).toLocaleString()}</Text>
-      {item.imagem && (
-        <Image
-          source={require(`./assets/images/${item.imagem}`)} // Se houver imagem do treino
-          style={{ width: 100, height: 100, marginTop: 10 }}
-        />
-      )}
-  
-      {/* Botões de Interação */}
+
       <View style={styles.interactionContainer}>
-        {/* botão de like */}
         <TouchableOpacity onPress={() => handleLike(index)} style={styles.iconButton}>
           <Icon
             name={item.liked ? 'heart' : 'heart-outline'}
@@ -90,7 +103,6 @@ export default function Menu({ navigation }) {
           />
           <Text>{item.liked ? 1 : 0}</Text>
         </TouchableOpacity>
-        {/* botão de comentar */}
         <TouchableOpacity onPress={() => handleComment(index)} style={styles.iconButton}>
           <Icon name="chatbubble-outline" size={24} color="gray" />
           <Text>{item.comments || 0}</Text>
@@ -98,6 +110,9 @@ export default function Menu({ navigation }) {
       </View>
     </View>
   );
+};
+
+  
   
 
   return (
