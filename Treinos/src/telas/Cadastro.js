@@ -14,7 +14,7 @@ export default function Cadastro({ navigation }) {
   
 
   const handleCadastro = async () => {
-    if (!nome || !email || !senha) {
+    if (!nome || !email || !senha || !objetivo || !telefone || !dataNascimento) {
       alert('Preencha todos os campos obrigatórios!');
       return;
     }
@@ -25,7 +25,7 @@ export default function Cadastro({ navigation }) {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ nome, email, senha }),
+        body: JSON.stringify({ nome, email, senha, objetivo, telefone, dataNascimento }),
       });
   
       if (response.ok) {

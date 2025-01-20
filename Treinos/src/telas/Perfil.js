@@ -1,79 +1,60 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
-import { launchImageLibrary } from 'react-native-image-picker';
 import { useUser } from '../context/UserContext';
 
-
 export default function Perfil() {
-  const { usuarioLogado, atualizarFotoPerfil } = useUser(); // Obtém o contexto do usuário
-  const [fotoPerfil, setFotoPerfil] = useState(usuarioLogado?.foto || null); // Inicializa com a foto do usuário
+  const { usuarioLogado } = useUser(); // Obtém o ID do usuário logado
+  const [dadosUsuario, setDadosUsuario] = useState(null);
 
   useEffect(() => {
-    // Atualiza a foto de perfil local quando o contexto muda
-    if (usuarioLogado?.foto) {
-      setFotoPerfil(usuarioLogado.foto);
+    // Faz a requisição para buscar os dados do usuário
+    const fetchUsuario = async () => {
+      try {
+        const response = await fetch(`http://192.168.100.113:3000/user/${usuarioLogado?.id}`);
+        if (response.ok) {
+          const data = await response.json();
+          setDadosUsuario(data);
+        } else {
+          console.error('Erro ao buscar dados do usuário.');
+        }
+      } catch (error) {
+        console.error('Erro de conexão:', error);
+      }
+    };
+
+    if (usuarioLogado?.id) {
+      fetchUsuario();
     }
   }, [usuarioLogado]);
-
-  const selecionarImagem = async () => {
-    
-    try {
-      launchImageLibrary(
-        { mediaType: 'photo', quality: 1 },
-        async (response) => {
-          if (response.didCancel) {
-            console.log('Usuário cancelou a seleção de imagem.');
-          } else if (response.errorMessage) {
-            console.error('Erro ao selecionar imagem:', response.errorMessage);
-          } else if (response.assets && response.assets.length > 0) {
-            const { uri } = response.assets[0];
-            await atualizarFotoPerfil(uri);
-            setFotoPerfil(uri); // Atualiza o estado local imediatamente
-          }
-        }
-      );
-    } catch (error) {
-      console.error('Erro ao selecionar imagem:', error);
-    }
-  };
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Perfil</Text>
-
-      {/* Exibe a foto de perfil ou um placeholder */}
-      <TouchableOpacity onPress={selecionarImagem}>
-        <Image
-          source={
-            fotoPerfil
-              ? { uri: fotoPerfil }
-              : require('../../assets/logo.png') // Placeholder
-          }
-          style={styles.fotoPerfil}
-        />
-      </TouchableOpacity>
-      <Text style={styles.subTitle}>Toque na imagem para alterar</Text>
-
-      {/* Exibição dos dados do usuário */}
-      <View style={styles.infoContainer}>
-        <Text style={styles.label}>Nome:</Text>
-        <Text style={styles.info}>{usuarioLogado?.nome || 'Não informado'}</Text>
-
-        <Text style={styles.label}>Telefone:</Text>
-        <Text style={styles.info}>{usuarioLogado?.telefone || 'Não informado'}</Text>
-
-        <Text style={styles.label}>Email:</Text>
-        <Text style={styles.info}>{usuarioLogado?.email || 'Não informado'}</Text>
-
-        <Text style={styles.label}>Data de Nascimento:</Text>
-        <Text style={styles.info}>{usuarioLogado?.dataNascimento || 'Não informado'}</Text>
-
-        <Text style={styles.label}>Objetivo:</Text>
-        <Text style={styles.info}>{usuarioLogado?.objetivo || 'Não informado'}</Text>
-      </View>
+      <Image
+        source={require('../../assets/logo.png')} // Placeholder para foto
+        style={styles.fotoPerfil}
+      />
+      {dadosUsuario ? (
+        <View style={styles.infoContainer}>
+          <Text style={styles.label}>Nome:</Text>
+          <Text style={styles.info}>{dadosUsuario.nome}</Text>
+          <Text style={styles.label}>Telefone:</Text>
+          <Text style={styles.info}>{dadosUsuario.telefone || 'Não informado'}</Text>
+          <Text style={styles.label}>Email:</Text>
+          <Text style={styles.info}>{dadosUsuario.email}</Text>
+          <Text style={styles.label}>Data de Nascimento:</Text>
+          <Text style={styles.info}>{dadosUsuario.dataNascimento || 'Não informado'}</Text>
+          <Text style={styles.label}>Objetivo:</Text>
+          <Text style={styles.info}>{dadosUsuario.objetivo || 'Não informado'}</Text>
+        </View>
+      ) : (
+        <Text style={styles.loading}>Carregando dados...</Text>
+      )}
     </View>
   );
 }
+
+
 
 const styles = StyleSheet.create({
   container: {

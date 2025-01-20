@@ -41,7 +41,7 @@ export default function Menu({ navigation }) {
       const feed = JSON.parse(await AsyncStorage.getItem('feedGlobal')) || [];
       const feedAtualizado = feed.map(item => ({
         ...item,
-        usuarioFoto: item.usuarioFoto || '../../assets/exercicios/perfil.png', // Valor padrão
+        usuarioFoto: item.usuarioFoto || '../../assets/exerc icios/perfil.png', // Valor padrão
       }));
       console.log('Feed atualizado:', feedAtualizado);
       setFeedGlobal(feedAtualizado);
