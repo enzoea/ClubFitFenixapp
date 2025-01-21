@@ -1,10 +1,23 @@
 CREATE DATABASE if not exists clubfit;
 use clubfit;
-CREATE TABLE if not exists usuarios (
+CREATE TABLE IF NOT EXISTS usuarios (
   id INT AUTO_INCREMENT PRIMARY KEY,
   nome VARCHAR(100) NOT NULL,
   email VARCHAR(100) UNIQUE NOT NULL,
-  senha VARCHAR(100) NOT NULL
+  senha VARCHAR(100) NOT NULL,
+  objetivo VARCHAR(255) NOT NULL,
+  telefone VARCHAR(15) NOT NULL,
+  dataNascimento DATE NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS treinos (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  usuario_id INT NOT NULL,
+  tipo VARCHAR(100) NOT NULL,
+  inicio DATETIME NOT NULL,
+  fim DATETIME NOT NULL,
+  FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
+);
+
 
 SELECT * FROM usuarios;
