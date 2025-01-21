@@ -95,40 +95,38 @@ export default function ControlePonto({ navigation, route }) {
 
 
   const handleFinalizarTreino = async () => {
-    const now = new Date();
-    setFimTreino(now);
-
-    try {
-      const treino = JSON.parse(await AsyncStorage.getItem('treinoAtual'));
-      treino.fim = now.toISOString();
-      //treino.imagem = imagem?.uri;  Adiciona a imagem ao treino
-
-      const usuarioAtual = await AsyncStorage.getItem('usuarioLogado');
-      treino.usuario = usuarioAtual;
-
-      let treinosRealizados = JSON.parse(await AsyncStorage.getItem('treinosSemana')) || [];
-      treinosRealizados.push(treino);
-      await AsyncStorage.setItem('treinosSemana', JSON.stringify(treinosRealizados));
-
-      let feedGlobal = JSON.parse(await AsyncStorage.getItem('feedGlobal')) || [];
-      feedGlobal.push(treino);
-      await AsyncStorage.setItem('feedGlobal', JSON.stringify(feedGlobal));
-
-      setTreinosSemana(treinosRealizados.length);
-      setTreinoFinalizado(true);
-      setMensagem('Treino finalizado! Ele está visível para outros usuários.');
-
-      await AsyncStorage.removeItem('treinoAtual'); // Remove o treino atual ao finalizar
-
-      if (atualizarFeed) {
-        atualizarFeed(feedGlobal); // Atualiza o feed no Menu
-      }
-
-      navigation.goBack(); // Retorna ao menu após finalizar o treino
-    } catch (error) {
-      console.error('Erro ao finalizar o treino:', error);
+    if (!inicioTreino || !fimTreino || !treinoTipo) {
+      alert('Preencha todos os campos do treino.');
+      return;
     }
-  };
+  
+    try {
+      const usuarioId = await AsyncStorage.getItem('usuarioId'); // Pegue o ID do usuário logado
+      const response = await fetch(`http://${serverIP}:3000/register-training`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          usuarioId,
+          tipo: treinoTipo,
+          inicio: inicioTreino,
+          fim: fimTreino,
+        }),
+      });
+  
+      if (response.ok) {
+        alert('Treino registrado com sucesso!');
+        navigation.goBack();
+      } else {
+        const error = await response.json();
+        alert(error.error || 'Erro ao registrar treino.');
+      }
+    } catch (error) {
+      console.error('Erro de conexão:', error);
+      alert('Erro ao conectar ao servidor.');
+    }
+  };  
 
   return (
     <ImageBackground

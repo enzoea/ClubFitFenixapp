@@ -11,7 +11,22 @@ export default function Cadastro({ navigation }) {
   const [dataNascimento, setDataNascimento] = useState('');
   const [objetivo, setObjetivo] = useState('');
   const [senha, setSenha] = useState('');
-  
+  const [serverIP, setServerIP] = useState(null);
+
+  useEffect(() => {
+    const fetchServerIP = async () => {
+      try {
+        const response = await fetch('http://127.0.0.1:3000/api/ip');
+        const data = await response.json();
+        setServerIP(data.ip);
+      } catch (error) {
+        console.error('Erro ao buscar o IP do servidor:', error);
+      }
+    };
+
+    fetchServerIP();
+  }, []);
+
 
   const handleCadastro = async () => {
     if (!nome || !email || !senha || !objetivo || !telefone || !dataNascimento) {
@@ -20,7 +35,7 @@ export default function Cadastro({ navigation }) {
     }
   
     try {
-      const response = await fetch('http://192.168.100.113:3000/register', {
+      const response = await fetch(`http://${serverIP}:3000/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -39,7 +54,7 @@ export default function Cadastro({ navigation }) {
       console.error('Erro de conexão:', error);
       alert('Erro ao conectar ao servidor.');
     }
-  };   
+  };  
 
   return (
     <ImageBackground

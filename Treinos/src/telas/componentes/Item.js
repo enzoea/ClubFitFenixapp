@@ -11,8 +11,6 @@ export default function Item({ item: { nome, imagem, descricao } }) {
           <Texto style={estilos.descricao}>{descricao}</Texto>
         </View>
       </View>
-      
-  
 }
 
 const estilos = StyleSheet.create({
