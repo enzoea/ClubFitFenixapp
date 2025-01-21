@@ -16,7 +16,7 @@ export default function Cadastro({ navigation }) {
   useEffect(() => {
     const fetchServerIP = async () => {
       try {
-        const response = await fetch('http://127.0.0.1:3000/api/ip');
+        const response = await fetch('http://192.168.100.113:3000/api/ip');
         const data = await response.json();
         setServerIP(data.ip);
       } catch (error) {

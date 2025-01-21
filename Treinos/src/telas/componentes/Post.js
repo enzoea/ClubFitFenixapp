@@ -11,7 +11,7 @@ const Post = ({ treino, onLike, onComment }) => {
             source={
               treino.usuarioFoto.startsWith('http')
                 ? { uri: treino.usuarioFoto }
-                : require('../../assets/exercicios/perfil.png') // Imagem local
+                : require('../../../assets/exercicios/perfil.png') // Imagem local
             }
             style={styles.usuarioFoto}
           />
