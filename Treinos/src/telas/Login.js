@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet, ImageBackground } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import logo from '../../assets/logo.png';
-import { useUser} from '../context/UserContext';
-
+import { useUser } from '../context/UserContext';
 
 export default function Login({ setIsAuthenticated, navigation }) {
   const { usuarios } = useUser(); // Obtém a lista de usuários do contexto
@@ -14,7 +13,7 @@ export default function Login({ setIsAuthenticated, navigation }) {
   useEffect(() => {
     const fetchServerIP = async () => {
       try {
-        const response = await fetch('http://192.168.100.113:3000/api/ip');
+        const response = await fetch('http://127.0.0.1:3000/api/ip');
         const data = await response.json();
         setServerIP(data.ip);
       } catch (error) {
