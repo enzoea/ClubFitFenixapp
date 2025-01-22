@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect  } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ImageBackground, Image } from 'react-native';
 import logo from '../../assets/logo.png';
 import { useUser } from '../context/UserContext';
@@ -16,7 +16,7 @@ export default function Cadastro({ navigation }) {
   useEffect(() => {
     const fetchServerIP = async () => {
       try {
-        const response = await fetch('http://127.0.0.1:3000/api/ip');
+        const response = await fetch('http://192.168.1.6:3000/api/ip');
         const data = await response.json();
         setServerIP(data.ip);
       } catch (error) {
@@ -148,16 +148,18 @@ const styles = StyleSheet.create({
     text:{
         fontSize: 16,
         color: '#febc02',
+        marginBottom: 10,
     },
 
     input: {
         borderWidth: 1,
-        borderColor: '#ccc',
+        borderColor: '#febc02',
         padding: 10,
         borderRadius: 5,
         marginBottom: 15,
         width: 300,
         color: '#ffffff',
+        textAlign: 'center',
       },
     button: {
         backgroundColor: '#febc02',

@@ -2,121 +2,75 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Alert, ImageBackground } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-/*import { launchCamera, launchImageLibrary } from 'react-native-image-picker';*/
+import backgroundImage from '../../assets/background-club.png';
 
 export default function ControlePonto({ navigation, route }) {
   const [treinoTipo, setTreinoTipo] = useState('');
   const [inicioTreino, setInicioTreino] = useState(null);
   const [fimTreino, setFimTreino] = useState(null);
-  /*const [imagem, setImagem] = useState(null); // Estado para armazenar a imagem*/
-  const [treinosSemana, setTreinosSemana] = useState(0);
   const [treinoFinalizado, setTreinoFinalizado] = useState(false);
   const [mensagem, setMensagem] = useState('');
-  const [treinoAnterior, setTreinoAnterior] = useState(null);
   const { atualizarFeed } = route.params || {}; // Recebe o callback para atualizar o feed
-
-  useEffect(() => {
-    const carregarTreinos = async () => {
-      try {
-        const treinoAtual = JSON.parse(await AsyncStorage.getItem('treinoAtual'));
-        const treinosRealizados = await AsyncStorage.getItem('treinosSemana');
-        const treinoAnterior = await AsyncStorage.getItem('treinoAnterior');
-
-        if (treinoAtual && !treinoAtual.fim) {
-          setInicioTreino(new Date(treinoAtual.inicio));
-          setTreinoTipo(treinoAtual.tipo);
-        }
-
-        if (treinosRealizados) {
-          setTreinosSemana(JSON.parse(treinosRealizados).length);
-        }
-
-        if (treinoAnterior) {
-          setTreinoAnterior(JSON.parse(treinoAnterior));
-        }
-      } catch (error) {
-        console.error('Erro ao carregar os dados:', error);
-      }
-    };
-
-    carregarTreinos();
-  }, []);
 
   const handleIniciarTreino = async () => {
     if (!treinoTipo) {
       Alert.alert('Erro', 'Por favor, selecione a modalidade do treino antes de iniciar.');
       return;
     }
-
+  
     const now = new Date();
-    setInicioTreino(now);
+    setInicioTreino(now); // Atualiza o estado local
     setFimTreino(null);
     setTreinoFinalizado(false);
     setMensagem('');
-
+  
     const treino = {
       tipo: treinoTipo,
       inicio: now.toISOString(),
     };
-
+  
     try {
       await AsyncStorage.setItem('treinoAtual', JSON.stringify(treino));
+      console.log('Treino iniciado e salvo:', treino); // Log para depuração
     } catch (error) {
       console.error('Erro ao armazenar o treino atual:', error);
     }
-  };
-
-  // função da imagem
-  /*const handleSelecionarImagem = () => {
-    launchImageLibrary(
-      {
-        mediaType: 'photo',
-        maxWidth: 300,
-        maxHeight: 300,
-        quality: 0.8,
-      },
-      (response) => {
-        if (response.didCancel) {
-          console.log('Usuário cancelou a seleção de imagem');
-        } else if (response.errorCode) {
-          console.error(`Erro (${response.errorCode}): ${response.errorMessage}`);
-          Alert.alert('Erro', 'Não foi possível acessar a galeria. Verifique as permissões.');
-        } else if (response.assets && response.assets.length > 0) {
-          const source = { uri: response.assets[0].uri };
-          setImagem(source); // Salva a URI da imagem no estado
-          console.log('Imagem selecionada:', source);
-        } else {
-          console.error('Nenhuma imagem retornada');
-        }
-      }
-    );
-  };*/
-  
-
+  };  
 
   const handleFinalizarTreino = async () => {
-    if (!inicioTreino || !fimTreino || !treinoTipo) {
+    if (!inicioTreino || !treinoTipo) {
       alert('Preencha todos os campos do treino.');
       return;
     }
   
     try {
-      const usuarioId = await AsyncStorage.getItem('usuarioId'); // Pegue o ID do usuário logado
-      const response = await fetch(`http://${serverIP}:3000/register-training`, {
+      const usuarioId = await AsyncStorage.getItem('usuarioId');
+      console.log('ID do Usuário Recuperado:', usuarioId); // Log para depuração
+  
+      if (!usuarioId) {
+        alert('Erro: ID do usuário não encontrado.');
+        return;
+      }
+  
+      const treino = {
+        usuarioId: parseInt(usuarioId, 10), // Garante que o ID seja um número
+        tipo: treinoTipo,
+        inicio: inicioTreino.toISOString(), // Converte para string ISO
+        fim: new Date().toISOString(), // Converte para string ISO
+      };
+  
+      console.log('Dados Enviados:', treino);
+  
+      const response = await fetch('http://192.168.1.6:3000/register-training', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          usuarioId,
-          tipo: treinoTipo,
-          inicio: inicioTreino,
-          fim: fimTreino,
-        }),
+        body: JSON.stringify(treino), // Envia os dados como JSON
       });
   
       if (response.ok) {
-        alert('Treino registrado com sucesso!');
+        //alert('Treino registrado com sucesso!');
         navigation.goBack();
       } else {
         const error = await response.json();
@@ -126,46 +80,29 @@ export default function ControlePonto({ navigation, route }) {
       console.error('Erro de conexão:', error);
       alert('Erro ao conectar ao servidor.');
     }
-  };  
-
+  };
+  
+  
   return (
-    <ImageBackground
-      
-      style={styles.imageBackground}
-    >
+    <ImageBackground source={backgroundImage} style={styles.imageBackground}>
       <View style={styles.container}>
         <Text style={styles.title}>Registro de treino</Text>
-        <Text style={styles.title2}>Por favor, selecione a categoria do treino de hoje</Text>
-        {/*<TouchableOpacity style={styles.button} onPress={handleSelecionarImagem}>
-        <Text style={styles.buttonText}>
-          {imagem ? 'Alterar Imagem' : 'Adicionar Imagem'}
-        </Text>
-      </TouchableOpacity>*/}
-
-      {/*{imagem && (
-        <Image source={imagem} style={{ width: 100, height: 100, marginBottom: 20 }} />
-      )}*/}
         <Picker
           selectedValue={treinoTipo}
           style={styles.picker}
-          itemStyle={{ color: '#000' }}
           onValueChange={(itemValue) => setTreinoTipo(itemValue)}
           enabled={!inicioTreino} // Desativa o Picker se o treino já foi iniciado
         >
-          <Picker.Item style={styles.label} label="Selecione o tipo de treino" value="" />
+          <Picker.Item label="Selecione o tipo de treino" value="" />
           <Picker.Item label="Academia" value="academia" />
           <Picker.Item label="Futebol" value="futebol" />
           <Picker.Item label="Natação" value="natacao" />
           <Picker.Item label="Corrida/Caminhada" value="corrida" />
           <Picker.Item label="Esporte Radical" value="esporteRadical" />
         </Picker>
-        
 
         <Text style={styles.texto}>
           {inicioTreino ? `Início: ${inicioTreino.toLocaleString()}` : 'Nenhum treino iniciado'}
-        </Text>
-        <Text style={styles.texto}>
-          {fimTreino ? `Fim: ${fimTreino.toLocaleString()}` : 'Treino não finalizado'}
         </Text>
 
         <TouchableOpacity
@@ -177,10 +114,6 @@ export default function ControlePonto({ navigation, route }) {
             {inicioTreino ? 'Finalizar Treino' : 'Iniciar Treino'}
           </Text>
         </TouchableOpacity>
-
-        <Text style={styles.texto}>
-          {`Treinos realizados nesta semana: ${treinosSemana}`}
-        </Text>
       </View>
     </ImageBackground>
   );
@@ -191,7 +124,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    zIndex: 0,
   },
   container: {
     flex: 1,
@@ -204,26 +136,18 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 20,
     textAlign: 'center',
-    color: '#rgb(0,0,0)',
-  },
-  title2: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 20,
-    textAlign: 'center',
-    color: '#rgb(0,0,0)',
+    color: '#febc02',
   },
   picker: {
     width: 300,
     marginBottom: 20,
     borderRadius: 5,
-    color: '#000', // Altere para preto caso necessário
-    elevation: 3,
+    color: '#fff',
   },
   texto: {
     fontSize: 16,
     marginBottom: 10,
-    color: '#rgb(0,0,0)',
+    color: '#fff',
   },
   button: {
     backgroundColor: '#febc02',
@@ -234,7 +158,7 @@ const styles = StyleSheet.create({
     width: 300,
   },
   buttonText: {
-    color: '#rgb(0,0,0)',
+    color: '#fff',
     fontWeight: 'bold',
     fontSize: 16,
   },

@@ -66,23 +66,23 @@ app.post('/register', async (req, res) => {
 app.post('/register-training', async (req, res) => {
   const { usuarioId, tipo, inicio, fim } = req.body;
 
+  console.log('Dados Recebidos no Backend:', req.body); // Log para depuração
+
   if (!usuarioId || !tipo || !inicio || !fim) {
     return res.status(400).json({ error: 'Todos os campos são obrigatórios.' });
   }
 
   try {
-    const [existingTraining] = await pool.query(
-      'SELECT * FROM treinos WHERE usuario_id = ? AND DATE(inicio) = CURDATE()',
-      [usuarioId]
-    );
-
-    if (existingTraining.length > 0) {
-      return res.status(409).json({ error: 'Você já registrou um treino hoje.' });
+    // Verificar se o usuário existe
+    const [user] = await pool.query('SELECT * FROM usuarios WHERE id = ?', [usuarioId]);
+    if (user.length === 0) {
+      return res.status(404).json({ error: 'Usuário não encontrado.' });
     }
 
+    // Inserir o novo treino
     await pool.query(
       'INSERT INTO treinos (usuario_id, tipo, inicio, fim) VALUES (?, ?, ?, ?)',
-      [usuarioId, tipo, inicio, fim]
+      [usuarioId, tipo, new Date(inicio), new Date(fim)]
     );
 
     res.status(201).json({ message: 'Treino registrado com sucesso.' });
@@ -141,10 +141,11 @@ app.get('/user/:id', async (req, res) => {
 });
 
 // Buscar todos os treinos do banco de dados
+// Buscar todos os treinos do banco de dados
 app.get('/trainings', async (req, res) => {
   try {
     const [trainings] = await pool.query(`
-      SELECT t.*, u.nome AS usuario, u.fotoPerfil AS usuarioFoto
+      SELECT t.*, u.nome AS usuario
       FROM treinos t
       JOIN usuarios u ON t.usuario_id = u.id
       ORDER BY t.inicio DESC
@@ -157,7 +158,8 @@ app.get('/trainings', async (req, res) => {
 });
 
 
+
 // Inicia o servidor
-app.listen(port, () => {
-  console.log(`Servidor rodando em http://localhost:${port}`);
+app.listen(port, '0.0.0.0', () => {
+  console.log(`Servidor rodando em http://192.168.1.6:${port}`);
 });

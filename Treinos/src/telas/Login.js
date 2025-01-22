@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet, ImageBackground } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import logo from '../../assets/logo.png';
@@ -8,57 +8,36 @@ export default function Login({ setIsAuthenticated, navigation }) {
   const { usuarios } = useUser(); // Obtém a lista de usuários do contexto
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [serverIP, setServerIP] = useState(null);
-
-  useEffect(() => {
-    const fetchServerIP = async () => {
-      try {
-        const response = await fetch('http://127.0.0.1:3000/api/ip');
-        const data = await response.json();
-        setServerIP(data.ip);
-      } catch (error) {
-        console.error('Erro ao buscar o IP do servidor:', error);
-      }
-    };
-
-    fetchServerIP();
-  }, []);
-
 
   const handleLogin = async () => {
-    if (!serverIP) {
-      alert('Erro ao conectar ao servidor. IP não encontrado.');
-      return;
-    }
-  
     if (!email || !password) {
       alert('Preencha todos os campos!');
       return;
     }
-  
+
     try {
-      const response = await fetch(`http://${serverIP}:3000/login`, {
+      const response = await fetch('http://192.168.1.6:3000/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ email, senha: password }),
       });
-  
+
       if (response.ok) {
         const data = await response.json();
-        await AsyncStorage.setItem('usuarioLogado', data.nome); // Salva o nome do usuário logado localmente
-        alert('Login realizado com sucesso!');
+        await AsyncStorage.setItem('usuarioId', data.id.toString()); // Armazene o ID do usuário como string
         navigation.navigate('Menu'); // Navega para o Menu após login bem-sucedido
       } else {
         const error = await response.json();
         alert(error.error || 'Erro ao autenticar usuário.');
       }
+      
     } catch (error) {
       console.error('Erro de conexão:', error);
       alert('Erro ao conectar ao servidor.');
     }
-  };  
+  };
 
   return (
     <ImageBackground
