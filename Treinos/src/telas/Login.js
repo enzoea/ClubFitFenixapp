@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet, ImageBackground,  KeyboardAvoidingView, ScrollView, Platform } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet, ImageBackground,  KeyboardAvoidingView, Alert, ScrollView, Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import logo from '../../assets/logo.png';
 import { useUser } from '../context/UserContext';
@@ -16,7 +16,7 @@ export default function Login({ navigation }) {
     }
 
     try {
-      const response = await fetch('http://192.168.1.4:3000/login', {
+      const response = await fetch('http://192.168.100.113:3000/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, senha }),

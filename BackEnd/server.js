@@ -12,7 +12,7 @@ const pool = mysql.createPool({
     host: '127.0.0.1', 
     port: 3306,  
     user: 'root', 
-    password: 'enzo123', 
+    password: 'aluno', 
     database: 'clubfit',
   });
 
@@ -64,7 +64,7 @@ app.post('/register', async (req, res) => {
 
 //Rota de registro de treinos
 app.post('/register-training', async (req, res) => {
-  const { usuarioId, tipo, inicio, fim } = req.body;
+  const { usuarioId, tipo, inicio, fim, legenda } = req.body;
 
   console.log('Dados Recebidos no Backend:', req.body); // Log para depuração
 
@@ -81,8 +81,8 @@ app.post('/register-training', async (req, res) => {
 
     // Inserir o novo treino
     await pool.query(
-      'INSERT INTO treinos (usuario_id, tipo, inicio, fim) VALUES (?, ?, ?, ?)',
-      [usuarioId, tipo, new Date(inicio), new Date(fim)]
+      'INSERT INTO treinos (usuario_id, tipo, inicio, fim, legenda) VALUES (?, ?, ?, ?, ?)',
+      [usuarioId, tipo, new Date(inicio), new Date(fim), legenda]
     );
 
     res.status(201).json({ message: 'Treino registrado com sucesso.' });
@@ -190,5 +190,5 @@ app.get('/trainings', async (req, res) => {
 
 // Inicia o servidor
 app.listen(port, '0.0.0.0', () => {
-  console.log(`Servidor rodando em http://192.168.1.4:${port}`);
+  console.log(`Servidor rodando em http://192.168.100.113:${port}`);
 })

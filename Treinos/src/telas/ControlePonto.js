@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Alert, ImageBackground } from 'react-native';
+import { View, Text, TouchableOpacity, TextInput, StyleSheet, Alert, ImageBackground, Image } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import backgroundImage from '../../assets/background-club.png';
+import BarraMenu from './componentes/BarraMenu';
 
 export default function ControlePonto({ navigation, route }) {
   const [treinoTipo, setTreinoTipo] = useState('');
@@ -10,6 +11,7 @@ export default function ControlePonto({ navigation, route }) {
   const [fimTreino, setFimTreino] = useState(null);
   const [treinoFinalizado, setTreinoFinalizado] = useState(false);
   const [mensagem, setMensagem] = useState('');
+  const [legenda, setLegenda] = useState(''); // Novo estado para a legenda
   const { atualizarFeed } = route.params || {}; // Recebe o callback para atualizar o feed
 
   const handleIniciarTreino = async () => {
@@ -17,81 +19,77 @@ export default function ControlePonto({ navigation, route }) {
       Alert.alert('Erro', 'Por favor, selecione a modalidade do treino antes de iniciar.');
       return;
     }
-  
+
     const now = new Date();
     setInicioTreino(now); // Atualiza o estado local
     setFimTreino(null);
     setTreinoFinalizado(false);
     setMensagem('');
-  
+
     const treino = {
       tipo: treinoTipo,
       inicio: now.toISOString(),
+      legenda: legenda // Inclui a legenda no objeto de treino
     };
-  
+
     try {
       await AsyncStorage.setItem('treinoAtual', JSON.stringify(treino));
-      console.log('Treino iniciado e salvo:', treino); // Log para depuração
+      console.log('Treino iniciado e salvo:', treino);
     } catch (error) {
       console.error('Erro ao armazenar o treino atual:', error);
     }
-  };  
+  };
 
   const handleFinalizarTreino = async () => {
     if (!inicioTreino || !treinoTipo) {
       alert('Preencha todos os campos do treino.');
       return;
     }
-  
+
     try {
       const usuarioId = await AsyncStorage.getItem('usuarioId');
-      console.log('ID do Usuário Recuperado:', usuarioId); // Log para depuração
-  
       if (!usuarioId) {
         alert('Erro: ID do usuário não encontrado.');
         return;
       }
-  
+
       const treino = {
-        usuarioId: parseInt(usuarioId, 10), // Garante que o ID seja um número
+        usuarioId: parseInt(usuarioId, 10),
         tipo: treinoTipo,
-        inicio: inicioTreino.toISOString(), // Converte para string ISO
-        fim: new Date().toISOString(), // Converte para string ISO
+        inicio: inicioTreino.toISOString(),
+        fim: new Date().toISOString(),
+        legenda: legenda
       };
-  
-      console.log('Dados Enviados:', treino);
-  
-      const response = await fetch('http://192.168.1.4:3000/register-training', {
+
+      const response = await fetch('http://192.168.100.113:3000/register-training', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(treino), // Envia os dados como JSON
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(treino),
       });
-  
+
       if (response.ok) {
-        //alert('Treino registrado com sucesso!');
+        Alert.alert('Sucesso', 'Treino finalizado e registrado com sucesso!');
         navigation.goBack();
       } else {
         const error = await response.json();
-        alert(error.error || 'Erro ao registrar treino.');
+        Alert.alert('Erro', error.error || 'Erro ao registrar treino.');
       }
     } catch (error) {
       console.error('Erro de conexão:', error);
-      alert('Erro ao conectar ao servidor.');
+      Alert.alert('Erro', 'Erro ao conectar ao servidor.');
     }
   };
-  
-  
+
   return (
     <ImageBackground source={backgroundImage} style={styles.imageBackground}>
       <View style={styles.container}>
+        <BarraMenu style={styles.barraMenu} />
         <Text style={styles.title}>Registro de treino</Text>
         <Picker
           selectedValue={treinoTipo}
           style={styles.picker}
           onValueChange={(itemValue) => setTreinoTipo(itemValue)}
-          enabled={!inicioTreino} // Desativa o Picker se o treino já foi iniciado
+          enabled={!inicioTreino}
         >
           <Picker.Item label="Selecione o tipo de treino" value="" />
           <Picker.Item label="Academia" value="academia" />
@@ -101,8 +99,19 @@ export default function ControlePonto({ navigation, route }) {
           <Picker.Item label="Esporte Radical" value="esporteRadical" />
         </Picker>
 
+        <TextInput
+          style={styles.input}
+          placeholder="Escreva uma legenda sobre o treino"
+          value={legenda}
+          onChangeText={setLegenda} // Atualiza a legenda conforme o usuário digita
+        />
+
         <Text style={styles.texto}>
           {inicioTreino ? `Início: ${inicioTreino.toLocaleString()}` : 'Nenhum treino iniciado'}
+        </Text>
+
+        <Text style={styles.texto}>
+          {legenda ? `Legenda: ${legenda}` : 'Nenhuma legenda para este treino'}
         </Text>
 
         <TouchableOpacity
@@ -122,27 +131,48 @@ export default function ControlePonto({ navigation, route }) {
 const styles = StyleSheet.create({
   imageBackground: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     alignItems: 'center',
+    paddingTop: 0,
   },
   container: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     alignItems: 'center',
-    padding: 20,
+    paddingTop: 0, // Ajusta o espaçamento superior
+    paddingHorizontal: 0,
+  },
+  barraMenu: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 1,
   },
   title: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
-    marginBottom: 20,
-    textAlign: 'center',
     color: '#febc02',
+    marginBottom: 30,
+    textAlign: 'center',
   },
   picker: {
     width: 300,
     marginBottom: 20,
     borderRadius: 5,
     color: '#fff',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Fundo escuro para o Picker
+  },
+  input: {
+    width: 300,
+    height: 40,
+    borderColor: '#fff',
+    borderWidth: 1,
+    paddingLeft: 10,
+    marginBottom: 20,
+    borderRadius: 5,
+    color: '#fff',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Fundo escuro para o Input
   },
   texto: {
     fontSize: 16,
