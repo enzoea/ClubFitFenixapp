@@ -96,18 +96,19 @@ app.post('/register-training', async (req, res) => {
 // Rota de login
 app.post('/login', async (req, res) => {
   const { email, senha } = req.body;
+
   if (!email || !senha) {
     return res.status(400).json({ error: 'Todos os campos são obrigatórios.' });
   }
 
   try {
     const [rows] = await pool.query(
-      'SELECT * FROM usuarios WHERE email = ? AND senha = ?',
+      'SELECT id, nome, email, fotoPerfil FROM usuarios WHERE email = ? AND senha = ?',
       [email, senha]
     );
 
     if (rows.length > 0) {
-      res.status(200).json(rows[0]);
+      res.status(200).json(rows[0]); // Retorna apenas os campos necessários
     } else {
       res.status(401).json({ error: 'Credenciais inválidas.' });
     }
@@ -189,5 +190,5 @@ app.get('/trainings', async (req, res) => {
 
 // Inicia o servidor
 app.listen(port, '0.0.0.0', () => {
-  console.log(`Servidor rodando em http://192.168.1.6:${port}`);
+  console.log(`Servidor rodando em http://192.168.1.4:${port}`);
 });

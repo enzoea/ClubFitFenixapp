@@ -1,14 +1,14 @@
 {
   "expo": {
-    "name": "Orgs",
-    "slug": "orgs-cesta",
+    "name": "ClubFitFênix",
+    "slug": "ClubFitFênix",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/logo.png",
     "splash": {
       "image": "./assets/logo.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#1c1c1c"
     },
     "updates": {
       "fallbackToCacheTimeout": 0
@@ -22,11 +22,12 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/logo.png",
-        "backgroundColor": "#FFFFFF"
+        "backgroundColor": "#1c1c1c"
       }
     },
     "web": {
       "favicon": "./assets/logo.png"
-    }
+    },
+    "newArchEnabled": true
   }
 }

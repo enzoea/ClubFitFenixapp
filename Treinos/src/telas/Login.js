@@ -4,38 +4,36 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import logo from '../../assets/logo.png';
 import { useUser } from '../context/UserContext';
 
-export default function Login({ setIsAuthenticated, navigation }) {
-  const { usuarios } = useUser(); // Obtém a lista de usuários do contexto
+export default function Login({ navigation }) {
+  const { setUsuarioLogado } = useUser();
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [senha, setSenha] = useState('');
 
   const handleLogin = async () => {
-    if (!email || !password) {
-      alert('Preencha todos os campos!');
+    if (!email || !senha) {
+      Alert.alert('Erro', 'Preencha todos os campos!');
       return;
     }
 
     try {
-      const response = await fetch('http://192.168.1.6:3000/login', {
+      const response = await fetch('http://192.168.1.4:3000/login', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, senha: password }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, senha }),
       });
 
       if (response.ok) {
-        const data = await response.json();
-        await AsyncStorage.setItem('usuarioId', data.id.toString()); // Armazene o ID do usuário como string
-        navigation.navigate('Menu'); // Navega para o Menu após login bem-sucedido
+        const usuario = await response.json();
+        await AsyncStorage.setItem('usuarioId', usuario.id.toString());
+        setUsuarioLogado(usuario); // Atualiza o estado global
+        navigation.navigate('Menu'); // Redireciona para o menu
       } else {
-        const error = await response.json();
-        alert(error.error || 'Erro ao autenticar usuário.');
+        const errorResponse = await response.json();
+        Alert.alert('Erro', errorResponse.error || 'Credenciais inválidas.');
       }
-      
     } catch (error) {
       console.error('Erro de conexão:', error);
-      alert('Erro ao conectar ao servidor.');
+      Alert.alert('Erro', 'Erro ao conectar ao servidor.');
     }
   };
 
@@ -64,8 +62,8 @@ export default function Login({ setIsAuthenticated, navigation }) {
                 placeholder="Senha"
                 placeholderTextColor="#FFFFFF"
                 secureTextEntry
-                value={password}
-                onChangeText={setPassword}
+                value={senha}
+                onChangeText={setSenha}
               />
               <TouchableOpacity style={styles.button} onPress={handleLogin}>
                 <Text style={styles.buttonText}>Entrar</Text>

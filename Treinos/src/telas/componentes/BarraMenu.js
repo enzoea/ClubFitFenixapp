@@ -19,7 +19,7 @@ const BarraMenu = () => {
     <View style={styles.container}>
       <View style={styles.menu}>
         <TouchableOpacity style={styles.menuIconContainer} onPress={() => setMenuVisible(true)}>
-          <Text style={styles.menuIcon}>☰</Text> {/* Ícone de menu simples */}
+          <Text style={styles.menuIcon}>☰</Text>
         </TouchableOpacity>
         <Text style={styles.nomeClub}>Club Fit Fênix</Text>
         <TouchableOpacity style={styles.fotoContainer} onPress={() => navigation.navigate('Perfil')}>
