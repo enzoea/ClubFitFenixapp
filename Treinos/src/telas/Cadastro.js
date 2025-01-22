@@ -33,9 +33,9 @@ export default function Cadastro({ navigation }) {
       alert('Preencha todos os campos obrigatórios!');
       return;
     }
-  
+  //verificar o ${serverIP}, pois ele não esta armazenando na minha maquina
     try {
-      const response = await fetch(`http://${serverIP}:3000/register`, {
+      const response = await fetch(`http://192.168.100.113:3000/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -34,7 +34,7 @@ export default function Perfil({ navigation }) {
           return;
         }
 
-        const response = await fetch(`http://192.168.1.4:3000/user/${id}`);
+        const response = await fetch(`http://192.168.1.6:3000/user/${id}`);
         if (response.ok) {
           const data = await response.json();
           data.dataNascimento = formatarDataParaUsuario(data.dataNascimento);
