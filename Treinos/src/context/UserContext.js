@@ -6,13 +6,18 @@ export const UserContext = createContext();
 export const UserProvider = ({ children }) => {
   const [usuarioLogado, setUsuarioLogado] = useState(null);
 
-  // Recuperar usuário do AsyncStorage ao inicializar
   useEffect(() => {
     const carregarUsuario = async () => {
       try {
         const id = await AsyncStorage.getItem('usuarioId');
         if (id) {
-          setUsuarioLogado({ id: parseInt(id, 10) });
+          const response = await fetch(`http://192.168.1.6:3000/user/${id}`);
+          if (response.ok) {
+            const usuario = await response.json();
+            setUsuarioLogado(usuario); // Carrega todos os dados do usuário, incluindo fotoPerfil
+          } else {
+            console.error('Erro ao carregar dados do usuário:', response.status);
+          }
         }
       } catch (error) {
         console.error('Erro ao carregar usuário logado:', error);

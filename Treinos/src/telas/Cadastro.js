@@ -1,5 +1,5 @@
 import React, { useState, useEffect  } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ImageBackground, Image } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ImageBackground, Image, KeyboardAvoidingView, ScrollView, Platform } from 'react-native';
 import logo from '../../assets/logo.png';
 import { useUser } from '../context/UserContext';
 
@@ -57,71 +57,75 @@ export default function Cadastro({ navigation }) {
   };  
 
   return (
-    <ImageBackground
-        source={require('../../assets/background-club.png')}
-        style={styles.imageBackground}
-    >
-    
-        <View style={styles.container}>
-            
-            <Text style={styles.title}>Cadastro</Text>
-            <Text style={styles.text}>Nome</Text>
-            <TextInput
-                style={styles.input}
-                placeholder="Nome"
-                placeholderTextColor="#febc02"
-                value={nome}
-                onChangeText={setNome}
-            />
-            <Text style={styles.text}>Telefone</Text>
-            <TextInput
-                style={styles.input}
-                placeholder="Telefone"
-                placeholderTextColor="#febc02"
-                value={telefone}
-                keyboardType="phone-pad"
-                onChangeText={setTelefone}
-            />
-            <Text style={styles.text}>Email</Text>
-            <TextInput
-                style={styles.input}
-                placeholder="Email"
-                placeholderTextColor="#febc02"
-                value={email}
-                keyboardType="email-address"
-                autoCapitalize="none"
-                onChangeText={setEmail}
-            />
-            <Text style={styles.text}>Data de Nascimento</Text>
-            <TextInput
-                style={styles.input}
-                placeholder="xx/xx/xxxx"
-                placeholderTextColor="#febc02"
-                value={dataNascimento}
-                onChangeText={setDataNascimento}
-            />
-            <Text style={styles.text}>Objetivos na Academia</Text>
-            <TextInput
-                style={styles.input}
-                placeholder="Ex: Ganhar massa"
-                placeholderTextColor="#febc02"
-                value={objetivo}
-                onChangeText={setObjetivo}
-            />
-            <Text style={styles.text}>Senha</Text>
-            <TextInput
-                style={styles.input}
-                placeholder="Senha"
-                placeholderTextColor="#febc02"
-                secureTextEntry
-                value={senha}
-                onChangeText={setSenha}
-            />
-            <TouchableOpacity style={styles.button} onPress={handleCadastro}>
-                <Text style={styles.buttonText}>Cadastrar</Text>
-            </TouchableOpacity>
-        </View>
-    </ImageBackground>
+    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+      <ScrollView contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled">
+        <ImageBackground
+            source={require('../../assets/background-club.png')}
+            style={styles.imageBackground}
+        >
+        
+            <View style={styles.container}>
+                
+                <Text style={styles.title}>Cadastro</Text>
+                <Text style={styles.text}>Nome</Text>
+                <TextInput
+                    style={styles.input}
+                    placeholder="Nome"
+                    placeholderTextColor="#febc02"
+                    value={nome}
+                    onChangeText={setNome}
+                />
+                <Text style={styles.text}>Telefone</Text>
+                <TextInput
+                    style={styles.input}
+                    placeholder="Telefone"
+                    placeholderTextColor="#febc02"
+                    value={telefone}
+                    keyboardType="phone-pad"
+                    onChangeText={setTelefone}
+                />
+                <Text style={styles.text}>Email</Text>
+                <TextInput
+                    style={styles.input}
+                    placeholder="Email"
+                    placeholderTextColor="#febc02"
+                    value={email}
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                    onChangeText={setEmail}
+                />
+                <Text style={styles.text}>Data de Nascimento</Text>
+                <TextInput
+                    style={styles.input}
+                    placeholder="xx/xx/xxxx"
+                    placeholderTextColor="#febc02"
+                    value={dataNascimento}
+                    onChangeText={setDataNascimento}
+                />
+                <Text style={styles.text}>Objetivos na Academia</Text>
+                <TextInput
+                    style={styles.input}
+                    placeholder="Ex: Ganhar massa"
+                    placeholderTextColor="#febc02"
+                    value={objetivo}
+                    onChangeText={setObjetivo}
+                />
+                <Text style={styles.text}>Senha</Text>
+                <TextInput
+                    style={styles.input}
+                    placeholder="Senha"
+                    placeholderTextColor="#febc02"
+                    secureTextEntry
+                    value={senha}
+                    onChangeText={setSenha}
+                />
+                <TouchableOpacity style={styles.button} onPress={handleCadastro}>
+                    <Text style={styles.buttonText}>Cadastrar</Text>
+                </TouchableOpacity>
+            </View>
+        </ImageBackground>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 // testando

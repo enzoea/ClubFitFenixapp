@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet, ImageBackground } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet, ImageBackground,  KeyboardAvoidingView, ScrollView, Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import logo from '../../assets/logo.png';
 import { useUser } from '../context/UserContext';
@@ -40,44 +40,49 @@ export default function Login({ setIsAuthenticated, navigation }) {
   };
 
   return (
-    <ImageBackground
-      source={require('../../assets/background-club.png')}
-      style={styles.imageBackground}
-    >
-      <View style={styles.container}>
-        <Image source={logo} style={styles.logo} />
-        <Text style={styles.title}>Bem-vindo ao Club Fit Fênix</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Email"
-          placeholderTextColor="#FFFFFF"
-          keyboardType="email-address"
-          autoCapitalize="none"
-          value={email}
-          onChangeText={setEmail}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Senha"
-          placeholderTextColor="#FFFFFF"
-          secureTextEntry
-          value={password}
-          onChangeText={setPassword}
-        />
-        <TouchableOpacity style={styles.button} onPress={handleLogin}>
-          <Text style={styles.buttonText}>Entrar</Text>
-        </TouchableOpacity>
+    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+      <ScrollView contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled">
         
-        <TouchableOpacity
-          style={styles.button2}
-          onPress={() => navigation.navigate('Cadastro', { usuarios: [] })}
-        >
-          <Text style={styles.buttonText2}>Registrar-se</Text>
-        </TouchableOpacity>
+          <ImageBackground
+            source={require('../../assets/background-club.png')}
+            style={styles.imageBackground}
+          >
+            <View style={styles.container}>
+              <Image source={logo} style={styles.logo} />
+              <Text style={styles.title}>Bem-vindo ao Club Fit Fênix</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Email"
+                placeholderTextColor="#FFFFFF"
+                keyboardType="email-address"
+                autoCapitalize="none"
+                value={email}
+                onChangeText={setEmail}
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="Senha"
+                placeholderTextColor="#FFFFFF"
+                secureTextEntry
+                value={password}
+                onChangeText={setPassword}
+              />
+              <TouchableOpacity style={styles.button} onPress={handleLogin}>
+                <Text style={styles.buttonText}>Entrar</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity
+                style={styles.button2}
+                onPress={() => navigation.navigate('Cadastro', { usuarios: [] })}
+              >
+                <Text style={styles.buttonText2}>Registrar-se</Text>
+              </TouchableOpacity>
 
-        <Text style={styles.credit}>Desenvolvido por Enzo Martins</Text>
-      </View>
-    </ImageBackground>
+              <Text style={styles.credit}>Desenvolvido por Enzo Martins</Text>
+            </View>
+          </ImageBackground>
+        </ScrollView>
+      </KeyboardAvoidingView>
   );
 }
 

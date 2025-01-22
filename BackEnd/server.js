@@ -125,6 +125,7 @@ app.use((req, res, next) => {
 // Rota para buscar dados do usuário logado
 app.get('/user/:id', async (req, res) => {
   const { id } = req.params;
+
   try {
     const [rows] = await pool.query('SELECT * FROM usuarios WHERE id = ?', [id]);
     if (rows.length > 0) {
@@ -138,13 +139,40 @@ app.get('/user/:id', async (req, res) => {
   }
 });
 
+// Rota para alterar informações do usuario na tela perfil.js
+app.put('/user/:id', async (req, res) => {
+  const { id } = req.params;
+  let { nome, email, senha, objetivo, telefone, dataNascimento, fotoPerfil } = req.body;
 
-// Buscar todos os treinos do banco de dados
+  if (dataNascimento) {
+    dataNascimento = dataNascimento.replace(/(\d{2})(\d{2})(\d{4})/, '$3-$2-$1');
+  }
+
+  try {
+    const [result] = await pool.query(
+      `UPDATE usuarios 
+       SET nome = ?, email = ?, senha = ?, objetivo = ?, telefone = ?, dataNascimento = ?, fotoPerfil = ?
+       WHERE id = ?`,
+      [nome, email, senha, objetivo, telefone, dataNascimento, fotoPerfil, id]
+    );
+
+    if (result.affectedRows > 0) {
+      const [updatedUser] = await pool.query('SELECT * FROM usuarios WHERE id = ?', [id]);
+      res.status(200).json(updatedUser[0]);
+    } else {
+      res.status(404).json({ error: 'Usuário não encontrado.' });
+    }
+  } catch (error) {
+    console.error('Erro ao atualizar usuário:', error);
+    res.status(500).json({ error: 'Erro interno do servidor.' });
+  }
+});
+
 // Buscar todos os treinos do banco de dados
 app.get('/trainings', async (req, res) => {
   try {
     const [trainings] = await pool.query(`
-      SELECT t.*, u.nome AS usuario
+      SELECT t.*, u.nome AS usuario, u.fotoPerfil 
       FROM treinos t
       JOIN usuarios u ON t.usuario_id = u.id
       ORDER BY t.inicio DESC
@@ -155,6 +183,7 @@ app.get('/trainings', async (req, res) => {
     res.status(500).json({ error: 'Erro ao buscar treinos.' });
   }
 });
+
 
 
 
