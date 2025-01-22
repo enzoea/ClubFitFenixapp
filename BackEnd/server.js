@@ -125,10 +125,8 @@ app.use((req, res, next) => {
 // Rota para buscar dados do usuário logado
 app.get('/user/:id', async (req, res) => {
   const { id } = req.params;
-
   try {
     const [rows] = await pool.query('SELECT * FROM usuarios WHERE id = ?', [id]);
-
     if (rows.length > 0) {
       res.status(200).json(rows[0]);
     } else {
@@ -136,9 +134,10 @@ app.get('/user/:id', async (req, res) => {
     }
   } catch (error) {
     console.error('Erro ao buscar usuário:', error);
-    res.status(500).json({ error: 'Erro ao buscar usuário.' });
+    res.status(500).json({ error: 'Erro interno do servidor.' });
   }
 });
+
 
 // Buscar todos os treinos do banco de dados
 // Buscar todos os treinos do banco de dados
