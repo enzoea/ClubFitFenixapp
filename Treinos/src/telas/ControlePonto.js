@@ -61,7 +61,7 @@ export default function ControlePonto({ navigation, route }) {
   
       console.log('Dados Enviados:', treino);
   
-      const response = await fetch('http://192.168.1.6:3000/register-training', {
+      const response = await fetch('http://192.168.100.113:3000/register-training', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

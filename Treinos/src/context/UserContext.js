@@ -11,7 +11,7 @@ export const UserProvider = ({ children }) => {
       try {
         const id = await AsyncStorage.getItem('usuarioId');
         if (id) {
-          const response = await fetch(`http://192.168.1.6:3000/user/${id}`);
+          const response = await fetch(`http://192.168.100.113:3000/user/${id}`);
           if (response.ok) {
             const usuario = await response.json();
             setUsuarioLogado(usuario); // Carrega todos os dados do usuário, incluindo fotoPerfil
