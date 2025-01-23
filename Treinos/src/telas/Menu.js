@@ -1,14 +1,24 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, ImageBackground, Image } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import BarraMenu from './componentes/BarraMenu';
 import backgroundImage from '../../assets/background-club.png';
 import Icon from 'react-native-vector-icons/Ionicons';
-import FavoriteIcon from '@mui/icons-material/Favorite';
-import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline'
 
-export default function Menu({ navigation }) {
+export default function Menu({ route, navigation }) {
   const [feedGlobal, setFeedGlobal] = useState([]);
+
+  // Usando useEffect para atualizar o feed com as fotos passadas de ControlePonto
+  useEffect(() => {
+    console.log('Dados no Menu:', feedGlobal);
+    if (route.params?.feedAtualizado) {
+      const fotosPassadas = route.params.fotos;
+      setFeedGlobal((prevFeed) => [
+        ...prevFeed,
+        { fotos: fotosPassadas },
+      ]);
+    }
+  }, [route.params?.feedAtualizado]);  // Reagindo à mudança dos parâmetros
 
   const carregarFeed = async () => {
     try {
@@ -26,57 +36,74 @@ export default function Menu({ navigation }) {
       carregarFeed();
     }, [])
   );
-// Constantes para adicionar curtidas e comentários
-const handleLike = (index) => {
-  const updatedFeed = [...feedGlobal];
-  updatedFeed[index].liked = !updatedFeed[index].liked;
-  setFeedGlobal(updatedFeed);
-};
 
-const handleComment = (index) => {
-  const updatedFeed = [...feedGlobal];
-  updatedFeed[index].comments = (updatedFeed[index].comments || 0) + 1;
-  setFeedGlobal(updatedFeed);
-  const post = feedGlobal[index];
-  navigation.navigate('Comentarios', { post, index });
-};
+  // Constantes para adicionar curtidas e comentários
+  const handleLike = (index) => {
+    const updatedFeed = [...feedGlobal];
+    updatedFeed[index].liked = !updatedFeed[index].liked;
+    setFeedGlobal(updatedFeed);
+  };
 
+  const handleComment = (index) => {
+    const updatedFeed = [...feedGlobal];
+    updatedFeed[index].comments = (updatedFeed[index].comments || 0) + 1;
+    setFeedGlobal(updatedFeed);
+    const post = feedGlobal[index];
+    navigation.navigate('Comentarios', { post, index });
+  };
 
-const renderItem = ({ item, index }) => (
-  <View style={styles.postContainer}>
-    <View style={styles.postHeader}>
-      <Image
-        source={item.fotoPerfil ? { uri: item.fotoPerfil } : require('../../assets/logo.png')}
-        style={styles.userImage}
-      />
-      <Text style={styles.userName}>{item.usuario || 'Usuário Desconhecido'}</Text>
-    </View>
-    <Text style={styles.postContent}>Treino: {item.tipo || 'Sem tipo'}</Text>
-    <Text style={styles.postTimestamp}>
-      Início: {item.inicio ? new Date(item.inicio).toLocaleString() : 'N/A'}
-    </Text>
-    <Text style={styles.postTimestamp}>
-      Fim: {item.fim ? new Date(item.fim).toLocaleString() : 'N/A'}
-    </Text>
-    {/* Exibir a legenda */}
-    <Text style={styles.postContent}> {item.legenda || 'Sem legenda'}</Text>
-
-    <View style={styles.iconRow}>
-      <TouchableOpacity onPress={() => handleLike(index)} style={styles.iconButton}>
-        <Icon
-          name={item.liked ? 'heart' : 'heart-outline'}
-          size={24}
-          color={item.liked ? 'red' : 'gray'}
+  const renderItem = ({ item, index }) => (
+    
+    <View style={styles.postContainer}>
+      <View style={styles.postHeader}>
+        <Image
+          source={item.fotoPerfil ? { uri: item.fotoPerfil } : require('../../assets/logo.png')}
+          style={styles.userImage}
         />
-        <Text>{item.liked ? 1 : 0}</Text>
-      </TouchableOpacity>
-      <TouchableOpacity onPress={() => handleComment(index)} style={styles.iconButton}>
-        <Icon name="chatbubble-outline" size={24} color="gray" />
-        <Text>{item.comments || 0}</Text>
-      </TouchableOpacity>
-    </View>
+        <Text style={styles.userName}>{item.usuario || 'Usuário Desconhecido'}</Text>
+      </View>
+      <Text style={styles.postContent}>Treino: {item.tipo || 'Sem tipo'}</Text>
+      <Text style={styles.postTimestamp}>
+        Início: {item.inicio ? new Date(item.inicio).toLocaleString() : 'N/A'}
+      </Text>
+      <Text style={styles.postTimestamp}>
+        Fim: {item.fim ? new Date(item.fim).toLocaleString() : 'N/A'}
+      </Text>
+      <Text style={styles.postContent}>{item.legenda || 'Sem legenda'}</Text>
+
+      {/* Renderizando as fotos */}
+{item.fotos && Array.isArray(item.fotos) && item.fotos.length > 0 ? (
+  <View style={styles.fotosContainer}>
+    {item.fotos.map((foto, index) => (
+      <Image
+        key={index}
+        source={{ uri: foto }}
+        style={styles.postImage}
+        onError={() => console.warn(`Erro ao carregar a imagem: ${foto}`)}
+      />
+    ))}
   </View>
-);
+) : (
+  <Text style={styles.noImageText}>Sem fotos disponíveis.</Text>
+)}
+
+
+      <View style={styles.iconRow}>
+        <TouchableOpacity onPress={() => handleLike(index)} style={styles.iconButton}>
+          <Icon
+            name={item.liked ? 'heart' : 'heart-outline'}
+            size={24}
+            color={item.liked ? 'red' : 'gray'}
+          />
+          <Text>{item.liked ? 1 : 0}</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => handleComment(index)} style={styles.iconButton}>
+          <Icon name="chatbubble-outline" size={24} color="gray" />
+          <Text>{item.comments || 0}</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
 
   return (
     <ImageBackground source={backgroundImage} style={styles.imageBackground}>
@@ -90,24 +117,39 @@ const renderItem = ({ item, index }) => (
         </TouchableOpacity>
         <Text style={styles.title}>Feed de Treinos</Text>
         <FlatList
-          data={feedGlobal}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={renderItem}
-        />
+  data={feedGlobal}
+  keyExtractor={(item, index) => {
+    if (!item || !item.id) {
+      console.warn(`Item inválido no índice ${index}:`, item);
+      return index.toString(); // Fallback para o índice
+    }
+    return item.id.toString();
+  }}
+  renderItem={renderItem}
+  ListEmptyComponent={() => (
+    <Text style={styles.noDataText}>Nenhum treino disponível no momento.</Text>
+  )}
+/>
+
       </View>
     </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  
-  imageBackground: { flex: 1,
-     justifyContent: 'center',
-      alignItems: 'center' 
-    },
-
+  imageBackground: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   container: { flex: 1, width: '100%' },
-  title: { fontSize: 24, fontWeight: 'bold', marginBottom: 20, textAlign: 'center', color: '#fff' },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 20,
+    textAlign: 'center',
+    color: '#fff',
+  },
   postContainer: {
     backgroundColor: '#1c1c1c',
     borderRadius: 10,
@@ -128,21 +170,45 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     borderRadius: 5,
   },
-
   iconRow: {
     flexDirection: 'row',
     justifyContent: 'flex-start',
     alignItems: 'center',
     marginTop: 10,
   },
+  postImage: {
+    width: '100%',
+    height: 200,
+    borderRadius: 10,
+    marginTop: 10,
+    resizeMode: 'cover',
+  },
   iconButton: {
     flexDirection: 'row',
     alignItems: 'center',
     marginRight: 15,
   },
+  noImageText: {
+    fontSize: 14,
+    color: '#bbb',
+    textAlign: 'center',
+    marginTop: 10,
+  },
+  noDataText: {
+    fontSize: 16,
+    color: '#fff',
+    textAlign: 'center',
+    marginTop: 20,
+  },
   
-
   likeButtonText: { fontSize: 12, fontWeight: 'bold', color: '#fff' },
-  newPostButton: { backgroundColor: '#febc02', padding: 15, borderRadius: 5, alignItems: 'center', marginBottom: 20, margin: 15 },
-  newPostButtonText: { color: '#fff', fontWeight: 'bold', fontSize: 16},
+  newPostButton: {
+    backgroundColor: '#febc02',
+    padding: 15,
+    borderRadius: 5,
+    alignItems: 'center',
+    marginBottom: 20,
+    margin: 15,
+  },
+  newPostButtonText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
 });

@@ -64,7 +64,7 @@ app.post('/register', async (req, res) => {
 
 //Rota de registro de treinos
 app.post('/register-training', async (req, res) => {
-  const { usuarioId, tipo, inicio, fim, legenda } = req.body;
+  const { usuarioId, tipo, inicio, fim, legenda, fotos } = req.body;
 
   console.log('Dados Recebidos no Backend:', req.body); // Log para depuração
 
@@ -81,8 +81,8 @@ app.post('/register-training', async (req, res) => {
 
     // Inserir o novo treino
     await pool.query(
-      'INSERT INTO treinos (usuario_id, tipo, inicio, fim, legenda) VALUES (?, ?, ?, ?, ?)',
-      [usuarioId, tipo, new Date(inicio), new Date(fim), legenda]
+      'INSERT INTO treinos (usuario_id, tipo, inicio, fim, legenda, fotos) VALUES (?, ?, ?, ?, ?, ?)',
+      [usuarioId, tipo, new Date(inicio), new Date(fim), legenda, fotos]
     );
 
     res.status(201).json({ message: 'Treino registrado com sucesso.' });
@@ -190,5 +190,5 @@ app.get('/trainings', async (req, res) => {
 
 // Inicia o servidor
 app.listen(port, '0.0.0.0', () => {
-  console.log(`Servidor rodando em http://192.168.100.4.113:${port}`);
+  console.log(`Servidor rodando em http://192.168.100.4:${port}`);
 })
