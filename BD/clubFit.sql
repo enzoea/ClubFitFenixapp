@@ -21,3 +21,9 @@ CREATE TABLE IF NOT EXISTS treinos (
 
 
 SELECT * FROM usuarios;
+SELECT * FROM treinos;
+
+ALTER TABLE usuarios ADD COLUMN fotoPerfil VARCHAR(255);
+
+ALTER TABLE treinos ADD COLUMN legenda VARCHAR(500);
+
