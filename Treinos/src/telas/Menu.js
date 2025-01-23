@@ -59,7 +59,7 @@ const renderItem = ({ item, index }) => (
       Fim: {item.fim ? new Date(item.fim).toLocaleString() : 'N/A'}
     </Text>
     {/* Exibir a legenda */}
-    <Text style={styles.postContent}>Legenda: {item.legenda || 'Sem legenda'}</Text>
+    <Text style={styles.postContent}> {item.legenda || 'Sem legenda'}</Text>
 
     <View style={styles.iconRow}>
       <TouchableOpacity onPress={() => handleLike(index)} style={styles.iconButton}>
@@ -77,10 +77,6 @@ const renderItem = ({ item, index }) => (
     </View>
   </View>
 );
-
-
-
-
 
   return (
     <ImageBackground source={backgroundImage} style={styles.imageBackground}>
