@@ -12,7 +12,7 @@ export default function Menu({ navigation }) {
 
   const carregarFeed = async () => {
     try {
-      const response = await fetch('http://192.168.100.113:3000/trainings');
+      const response = await fetch('http://192.168.100.4:3000/trainings');
       const data = await response.json();
       setFeedGlobal(data);
     } catch (error) {
