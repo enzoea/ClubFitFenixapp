@@ -69,13 +69,28 @@ export default function ControlePonto({ navigation, route }) {
         return;
       }
   
+      // Converter imagens em base64
+      const fotosBase64 = await Promise.all(
+        treino.fotos.map(async (fotoUri) => {
+          const response = await fetch(fotoUri);
+          const blob = await response.blob();
+          return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result);
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
+          });
+        })
+      );
+  
       const treinoFinalizado = {
         ...treino,
         usuarioId: parseInt(usuarioId, 10),
         fim: new Date().toISOString(),
+        fotos: fotosBase64, // Fotos em base64
       };
   
-      const response = await fetch('http://192.168.100.4:3000/register-training', {
+      const response = await fetch('http://192.168.100.3:3000/register-training', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(treinoFinalizado),
@@ -83,10 +98,9 @@ export default function ControlePonto({ navigation, route }) {
   
       if (response.ok) {
         Alert.alert('Sucesso', 'Treino registrado com sucesso!');
-        // Passar as fotos como parâmetro na navegação
         navigation.navigate('Menu', {
-          feedAtualizado: true, // Atualizar o feed no Menu.js
-          fotos: treinoFinalizado.fotos, // Passar as fotos
+          feedAtualizado: true,
+          fotos: treinoFinalizado.fotos,
         });
       } else {
         const error = await response.json();
@@ -97,6 +111,7 @@ export default function ControlePonto({ navigation, route }) {
       Alert.alert('Erro', 'Erro ao conectar ao servidor.');
     }
   };
+  
   
   
 

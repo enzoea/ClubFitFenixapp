@@ -19,6 +19,13 @@ CREATE TABLE IF NOT EXISTS treinos (
   FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
 );
 
+CREATE TABLE IF NOT EXISTS treino_fotos (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  treino_id INT NOT NULL,
+  foto_url VARCHAR(500) NOT NULL,
+  FOREIGN KEY (treino_id) REFERENCES treinos(id)
+);
+
 
 SELECT * FROM usuarios;
 SELECT * FROM treinos;
@@ -27,5 +34,6 @@ ALTER TABLE usuarios ADD COLUMN fotoPerfil VARCHAR(255);
 
 ALTER TABLE treinos ADD COLUMN legenda VARCHAR(500);
 
-ALTER TABLE treinos ADD COLUMN fotos VARCHAR(500);
+ALTER TABLE treinos DROP COLUMN fotos;
+
 
