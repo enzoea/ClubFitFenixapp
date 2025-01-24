@@ -1,3 +1,5 @@
+ControlePonto.js
+
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, TextInput, StyleSheet, Alert, ImageBackground, Image } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
@@ -69,25 +71,10 @@ export default function ControlePonto({ navigation, route }) {
         return;
       }
   
-      // Converter imagens em base64
-      const fotosBase64 = await Promise.all(
-        treino.fotos.map(async (fotoUri) => {
-          const response = await fetch(fotoUri);
-          const blob = await response.blob();
-          return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onloadend = () => resolve(reader.result);
-            reader.onerror = reject;
-            reader.readAsDataURL(blob);
-          });
-        })
-      );
-  
       const treinoFinalizado = {
         ...treino,
         usuarioId: parseInt(usuarioId, 10),
         fim: new Date().toISOString(),
-        fotos: fotosBase64, // Fotos em base64
       };
   
       const response = await fetch('http://192.168.100.3:3000/register-training', {
@@ -98,9 +85,10 @@ export default function ControlePonto({ navigation, route }) {
   
       if (response.ok) {
         Alert.alert('Sucesso', 'Treino registrado com sucesso!');
+        // Passar as fotos como parâmetro na navegação
         navigation.navigate('Menu', {
-          feedAtualizado: true,
-          fotos: treinoFinalizado.fotos,
+          feedAtualizado: true, // Atualizar o feed no Menu.js
+          fotos: treinoFinalizado.fotos, // Passar as fotos
         });
       } else {
         const error = await response.json();
@@ -111,7 +99,6 @@ export default function ControlePonto({ navigation, route }) {
       Alert.alert('Erro', 'Erro ao conectar ao servidor.');
     }
   };
-  
   
   
 
@@ -141,13 +128,15 @@ export default function ControlePonto({ navigation, route }) {
           onChangeText={(text) => atualizarEstado('legenda', text)}
         />
   
-        <Text style={styles.texto}>
-          {treino.inicio ? `Início: ${new Date(treino.inicio).toLocaleString()}` : 'Nenhum treino iniciado'}
-        </Text>
+  <Text style={styles.texto}>
+  {treino.inicio ? `Início: ${new Date(treino.inicio).toLocaleString()}` : 'Nenhum treino iniciado'}
+</Text>
+
   
-        <Text style={styles.texto}>
-          {treino.fim ? `Fim: ${new Date(treino.fim).toLocaleString()}` : 'Treino ainda não finalizado'}
-        </Text>
+<Text style={styles.texto}>
+  {treino.fim ? `Fim: ${new Date(treino.fim).toLocaleString()}` : 'Treino ainda não finalizado'}
+</Text>
+
   
         {/* Mapeando e exibindo as fotos lado a lado */}
         {treino.fotos.length > 0 && (

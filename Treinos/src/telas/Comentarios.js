@@ -9,19 +9,53 @@ export default function Comentarios({ route, navigation }) {
   const [novoComentario, setNovoComentario] = useState(''); // Novo comentário
   const { usuarioLogado } = useUser(); // Acessa as informações do usuário logado
 
-  const adicionarComentario = () => {
+  const adicionarComentario = async () => {
     if (novoComentario.trim()) {
-      const novoComentarioData = {
-        texto: novoComentario,
-        nomeUsuario: usuarioLogado?.nome || 'Usuário Anônimo',
-        fotoPerfil: usuarioLogado?.fotoPerfil,
-      };
-      const atualizado = [...comentarios, novoComentarioData];
-      setComentarios(atualizado);
-      setNovoComentario('');
-      // Opcional: Atualizar o post no AsyncStorage ou em outro estado global, se necessário
+      try {
+        const response = await fetch('http://192.168.100.3:3000/comentarios', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            treino_id: post.id,
+            usuario_id: usuarioLogado?.id,
+            comentario: novoComentario,
+          }),
+        });
+  
+        const text = await response.text(); // Lê o corpo como texto bruto
+        console.log('Resposta do backend (texto):', text);
+  
+        try {
+          const data = JSON.parse(text); // Tenta analisar como JSON
+          console.log('Resposta do backend (JSON):', data);
+  
+          if (!response.ok) {
+            alert(`Erro ao adicionar comentário: ${data.message || 'Erro desconhecido'}`);
+            return;
+          }
+  
+          const novoComentarioData = {
+            texto: novoComentario,
+            nomeUsuario: usuarioLogado?.nome || 'Usuário Anônimo',
+            fotoPerfil: usuarioLogado?.fotoPerfil,
+          };
+  
+          setComentarios((prev) => [...prev, novoComentarioData]);
+          setNovoComentario('');
+        } catch (jsonError) {
+          console.error('Erro ao analisar JSON:', jsonError);
+          alert('O servidor retornou um formato inesperado.');
+        }
+      } catch (error) {
+        console.error('Erro no fetch:', error);
+        alert(`Erro ao adicionar comentário: ${error.message}`);
+      }
     }
   };
+  
+  
 
   return (
     <View style={styles.container}>
@@ -40,7 +74,8 @@ export default function Comentarios({ route, navigation }) {
       <Text style={styles.title}>Comentários</Text>
       <FlatList
         data={comentarios}
-        keyExtractor={(item, idx) => idx.toString()}
+        keyExtractor={(item) => item.id.toString()}
+
         renderItem={({ item }) => (
           <View style={styles.comentario}>
             {/* Exibe nome do usuário e foto do perfil */}

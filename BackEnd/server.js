@@ -9,12 +9,12 @@ const port = 3000;
 
 // Configuração da conexão com o PostgreSQL
 const pool = mysql.createPool({
-    host: '127.0.0.1', 
-    port: 3306,  
-    user: 'root', 
-    password: 'aluno', 
+    host: '127.0.0.1',
+    port: 3306,
+    user: 'root',
+    password: 'aluno',
     database: 'clubfit',
-  });
+});
 
 // Middleware
 app.use(cors());
@@ -62,37 +62,35 @@ app.post('/register', async (req, res) => {
   }
 });
 
-//Rota de registro de treinos
 // Rota de registro de treinos
 app.post('/register-training', async (req, res) => {
+  const { usuarioId, tipo, inicio, fim, legenda, fotos } = req.body;
+
+  console.log('Dados Recebidos no Backend:', req.body); // Log para depuração
+
+  if (!usuarioId || !tipo || !inicio || !fim) {
+    return res.status(400).json({ error: 'Todos os campos são obrigatórios.' });
+  }
+
   try {
-    const { usuarioId, tipo, inicio, fim, legenda, fotos } = req.body;
-
-    // Processar as fotos (opcional: salvar no banco ou armazenamento externo)
-    if (fotos && fotos.length > 0) {
-      fotos.forEach((fotoBase64, index) => {
-        // Decodifique o base64 e armazene conforme necessário
-        const buffer = Buffer.from(fotoBase64.split(',')[1], 'base64');
-        const filePath = `uploads/treino-${usuarioId}-${Date.now()}-${index}.jpg`;
-
-        // Salvar no sistema de arquivos (ou use outro armazenamento)
-        require('fs').writeFileSync(filePath, buffer);
-        console.log(`Foto salva em: ${filePath}`);
-      });
+    // Verificar se o usuário existe
+    const [user] = await pool.query('SELECT * FROM usuarios WHERE id = ?', [usuarioId]);
+    if (user.length === 0) {
+      return res.status(404).json({ error: 'Usuário não encontrado.' });
     }
 
-    // Salvar o restante dos dados no banco
-    const novoTreino = { usuarioId, tipo, inicio, fim, legenda };
-    // Salve `novoTreino` no banco aqui (ajuste conforme seu banco)
+    // Inserir o novo treino
+    await pool.query(
+      'INSERT INTO treinos (usuario_id, tipo, inicio, fim, legenda, fotos) VALUES (?, ?, ?, ?, ?, ?)',
+      [usuarioId, tipo, new Date(inicio), new Date(fim), legenda, fotos]
+    );
 
-    res.status(201).json({ message: 'Treino registrado com sucesso!' });
+    res.status(201).json({ message: 'Treino registrado com sucesso.' });
   } catch (error) {
     console.error('Erro ao registrar treino:', error);
     res.status(500).json({ error: 'Erro ao registrar treino.' });
   }
 });
-
-
 
 // Rota de login
 app.post('/login', async (req, res) => {
@@ -119,6 +117,66 @@ app.post('/login', async (req, res) => {
   }
 });
 
+// Rota para adicionar comentário
+// Rota para adicionar comentário
+// Rota para adicionar comentário
+app.post('/comentarios', async (req, res) => {
+  try {
+    const { treino_id, usuario_id, comentario } = req.body;
+
+    if (!treino_id || !usuario_id || !comentario) {
+      return res.status(400).json({ message: 'Todos os campos são obrigatórios.' });
+    }
+
+    // Simule um salvamento no banco de dados
+    await database.query(
+      'INSERT INTO comentarios (treino_id, usuario_id, comentario) VALUES (?, ?, ?)',
+      [treino_id, usuario_id, comentario]
+    );
+
+    res.status(201).json({ message: 'Comentário adicionado com sucesso!' });
+  } catch (error) {
+    console.error('Erro ao processar requisição:', error);
+    res.status(500).json({ message: 'Erro interno do servidor' });
+  }
+});
+
+// Rota para buscar os comentários de um post
+// Rota para listar comentários de um treino específico
+app.get('/comentarios/:treinoId', async (req, res) => {
+  const { treinoId } = req.params;
+
+  try {
+    // Verificar se o treino existe
+    const [treino] = await pool.query('SELECT * FROM treinos WHERE id = ?', [treinoId]);
+    if (treino.length === 0) {
+      return res.status(404).json({ error: 'Treino não encontrado.' });
+    }
+
+    // Buscar comentários do treino
+    const [comentarios] = await pool.query(
+      `
+      SELECT c.id, c.comentario, c.data_criacao, u.nome AS usuario_nome, u.fotoPerfil AS usuario_foto
+      FROM comentarios c
+      INNER JOIN usuarios u ON c.usuario_id = u.id
+      WHERE c.treino_id = ?
+      ORDER BY c.data_criacao DESC
+      `,
+      [treinoId]
+    );
+
+    res.status(200).json({ treinoId, comentarios });
+  } catch (error) {
+    console.error('Erro ao buscar comentários:', error);
+    res.status(500).json({ error: 'Erro ao buscar comentários.' });
+  }
+});
+
+
+
+
+
+// Middleware de log
 app.use((req, res, next) => {
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
   next();
@@ -152,9 +210,7 @@ app.put('/user/:id', async (req, res) => {
 
   try {
     const [result] = await pool.query(
-      `UPDATE usuarios 
-       SET nome = ?, email = ?, senha = ?, objetivo = ?, telefone = ?, dataNascimento = ?, fotoPerfil = ?
-       WHERE id = ?`,
+      'UPDATE usuarios SET nome = ?, email = ?, senha = ?, objetivo = ?, telefone = ?, dataNascimento = ?, fotoPerfil = ? WHERE id = ?',
       [nome, email, senha, objetivo, telefone, dataNascimento, fotoPerfil, id]
     );
 
@@ -171,43 +227,19 @@ app.put('/user/:id', async (req, res) => {
 });
 
 // Buscar todos os treinos do banco de dados
-// Buscar todos os treinos com as fotos associadas
 app.get('/trainings', async (req, res) => {
   try {
-    const [trainings] = await pool.query(`
-      SELECT t.*, u.nome AS usuario, u.fotoPerfil 
-      FROM treinos t
-      JOIN usuarios u ON t.usuario_id = u.id
-      ORDER BY t.inicio DESC
-    `);
-
-    const treinoIds = trainings.map((treino) => treino.id);
-
-    // Buscar fotos associadas aos treinos
-    const [photos] = await pool.query(`
-      SELECT * 
-      FROM treino_fotos
-      WHERE treino_id IN (?)
-    `, [treinoIds]);
-
-    // Associe as fotos aos treinos
-    const trainingsWithPhotos = trainings.map((treino) => {
-      const treinoPhotos = photos.filter((photo) => photo.treino_id === treino.id);
-      return { ...treino, fotos: treinoPhotos.map((photo) => photo.foto_url) };
-    });
-
-    res.status(200).json(trainingsWithPhotos);
+    const [trainings] = await pool.query(
+      'SELECT t.*, u.nome AS usuario, u.fotoPerfil FROM treinos t JOIN usuarios u ON t.usuario_id = u.id ORDER BY t.inicio DESC'
+    );
+    res.status(200).json(trainings);
   } catch (error) {
     console.error('Erro ao buscar treinos:', error);
     res.status(500).json({ error: 'Erro ao buscar treinos.' });
   }
 });
-;
-
-
-
 
 // Inicia o servidor
 app.listen(port, '0.0.0.0', () => {
   console.log(`Servidor rodando em http://192.168.100.3:${port}`);
-})
+});
