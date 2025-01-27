@@ -246,5 +246,5 @@ app.get('/trainings', async (req, res) => {
 
 // Inicia o servidor
 app.listen(port, '0.0.0.0', () => {
-  console.log(`Servidor rodando em http://192.168.100.2:${port}`);
+  console.log(`Servidor rodando em http://192.168.100.3:${port}`);
 });

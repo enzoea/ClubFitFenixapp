@@ -77,7 +77,7 @@ export default function ControlePonto({ navigation, route }) {
         fim: new Date().toISOString(),
       };
   
-      const response = await fetch('http://192.168.100.2:3000/register-training', {
+      const response = await fetch('http://192.168.100.3:3000/register-training', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(treinoFinalizado),
