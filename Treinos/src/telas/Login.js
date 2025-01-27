@@ -17,7 +17,7 @@ export default function Login({ navigation }) {
   
     try {
       console.log('Enviando para o servidor:', { email, senha }); // Log para depuração
-      const response = await fetch('http://192.168.1.10:3000/login', {
+      const response = await fetch('http://192.168.100.2:3000/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, senha }),
