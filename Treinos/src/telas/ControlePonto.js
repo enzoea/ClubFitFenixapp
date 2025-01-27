@@ -1,5 +1,3 @@
-ControlePonto.js
-
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, TextInput, StyleSheet, Alert, ImageBackground, Image, KeyboardAvoidingView, ScrollView, Platform } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
@@ -14,7 +12,7 @@ export default function ControlePonto({ navigation, route }) {
     inicio: null,
     fim: null,
     legenda: '',
-    fotos: [], // Permitir até duas fotos
+    fotos: [],
   });
 
   const atualizarEstado = (campo, valor) => {
@@ -43,12 +41,20 @@ export default function ControlePonto({ navigation, route }) {
       Alert.alert('Erro', 'Por favor, selecione a modalidade do treino antes de iniciar.');
       return;
     }
-  
+
+    const novaFoto = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      quality: 1,
+    });
+
+    if (!novaFoto.canceled) {
+      atualizarEstado('fotos', [...treino.fotos, novaFoto.assets[0].uri]);
+    }
+
     atualizarEstado('inicio', new Date().toISOString());
     atualizarEstado('fim', null);
-    // Remover essa linha para manter as fotos quando o treino for iniciado
-    // atualizarEstado('fotos', []); 
-  
+
     try {
       await AsyncStorage.setItem('treinoAtual', JSON.stringify(treino));
       console.log('Treino iniciado:', treino);
@@ -56,39 +62,47 @@ export default function ControlePonto({ navigation, route }) {
       console.error('Erro ao armazenar o treino atual:', error);
     }
   };
-  
 
   const handleFinalizarTreino = async () => {
     if (!treino.inicio || !treino.tipo) {
       Alert.alert('Erro', 'Você precisa iniciar o treino e preencher os campos necessários antes de finalizar.');
       return;
     }
-  
+
+    const novaFoto = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      quality: 1,
+    });
+
+    if (!novaFoto.canceled) {
+      atualizarEstado('fotos', [...treino.fotos, novaFoto.assets[0].uri]);
+    }
+
     try {
       const usuarioId = await AsyncStorage.getItem('usuarioId');
       if (!usuarioId) {
         Alert.alert('Erro', 'ID do usuário não encontrado.');
         return;
       }
-  
+
       const treinoFinalizado = {
         ...treino,
         usuarioId: parseInt(usuarioId, 10),
         fim: new Date().toISOString(),
       };
-  
+
       const response = await fetch('http://192.168.100.3:3000/register-training', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(treinoFinalizado),
       });
-  
+
       if (response.ok) {
         Alert.alert('Sucesso', 'Treino registrado com sucesso!');
-        // Passar as fotos como parâmetro na navegação
         navigation.navigate('Menu', {
-          feedAtualizado: true, // Atualizar o feed no Menu.js
-          fotos: treinoFinalizado.fotos, // Passar as fotos
+          feedAtualizado: true,
+          fotos: treinoFinalizado.fotos,
         });
       } else {
         const error = await response.json();
@@ -99,73 +113,64 @@ export default function ControlePonto({ navigation, route }) {
       Alert.alert('Erro', 'Erro ao conectar ao servidor.');
     }
   };
-  
-  
 
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-          <ScrollView contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled">
-            <ImageBackground source={backgroundImage} style={styles.imageBackground}>
-              <View style={styles.container}>
-                <BarraMenu style={styles.barraMenu} />
-                <Text style={styles.title}>Registro de treino</Text>
-                <Picker
-                  selectedValue={treino.tipo}
-                  style={styles.picker}
-                  onValueChange={(itemValue) => atualizarEstado('tipo', itemValue)}
-                  enabled={!treino.inicio}
-                >
-                  <Picker.Item label="Selecione o tipo de treino" value="" />
-                  <Picker.Item label="Academia" value="academia" />
-                  <Picker.Item label="Futebol" value="futebol" />
-                  <Picker.Item label="Natação" value="natacao" />
-                  <Picker.Item label="Corrida/Caminhada" value="corrida" />
-                  <Picker.Item label="Esporte Radical" value="esporteRadical" />
-                </Picker>
-          
-                <TextInput
-                  style={styles.input}
-                  placeholder="Escreva uma legenda sobre o treino"
-                  value={treino.legenda}
-                  onChangeText={(text) => atualizarEstado('legenda', text)}
-                />
-          
-                <Text style={styles.texto}>
-                  {treino.inicio ? `Início: ${new Date(treino.inicio).toLocaleString()}` : 'Nenhum treino iniciado'}
-                </Text>
+      <ScrollView contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled">
+        <ImageBackground source={backgroundImage} style={styles.imageBackground}>
+          <View style={styles.container}>
+            <BarraMenu style={styles.barraMenu} />
+            <Text style={styles.title}>Registro de treino</Text>
+            <Picker
+              selectedValue={treino.tipo}
+              style={styles.picker}
+              onValueChange={(itemValue) => atualizarEstado('tipo', itemValue)}
+              enabled={!treino.inicio}
+            >
+              <Picker.Item label="Selecione o tipo de treino" value="" />
+              <Picker.Item label="Academia" value="academia" />
+              <Picker.Item label="Futebol" value="futebol" />
+              <Picker.Item label="Natação" value="natacao" />
+              <Picker.Item label="Corrida/Caminhada" value="corrida" />
+              <Picker.Item label="Esporte Radical" value="esporteRadical" />
+            </Picker>
 
-                
-                <Text style={styles.texto}>
-                  {treino.fim ? `Fim: ${new Date(treino.fim).toLocaleString()}` : 'Treino ainda não finalizado'}
-                </Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Escreva uma legenda sobre o treino"
+              value={treino.legenda}
+              onChangeText={(text) => atualizarEstado('legenda', text)}
+            />
 
-                {/* Mapeando e exibindo as fotos lado a lado */}
-                {treino.fotos.length > 0 && (
-                  <View style={styles.fotosContainer}>
-                    {treino.fotos.map((foto, index) => (
-                      <Image key={index} source={{ uri: foto }} style={styles.foto} />
-                    ))}
-                  </View>
-                )}
-          
-                <TouchableOpacity style={styles.button} onPress={selecionarFoto}>
-                  <Text style={styles.buttonText}>Adicionar Foto ({treino.fotos.length}/2)</Text>
-                </TouchableOpacity>
-          
-                <TouchableOpacity
-                  style={styles.button}
-                  onPress={treino.inicio ? handleFinalizarTreino : handleIniciarTreino}
-                >
-                  <Text style={styles.buttonText}>
-                    {treino.inicio ? 'Finalizar Treino' : 'Iniciar Treino'}
-                  </Text>
-                </TouchableOpacity>
+            <Text style={styles.texto}>
+              {treino.inicio ? `Início: ${new Date(treino.inicio).toLocaleString()}` : 'Nenhum treino iniciado'}
+            </Text>
+
+            <Text style={styles.texto}>
+              {treino.fim ? `Fim: ${new Date(treino.fim).toLocaleString()}` : 'Treino ainda não finalizado'}
+            </Text>
+
+            {treino.fotos.length > 0 && (
+              <View style={styles.fotosContainer}>
+                {treino.fotos.map((foto, index) => (
+                  <Image key={index} source={{ uri: foto }} style={styles.foto} />
+                ))}
               </View>
-            </ImageBackground>
-          </ScrollView>
-      </KeyboardAvoidingView>
+            )}
+
+            <TouchableOpacity
+              style={styles.button}
+              onPress={treino.inicio ? handleFinalizarTreino : handleIniciarTreino}
+            >
+              <Text style={styles.buttonText}>
+                {treino.inicio ? 'Finalizar Treino' : 'Iniciar Treino'}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </ImageBackground>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
-  
 }
 
 const styles = StyleSheet.create({
@@ -242,6 +247,6 @@ const styles = StyleSheet.create({
     width: 150,
     height: 150,
     borderRadius: 10,
-    margin: 5,
-  },
+    margin: 5,
+  },
 });
