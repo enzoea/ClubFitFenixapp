@@ -1,5 +1,8 @@
-CREATE DATABASE if not exists clubfit;
-use clubfit;
+-- Criação do banco de dados
+CREATE DATABASE IF NOT EXISTS clubfit;
+USE clubfit;
+
+-- Tabela de usuários
 CREATE TABLE IF NOT EXISTS usuarios (
   id INT AUTO_INCREMENT PRIMARY KEY,
   nome VARCHAR(100) NOT NULL,
@@ -10,24 +13,26 @@ CREATE TABLE IF NOT EXISTS usuarios (
   dataNascimento DATE NOT NULL
 );
 
+-- Tabela de treinos
 CREATE TABLE IF NOT EXISTS treinos (
   id INT AUTO_INCREMENT PRIMARY KEY,
   usuario_id INT NOT NULL,
   tipo VARCHAR(100) NOT NULL,
   inicio DATETIME NOT NULL,
   fim DATETIME NOT NULL,
+  legenda TEXT, -- Adicionado para suportar legendas dos treinos
   FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
 );
 
-
-
+-- Tabela para fotos de treinos
 CREATE TABLE IF NOT EXISTS treino_fotos (
   id INT AUTO_INCREMENT PRIMARY KEY,
   treino_id INT NOT NULL,
-  foto_url VARCHAR(500) NOT NULL,
+  foto_url VARCHAR(500) NOT NULL, -- Campo para armazenar URLs das fotos
   FOREIGN KEY (treino_id) REFERENCES treinos(id)
 );
 
+-- Tabela de comentários
 CREATE TABLE IF NOT EXISTS comentarios (
   id INT AUTO_INCREMENT PRIMARY KEY,
   usuario_id INT NOT NULL,
@@ -37,16 +42,3 @@ CREATE TABLE IF NOT EXISTS comentarios (
   FOREIGN KEY (usuario_id) REFERENCES usuarios(id),
   FOREIGN KEY (treino_id) REFERENCES treinos(id)
 );
-
-
-SELECT * FROM usuarios;
-SELECT * FROM treinos;
-SELECT * FROM treino_fotos;
-SELECT * FROM comentarios;
-
-ALTER TABLE usuarios ADD COLUMN fotoPerfil VARCHAR(255);
-
-ALTER TABLE treinos ADD COLUMN fotos VARCHAR(500);
-
-
-
