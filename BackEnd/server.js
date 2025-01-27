@@ -3,16 +3,15 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const mysql = require('mysql2/promise');
 const os = require('os');
-
+const { format } = require('date-fns');
 const app = express();
 const port = 3000;
-
 // Configuração da conexão com o PostgreSQL
 const pool = mysql.createPool({
     host: '127.0.0.1',
     port: 3306,
     user: 'root',
-    password: 'aluno',
+    password: 'enzo123',
     database: 'clubfit',
 });
 
@@ -66,23 +65,18 @@ app.post('/register', async (req, res) => {
 app.post('/register-training', async (req, res) => {
   const { usuarioId, tipo, inicio, fim, legenda, fotos } = req.body;
 
-  console.log('Dados Recebidos no Backend:', req.body); // Log para depuração
-
   if (!usuarioId || !tipo || !inicio || !fim) {
     return res.status(400).json({ error: 'Todos os campos são obrigatórios.' });
   }
 
   try {
-    // Verificar se o usuário existe
-    const [user] = await pool.query('SELECT * FROM usuarios WHERE id = ?', [usuarioId]);
-    if (user.length === 0) {
-      return res.status(404).json({ error: 'Usuário não encontrado.' });
-    }
+    // Formatar as datas para o formato aceito pelo MySQL
+    const inicioFormatado = format(new Date(inicio), 'yyyy-MM-dd HH:mm:ss');
+    const fimFormatado = format(new Date(fim), 'yyyy-MM-dd HH:mm:ss');
 
-    // Inserir o novo treino
     await pool.query(
       'INSERT INTO treinos (usuario_id, tipo, inicio, fim, legenda, fotos) VALUES (?, ?, ?, ?, ?, ?)',
-      [usuarioId, tipo, new Date(inicio), new Date(fim), legenda, fotos]
+      [usuarioId, tipo, inicioFormatado, fimFormatado, legenda, JSON.stringify(fotos)]
     );
 
     res.status(201).json({ message: 'Treino registrado com sucesso.' });
@@ -92,6 +86,7 @@ app.post('/register-training', async (req, res) => {
   }
 });
 
+
 // Rota de login
 app.post('/login', async (req, res) => {
   const { email, senha } = req.body;
@@ -100,6 +95,8 @@ app.post('/login', async (req, res) => {
     return res.status(400).json({ error: 'Todos os campos são obrigatórios.' });
   }
 
+  console.log('Recebendo credenciais:', { email, senha }); // Log para depuração
+
   try {
     const [rows] = await pool.query(
       'SELECT id, nome, email, fotoPerfil FROM usuarios WHERE email = ? AND senha = ?',
@@ -107,18 +104,19 @@ app.post('/login', async (req, res) => {
     );
 
     if (rows.length > 0) {
-      res.status(200).json(rows[0]); // Retorna apenas os campos necessários
+      console.log('Usuário autenticado:', rows[0]); // Log do usuário encontrado
+      res.status(200).json(rows[0]);
     } else {
-      res.status(401).json({ error: 'Credenciais inválidas.' });
+      console.log('Credenciais inválidas:', { email, senha }); // Log para credenciais incorretas
+      res.status(401).json({ error: 'Email ou senha incorretos.' });
     }
   } catch (error) {
     console.error('Erro ao autenticar usuário:', error);
-    res.status(500).json({ error: 'Erro ao autenticar usuário.' });
+    res.status(500).json({ error: 'Erro ao autenticar usuário no servidor.' });
   }
 });
 
-// Rota para adicionar comentário
-// Rota para adicionar comentário
+
 // Rota para adicionar comentário
 app.post('/comentarios', async (req, res) => {
   try {
@@ -232,14 +230,21 @@ app.get('/trainings', async (req, res) => {
     const [trainings] = await pool.query(
       'SELECT t.*, u.nome AS usuario, u.fotoPerfil FROM treinos t JOIN usuarios u ON t.usuario_id = u.id ORDER BY t.inicio DESC'
     );
-    res.status(200).json(trainings);
+
+    const formattedTrainings = trainings.map((training) => ({
+      ...training,
+      fotos: training.fotos ? JSON.parse(training.fotos) : [], // Converte JSON para array
+    }));
+
+    res.status(200).json(formattedTrainings);
   } catch (error) {
     console.error('Erro ao buscar treinos:', error);
     res.status(500).json({ error: 'Erro ao buscar treinos.' });
   }
 });
 
+
 // Inicia o servidor
 app.listen(port, '0.0.0.0', () => {
-  console.log(`Servidor rodando em http://192.168.100.3:${port}`);
+  console.log(`Servidor rodando em http://192.168.1.10:${port}`);
 });

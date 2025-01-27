@@ -34,7 +34,7 @@ export default function Perfil({ navigation }) {
           return;
         }
 
-        const response = await fetch(`http://192.168.100.3:3000/user/${id}`);
+        const response = await fetch(`http://192.168.1.10:3000/user/${id}`);
         if (response.ok) {
           const data = await response.json();
           data.dataNascimento = formatarDataParaUsuario(data.dataNascimento);
@@ -105,7 +105,7 @@ export default function Perfil({ navigation }) {
     console.log('Enviando dados para o backend:', dadosParaAtualizar);
 
     try {
-      const response = await fetch(`http://192.168.100.3:3000/user/${usuarioLogado?.id}`, {
+      const response = await fetch(`http://192.168.1.10:3000/user/${usuarioLogado?.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(dadosParaAtualizar),

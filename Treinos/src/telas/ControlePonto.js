@@ -1,7 +1,7 @@
 ControlePonto.js
 
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, TextInput, StyleSheet, Alert, ImageBackground, Image } from 'react-native';
+import { View, Text, TouchableOpacity, TextInput, StyleSheet, Alert, ImageBackground, Image, KeyboardAvoidingView, ScrollView, Platform } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import backgroundImage from '../../assets/background-club.png';
@@ -77,7 +77,7 @@ export default function ControlePonto({ navigation, route }) {
         fim: new Date().toISOString(),
       };
   
-      const response = await fetch('http://192.168.100.3:3000/register-training', {
+      const response = await fetch('http://192.168.1.10:3000/register-training', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(treinoFinalizado),
@@ -103,64 +103,67 @@ export default function ControlePonto({ navigation, route }) {
   
 
   return (
-    <ImageBackground source={backgroundImage} style={styles.imageBackground}>
-      <View style={styles.container}>
-        <BarraMenu style={styles.barraMenu} />
-        <Text style={styles.title}>Registro de treino</Text>
-        <Picker
-          selectedValue={treino.tipo}
-          style={styles.picker}
-          onValueChange={(itemValue) => atualizarEstado('tipo', itemValue)}
-          enabled={!treino.inicio}
-        >
-          <Picker.Item label="Selecione o tipo de treino" value="" />
-          <Picker.Item label="Academia" value="academia" />
-          <Picker.Item label="Futebol" value="futebol" />
-          <Picker.Item label="Natação" value="natacao" />
-          <Picker.Item label="Corrida/Caminhada" value="corrida" />
-          <Picker.Item label="Esporte Radical" value="esporteRadical" />
-        </Picker>
-  
-        <TextInput
-          style={styles.input}
-          placeholder="Escreva uma legenda sobre o treino"
-          value={treino.legenda}
-          onChangeText={(text) => atualizarEstado('legenda', text)}
-        />
-  
-  <Text style={styles.texto}>
-  {treino.inicio ? `Início: ${new Date(treino.inicio).toLocaleString()}` : 'Nenhum treino iniciado'}
-</Text>
+    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+          <ScrollView contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled">
+            <ImageBackground source={backgroundImage} style={styles.imageBackground}>
+              <View style={styles.container}>
+                <BarraMenu style={styles.barraMenu} />
+                <Text style={styles.title}>Registro de treino</Text>
+                <Picker
+                  selectedValue={treino.tipo}
+                  style={styles.picker}
+                  onValueChange={(itemValue) => atualizarEstado('tipo', itemValue)}
+                  enabled={!treino.inicio}
+                >
+                  <Picker.Item label="Selecione o tipo de treino" value="" />
+                  <Picker.Item label="Academia" value="academia" />
+                  <Picker.Item label="Futebol" value="futebol" />
+                  <Picker.Item label="Natação" value="natacao" />
+                  <Picker.Item label="Corrida/Caminhada" value="corrida" />
+                  <Picker.Item label="Esporte Radical" value="esporteRadical" />
+                </Picker>
+          
+                <TextInput
+                  style={styles.input}
+                  placeholder="Escreva uma legenda sobre o treino"
+                  value={treino.legenda}
+                  onChangeText={(text) => atualizarEstado('legenda', text)}
+                />
+          
+                <Text style={styles.texto}>
+                  {treino.inicio ? `Início: ${new Date(treino.inicio).toLocaleString()}` : 'Nenhum treino iniciado'}
+                </Text>
 
-  
-<Text style={styles.texto}>
-  {treino.fim ? `Fim: ${new Date(treino.fim).toLocaleString()}` : 'Treino ainda não finalizado'}
-</Text>
+                
+                <Text style={styles.texto}>
+                  {treino.fim ? `Fim: ${new Date(treino.fim).toLocaleString()}` : 'Treino ainda não finalizado'}
+                </Text>
 
-  
-        {/* Mapeando e exibindo as fotos lado a lado */}
-        {treino.fotos.length > 0 && (
-          <View style={styles.fotosContainer}>
-            {treino.fotos.map((foto, index) => (
-              <Image key={index} source={{ uri: foto }} style={styles.foto} />
-            ))}
-          </View>
-        )}
-  
-        <TouchableOpacity style={styles.button} onPress={selecionarFoto}>
-          <Text style={styles.buttonText}>Adicionar Foto ({treino.fotos.length}/2)</Text>
-        </TouchableOpacity>
-  
-        <TouchableOpacity
-          style={styles.button}
-          onPress={treino.inicio ? handleFinalizarTreino : handleIniciarTreino}
-        >
-          <Text style={styles.buttonText}>
-            {treino.inicio ? 'Finalizar Treino' : 'Iniciar Treino'}
-          </Text>
-        </TouchableOpacity>
-      </View>
-    </ImageBackground>
+                {/* Mapeando e exibindo as fotos lado a lado */}
+                {treino.fotos.length > 0 && (
+                  <View style={styles.fotosContainer}>
+                    {treino.fotos.map((foto, index) => (
+                      <Image key={index} source={{ uri: foto }} style={styles.foto} />
+                    ))}
+                  </View>
+                )}
+          
+                <TouchableOpacity style={styles.button} onPress={selecionarFoto}>
+                  <Text style={styles.buttonText}>Adicionar Foto ({treino.fotos.length}/2)</Text>
+                </TouchableOpacity>
+          
+                <TouchableOpacity
+                  style={styles.button}
+                  onPress={treino.inicio ? handleFinalizarTreino : handleIniciarTreino}
+                >
+                  <Text style={styles.buttonText}>
+                    {treino.inicio ? 'Finalizar Treino' : 'Iniciar Treino'}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </ImageBackground>
+          </ScrollView>
+      </KeyboardAvoidingView>
   );
   
 }

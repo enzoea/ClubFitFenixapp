@@ -22,14 +22,16 @@ export default function Menu({ route, navigation }) {
 
   const carregarFeed = async () => {
     try {
-      const response = await fetch('http://192.168.100.3:3000/trainings');
+      const response = await fetch('http://192.168.1.10:3000/trainings');
       const data = await response.json();
+      console.log('Dados recebidos do servidor:', data); // Log para verificar o formato
       setFeedGlobal(data);
     } catch (error) {
       console.error('Erro ao carregar o feed:', error);
       alert('Erro ao carregar os treinos.');
     }
   };
+  
 
   useFocusEffect(
     React.useCallback(() => {
@@ -72,20 +74,20 @@ export default function Menu({ route, navigation }) {
       <Text style={styles.postContent}>{item.legenda || 'Sem legenda'}</Text>
 
       {/* Renderizando as fotos */}
-{item.fotos && Array.isArray(item.fotos) && item.fotos.length > 0 ? (
-  <View style={styles.fotosContainer}>
-    {item.fotos.map((foto, index) => (
-      <Image
-        key={index}
-        source={{ uri: foto }}
-        style={styles.postImage}
-        onError={() => console.warn(`Erro ao carregar a imagem: ${foto}`)}
-      />
-    ))}
-  </View>
-) : (
-  <Text style={styles.noImageText}>Sem fotos disponíveis.</Text>
-)}
+      {item.fotos && Array.isArray(item.fotos) && item.fotos.length > 0 ? (
+        <View style={styles.fotosContainer}>
+          {item.fotos.map((foto, index) => (
+            <Image
+              key={index}
+              source={{ uri: foto }}
+              style={styles.postImage}
+              onError={() => console.warn(`Erro ao carregar a imagem: ${foto}`)}
+            />
+          ))}
+        </View>
+      ) : (
+        <Text style={styles.noImageText}>Sem fotos disponíveis.</Text>
+      )}
 
 
       <View style={styles.iconRow}>
@@ -117,24 +119,19 @@ export default function Menu({ route, navigation }) {
         </TouchableOpacity>
         <Text style={styles.title}>Feed de Treinos</Text>
         <FlatList
-  data={feedGlobal}
-  keyExtractor={(item, index) => {
-    if (!item || !item.id) {
-      console.warn(`Item inválido no índice ${index}:`, item);
-      return index.toString(); // Fallback para o índice
-    }
-    return item.id.toString();
-  }}
-  renderItem={renderItem}
-  ListEmptyComponent={() => (
-    <Text style={styles.noDataText}>Nenhum treino disponível no momento.</Text>
-  )}
-/>
+          data={feedGlobal}
+          keyExtractor={(item, index) => item.id?.toString() || index.toString()}
+          renderItem={renderItem}
+          ListEmptyComponent={() => (
+            <Text style={styles.noDataText}>Nenhum treino disponível no momento.</Text>
+          )}
+        />
 
-      </View>
-    </ImageBackground>
-  );
-}
+
+              </View>
+            </ImageBackground>
+          );
+        }
 
 const styles = StyleSheet.create({
   imageBackground: {

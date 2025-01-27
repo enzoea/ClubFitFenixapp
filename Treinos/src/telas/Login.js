@@ -14,28 +14,31 @@ export default function Login({ navigation }) {
       Alert.alert('Erro', 'Preencha todos os campos!');
       return;
     }
-
+  
     try {
-      const response = await fetch('http://192.168.100.3:3000/login', {
+      console.log('Enviando para o servidor:', { email, senha }); // Log para depuração
+      const response = await fetch('http://192.168.1.10:3000/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, senha }),
       });
-
+  
       if (response.ok) {
         const usuario = await response.json();
+        console.log('Usuário autenticado:', usuario); // Log para verificar o retorno
         await AsyncStorage.setItem('usuarioId', usuario.id.toString());
-        setUsuarioLogado(usuario); // Atualiza o estado global
-        navigation.navigate('Menu'); // Redireciona para o menu
+        setUsuarioLogado(usuario);
+        navigation.navigate('Menu');
       } else {
         const errorResponse = await response.json();
+        console.error('Erro do servidor:', errorResponse); // Log para verificar o erro
         Alert.alert('Erro', errorResponse.error || 'Credenciais inválidas.');
       }
     } catch (error) {
       console.error('Erro de conexão:', error);
       Alert.alert('Erro', 'Erro ao conectar ao servidor.');
     }
-  };
+  };  
 
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
