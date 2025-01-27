@@ -40,11 +40,41 @@ export default function Menu({ route, navigation }) {
   );
 
   // Constantes para adicionar curtidas e comentários
-  const handleLike = (index) => {
-    const updatedFeed = [...feedGlobal];
-    updatedFeed[index].liked = !updatedFeed[index].liked;
-    setFeedGlobal(updatedFeed);
+  const handleLike = async (index) => {
+    const post = feedGlobal[index];
+    const usuarioId = 1;  // Aqui você deve pegar o ID do usuário logado
+    
+    try {
+      if (post.liked) {
+        // Se já está curtido, vamos remover a curtida
+        await fetch(`http://192.168.100.3:3000/curtidas/${usuarioId}/${post.id}`, {
+          method: 'DELETE',
+        });
+      } else {
+        // Se não está curtido, vamos adicionar a curtida
+        await fetch('http://192.168.100.3:3000/curtidas', {
+          method: 'POST',
+          body: JSON.stringify({
+            usuario_id: usuarioId,
+            treino_id: post.id,
+            data_criacao: new Date(),
+          }),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+      }
+      
+      // Atualizando o estado local para refletir a mudança
+      const updatedFeed = [...feedGlobal];
+      updatedFeed[index].liked = !updatedFeed[index].liked;
+      setFeedGlobal(updatedFeed);
+    } catch (error) {
+      console.error('Erro ao lidar com a curtida:', error);
+      alert('Erro ao curtir o post.');
+    }
   };
+  
 
   const handleComment = (index) => {
     const updatedFeed = [...feedGlobal];

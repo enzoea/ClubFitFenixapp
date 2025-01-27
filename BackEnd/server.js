@@ -116,6 +116,33 @@ app.post('/login', async (req, res) => {
   }
 });
 
+//Rota curtida
+app.post('/curtidas', (req, res) => {
+  const { usuario_id, treino_id, data_criacao } = req.body;
+  const query = 'INSERT INTO curtidas (usuario_id, treino_id, data_criacao) VALUES (?, ?, ?)';
+  
+  db.query(query, [usuario_id, treino_id, data_criacao], (error, results) => {
+    if (error) {
+      return res.status(500).json({ message: 'Erro ao adicionar curtida' });
+    }
+    res.status(201).json({ message: 'Curtida adicionada com sucesso' });
+  });
+});
+
+//rota deletar curtida
+app.delete('/curtidas/:usuario_id/:treino_id', (req, res) => {
+  const { usuario_id, treino_id } = req.params;
+  const query = 'DELETE FROM curtidas WHERE usuario_id = ? AND treino_id = ?';
+  
+  db.query(query, [usuario_id, treino_id], (error, results) => {
+    if (error) {
+      return res.status(500).json({ message: 'Erro ao remover curtida' });
+    }
+    res.status(200).json({ message: 'Curtida removida com sucesso' });
+  });
+});
+
+
 
 // Rota para adicionar comentário
 app.post('/comentarios', async (req, res) => {

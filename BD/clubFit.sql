@@ -13,6 +13,18 @@ CREATE TABLE IF NOT EXISTS usuarios (
   dataNascimento DATE NOT NULL
 );
 
+-- Tabela de curtidas
+CREATE TABLE IF NOT EXISTS curtidas (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  usuario_id INT NOT NULL,
+  treino_id INT NOT NULL,
+  data_criacao DATETIME NOT NULL,
+  FOREIGN KEY (usuario_id) REFERENCES usuarios(id),
+  FOREIGN KEY (treino_id) REFERENCES treinos(id),
+  CONSTRAINT UNIQUE (usuario_id, treino_id)  -- Garantir que um usuário só possa curtir um post uma vez
+);
+
+
 -- Tabela de treinos
 CREATE TABLE IF NOT EXISTS treinos (
   id INT AUTO_INCREMENT PRIMARY KEY,
