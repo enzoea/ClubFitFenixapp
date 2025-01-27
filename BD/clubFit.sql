@@ -42,3 +42,10 @@ CREATE TABLE IF NOT EXISTS comentarios (
   FOREIGN KEY (usuario_id) REFERENCES usuarios(id),
   FOREIGN KEY (treino_id) REFERENCES treinos(id)
 );
+
+SELECT * FROM usuarios;
+SELECT * FROM treinos;
+SELECT * FROM treino_fotos;
+SELECT * FROM comentarios;
+ALTER TABLE usuarios ADD COLUMN fotoPerfil VARCHAR(255);
+ALTER TABLE treinos ADD COLUMN fotos VARCHAR(500);

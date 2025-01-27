@@ -19,21 +19,23 @@ export default function ControlePonto({ navigation, route }) {
     setTreino((prev) => ({ ...prev, [campo]: valor }));
   };
 
-  const selecionarFoto = async () => {
-    if (treino.fotos.length >= 2) {
-      Alert.alert('Limite atingido', 'Você só pode adicionar até 2 fotos.');
-      return;
+  const tirarFoto = async () => {
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+
+    if (status !== 'granted') {
+      Alert.alert('Erro', 'Permissão para acessar a câmera é necessária.');
+      return null;
     }
 
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+    const result = await ImagePicker.launchCameraAsync({
       allowsEditing: true,
       quality: 1,
     });
 
     if (!result.canceled) {
-      atualizarEstado('fotos', [...treino.fotos, result.assets[0].uri]);
+      return result.assets[0].uri;
     }
+    return null;
   };
 
   const handleIniciarTreino = async () => {
@@ -42,14 +44,9 @@ export default function ControlePonto({ navigation, route }) {
       return;
     }
 
-    const novaFoto = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      quality: 1,
-    });
-
-    if (!novaFoto.canceled) {
-      atualizarEstado('fotos', [...treino.fotos, novaFoto.assets[0].uri]);
+    const foto = await tirarFoto();
+    if (foto) {
+      atualizarEstado('fotos', [...treino.fotos, foto]);
     }
 
     atualizarEstado('inicio', new Date().toISOString());
@@ -69,15 +66,13 @@ export default function ControlePonto({ navigation, route }) {
       return;
     }
 
-    const novaFoto = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      quality: 1,
-    });
-
-    if (!novaFoto.canceled) {
-      atualizarEstado('fotos', [...treino.fotos, novaFoto.assets[0].uri]);
+    const foto = await tirarFoto();
+    if (foto) {
+      atualizarEstado('fotos', [...treino.fotos, foto]);
     }
+
+    const fimTreino = new Date().toISOString();
+    atualizarEstado('fim', fimTreino);
 
     try {
       const usuarioId = await AsyncStorage.getItem('usuarioId');
@@ -89,7 +84,7 @@ export default function ControlePonto({ navigation, route }) {
       const treinoFinalizado = {
         ...treino,
         usuarioId: parseInt(usuarioId, 10),
-        fim: new Date().toISOString(),
+        fim: fimTreino,
       };
 
       const response = await fetch('http://192.168.100.3:3000/register-training', {
@@ -247,6 +242,6 @@ const styles = StyleSheet.create({
     width: 150,
     height: 150,
     borderRadius: 10,
-    margin: 5,
-  },
+    margin: 5,
+  },
 });
