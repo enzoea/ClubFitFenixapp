@@ -1,9 +1,11 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const { format, parse } = require("date-fns");
+const { ptBR } = require("date-fns/locale");
 const cors = require('cors');
 const mysql = require('mysql2/promise');
 const os = require('os');
-const { format } = require("date-fns");
+
 const app = express();
 const port = 3000;
 
@@ -11,9 +13,39 @@ const pool = mysql.createPool({
     host: '127.0.0.1',
     port: 3306,
     user: 'root',
-    password: 'enzo123',
+    password: 'aluno',
     database: 'clubfit',
 });
+
+const usuariosFormatados = rows.map(usuario => {
+  let dataCriacao = new Date(usuario.data_criacao);
+  if (isNaN(dataCriacao.getTime())) {
+      dataCriacao = null; // Ou defina um valor default, caso necessário
+  }
+  
+  return {
+      ...usuario,
+      data_criacao: dataCriacao ? format(dataCriacao, "dd/MM/yyyy HH:mm:ss", { locale: ptBR }) : null
+  };
+});
+
+
+app.get('/usuarios', async (req, res) => {
+  try {
+      const [rows] = await pool.query("SELECT id, nome, data_criacao FROM usuarios");
+      
+      const usuariosFormatados = rows.map(usuario => ({
+          ...usuario,
+          data_criacao: format(new Date(usuario.data_criacao), "dd/MM/yyyy HH:mm:ss", { locale: ptBR })
+      }));
+
+      res.json(usuariosFormatados);
+  } catch (error) {
+      res.status(500).json({ erro: "Erro ao buscar usuários" });
+  }
+});
+
+
 
 // Middleware
 app.use(cors());
@@ -70,9 +102,13 @@ app.post('/register-training', async (req, res) => {
   }
 
   try {
-    // Formatando a data para dd/MM/yyyy HH:mm:ss antes de salvar no banco
-    const inicioFormatado = format(new Date(inicio), 'dd/MM/yyyy HH:mm:ss');
-    const fimFormatado = format(new Date(fim), 'dd/MM/yyyy HH:mm:ss');
+    // Converter string do formato brasileiro para Date
+    const inicioDate = parse(inicio, "dd/MM/yyyy HH:mm:ss", new Date(), { locale: ptBR });
+    const fimDate = parse(fim, "dd/MM/yyyy HH:mm:ss", new Date(), { locale: ptBR });
+
+    // Formatar para o formato aceito pelo MySQL
+    const inicioFormatado = format(inicioDate, "yyyy-MM-dd HH:mm:ss");
+    const fimFormatado = format(fimDate, "yyyy-MM-dd HH:mm:ss");
 
     await pool.query(
       'INSERT INTO treinos (usuario_id, tipo, inicio, fim, legenda, fotos) VALUES (?, ?, ?, ?, ?, ?)',
@@ -260,6 +296,8 @@ app.get('/trainings', async (req, res) => {
 
     const formattedTrainings = trainings.map((training) => ({
       ...training,
+      inicio: format(new Date(training.inicio), "dd/MM/yyyy HH:mm:ss"),
+      fim: format(new Date(training.fim), "dd/MM/yyyy HH:mm:ss"),
       fotos: training.fotos ? JSON.parse(training.fotos) : [], // Converte JSON para array
     }));
 
@@ -271,7 +309,8 @@ app.get('/trainings', async (req, res) => {
 });
 
 
+
 // Inicia o servidor
 app.listen(port, '0.0.0.0', () => {
-  console.log(`Servidor rodando em http://192.168.1.4:${port}`);
+  console.log(`Servidor rodando em http://192.168.100.5:${port}`);
 });

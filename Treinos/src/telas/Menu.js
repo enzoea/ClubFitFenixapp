@@ -22,7 +22,7 @@ export default function Menu({ route, navigation }) {
 
   const carregarFeed = async () => {
     try {
-      const response = await fetch('http://192.168.1.4:3000/trainings');
+      const response = await fetch('http://192.168.100.5:3000/trainings');
       const data = await response.json();
       console.log('Dados recebidos do servidor:', data); // Log para verificar o formato
       setFeedGlobal(data);
@@ -47,12 +47,12 @@ export default function Menu({ route, navigation }) {
     try {
       if (post.liked) {
         // Se já está curtido, vamos remover a curtida
-        await fetch(`http://192.168.1.4:3000/curtidas/${usuarioId}/${post.id}`, {
+        await fetch(`http://192.168.100.5:3000/curtidas/${usuarioId}/${post.id}`, {
           method: 'DELETE',
         });
       } else {
         // Se não está curtido, vamos adicionar a curtida
-        await fetch('http://192.168.1.4:3000/curtidas', {
+        await fetch('http://192.168.100.5:3000/curtidas', {
           method: 'POST',
           body: JSON.stringify({
             usuario_id: usuarioId,
