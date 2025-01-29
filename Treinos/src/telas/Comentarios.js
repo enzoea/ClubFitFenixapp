@@ -25,7 +25,7 @@ export default function Comentarios({ route, navigation }) {
   const adicionarComentario = async () => {
     if (novoComentario.trim()) {
       try {
-        const response = await fetch('http://192.168.100.3:3000/comentarios', {
+        const response = await fetch('http://192.168.1.4:3000/comentarios', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

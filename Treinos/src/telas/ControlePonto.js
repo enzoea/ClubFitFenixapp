@@ -5,6 +5,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import backgroundImage from '../../assets/background-club.png';
 import BarraMenu from './componentes/BarraMenu';
 import * as ImagePicker from 'expo-image-picker';
+import { uploadImageToCloudinary } from "../utils/uploadImage";
+
 
 export default function ControlePonto({ navigation, route }) {
   const [treino, setTreino] = useState({
@@ -21,7 +23,6 @@ export default function ControlePonto({ navigation, route }) {
 
   const tirarFoto = async () => {
     const { status } = await ImagePicker.requestCameraPermissionsAsync();
-
     if (status !== 'granted') {
       Alert.alert('Erro', 'Permissão para acessar a câmera é necessária.');
       return null;
@@ -40,74 +41,69 @@ export default function ControlePonto({ navigation, route }) {
 
   const handleIniciarTreino = async () => {
     if (!treino.tipo) {
-      Alert.alert('Erro', 'Por favor, selecione a modalidade do treino antes de iniciar.');
+      Alert.alert('Erro', 'Por favor, selecione o tipo de treino antes de iniciar.');
       return;
     }
 
     const foto = await tirarFoto();
     if (foto) {
-      atualizarEstado('fotos', [...treino.fotos, foto]);
+      const cloudinaryUrl = await uploadImageToCloudinary(foto);
+      if (cloudinaryUrl) {
+        atualizarEstado('fotos', [...treino.fotos, cloudinaryUrl]);
+      }
     }
 
     atualizarEstado('inicio', new Date().toISOString());
     atualizarEstado('fim', null);
-
-    try {
-      await AsyncStorage.setItem('treinoAtual', JSON.stringify(treino));
-      console.log('Treino iniciado:', treino);
-    } catch (error) {
-      console.error('Erro ao armazenar o treino atual:', error);
-    }
   };
 
   const handleFinalizarTreino = async () => {
     if (!treino.inicio || !treino.tipo) {
-      Alert.alert('Erro', 'Você precisa iniciar o treino e preencher os campos necessários antes de finalizar.');
+      Alert.alert('Erro', 'Inicie o treino antes de finalizar.');
       return;
     }
-
-    const foto = await tirarFoto();
-    if (foto) {
-      atualizarEstado('fotos', [...treino.fotos, foto]);
+  
+    const usuarioId = await AsyncStorage.getItem('usuarioId');
+    if (!usuarioId) {
+      Alert.alert('Erro', 'ID do usuário não encontrado.');
+      return;
     }
-
-    const fimTreino = new Date().toISOString();
-    atualizarEstado('fim', fimTreino);
-
+  
+    // 🔥 Convertendo imagens locais para URLs do Cloudinary antes de salvar no banco
+    const uploadedFotos = await Promise.all(
+      treino.fotos.map(async (foto) => {
+        if (foto.startsWith("file://")) {
+          return await uploadImageToCloudinary(foto); // Enviando ao Cloudinary
+        }
+        return foto; // Caso já seja URL do Cloudinary, mantém a mesma
+      })
+    );
+  
     try {
-      const usuarioId = await AsyncStorage.getItem('usuarioId');
-      if (!usuarioId) {
-        Alert.alert('Erro', 'ID do usuário não encontrado.');
-        return;
-      }
-
-      const treinoFinalizado = {
-        ...treino,
-        usuarioId: parseInt(usuarioId, 10),
-        fim: fimTreino,
-      };
-
-      const response = await fetch('http://192.168.100.3:3000/register-training', {
+      const response = await fetch('http://192.168.1.4:3000/register-training', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(treinoFinalizado),
+        body: JSON.stringify({
+          usuarioId: parseInt(usuarioId, 10),
+          tipo: treino.tipo,
+          inicio: new Date(treino.inicio).toISOString(),
+          fim: new Date().toISOString(),
+          legenda: treino.legenda,
+          fotos: uploadedFotos, // 🔥 Agora somente URLs do Cloudinary são salvas
+        }),
       });
-
+  
       if (response.ok) {
         Alert.alert('Sucesso', 'Treino registrado com sucesso!');
-        navigation.navigate('Menu', {
-          feedAtualizado: true,
-          fotos: treinoFinalizado.fotos,
-        });
+        navigation.navigate('Menu', { feedAtualizado: true });
       } else {
-        const error = await response.json();
-        Alert.alert('Erro', error.error || 'Erro ao registrar treino.');
+        Alert.alert('Erro', 'Erro ao registrar treino.');
       }
     } catch (error) {
       console.error('Erro de conexão:', error);
       Alert.alert('Erro', 'Erro ao conectar ao servidor.');
     }
-  };
+  };  
 
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
@@ -148,7 +144,11 @@ export default function ControlePonto({ navigation, route }) {
             {treino.fotos.length > 0 && (
               <View style={styles.fotosContainer}>
                 {treino.fotos.map((foto, index) => (
-                  <Image key={index} source={{ uri: foto }} style={styles.foto} />
+                  <Image
+                    key={index}
+                    source={{ uri: foto.startsWith("http") ? foto : "https://via.placeholder.com/150" }}
+                    style={styles.foto}
+                  />
                 ))}
               </View>
             )}

@@ -6,7 +6,11 @@ const Post = ({ treino }) => {
     <View style={styles.treinoContainer}>
       <View style={styles.usuarioContainer}>
         <Image
-          source={treino.fotoPerfil ? { uri: treino.fotoPerfil } : require('../../../assets/logo.png')}
+          source={
+            treino.fotoPerfil && treino.fotoPerfil.startsWith("http")
+              ? { uri: treino.fotoPerfil }
+              : require('../../../assets/logo.png') // Imagem padrão caso a URL seja inválida
+          }
           style={styles.usuarioFoto}
         />
         <Text style={styles.usuario}>{treino.usuario || 'Anônimo'}</Text>
@@ -22,7 +26,7 @@ const Post = ({ treino }) => {
           {treino.fotos.map((foto, index) => (
             <Image
               key={index}
-              source={{ uri: foto }}
+              source={foto.startsWith("http") ? { uri: foto } : require('../../../assets/logo.png')}
               style={styles.foto}
             />
           ))}
@@ -30,7 +34,6 @@ const Post = ({ treino }) => {
       ) : (
         <Text style={styles.noFotosText}>Sem fotos disponíveis.</Text>
       )}
-
     </View>
   );
 };

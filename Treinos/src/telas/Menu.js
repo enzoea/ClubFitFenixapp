@@ -22,7 +22,7 @@ export default function Menu({ route, navigation }) {
 
   const carregarFeed = async () => {
     try {
-      const response = await fetch('http://192.168.100.3:3000/trainings');
+      const response = await fetch('http://192.168.1.4:3000/trainings');
       const data = await response.json();
       console.log('Dados recebidos do servidor:', data); // Log para verificar o formato
       setFeedGlobal(data);
@@ -47,12 +47,12 @@ export default function Menu({ route, navigation }) {
     try {
       if (post.liked) {
         // Se já está curtido, vamos remover a curtida
-        await fetch(`http://192.168.100.3:3000/curtidas/${usuarioId}/${post.id}`, {
+        await fetch(`http://192.168.1.4:3000/curtidas/${usuarioId}/${post.id}`, {
           method: 'DELETE',
         });
       } else {
         // Se não está curtido, vamos adicionar a curtida
-        await fetch('http://192.168.100.3:3000/curtidas', {
+        await fetch('http://192.168.1.4:3000/curtidas', {
           method: 'POST',
           body: JSON.stringify({
             usuario_id: usuarioId,
@@ -85,15 +85,22 @@ export default function Menu({ route, navigation }) {
   };
 
   const renderItem = ({ item, index }) => (
-    
     <View style={styles.postContainer}>
+      {/* Cabeçalho do post (foto de perfil + nome do usuário) */}
       <View style={styles.postHeader}>
         <Image
-          source={item.fotoPerfil ? { uri: item.fotoPerfil } : require('../../assets/logo.png')}
+          source={
+            item.fotoPerfil && item.fotoPerfil.startsWith("http")
+              ? { uri: item.fotoPerfil }
+              : require('../../assets/logo.png')
+          }
           style={styles.userImage}
+          onError={() => console.warn(`Erro ao carregar foto de perfil: ${item.fotoPerfil}`)}
         />
         <Text style={styles.userName}>{item.usuario || 'Usuário Desconhecido'}</Text>
       </View>
+  
+      {/* Detalhes do treino */}
       <Text style={styles.postContent}>Treino: {item.tipo || 'Sem tipo'}</Text>
       <Text style={styles.postTimestamp}>
         Início: {item.inicio ? new Date(item.inicio).toLocaleString() : 'N/A'}
@@ -102,24 +109,24 @@ export default function Menu({ route, navigation }) {
         Fim: {item.fim ? new Date(item.fim).toLocaleString() : 'N/A'}
       </Text>
       <Text style={styles.postContent}>{item.legenda || 'Sem legenda'}</Text>
-
-      {/* Renderizando as fotos */}
+  
+      {/* Renderizando as fotos do treino */}
       {item.fotos && Array.isArray(item.fotos) && item.fotos.length > 0 ? (
         <View style={styles.fotosContainer}>
-          {item.fotos.map((foto, index) => (
+          {item.fotos.map((foto, i) => (
             <Image
-              key={index}
+              key={i}
               source={{ uri: foto }}
               style={styles.postImage}
-              onError={() => console.warn(`Erro ao carregar a imagem: ${foto}`)}
+              onError={() => console.warn(`Erro ao carregar imagem: ${foto}`)}
             />
           ))}
         </View>
       ) : (
         <Text style={styles.noImageText}>Sem fotos disponíveis.</Text>
       )}
-
-
+  
+      {/* Ícones de curtidas e comentários */}
       <View style={styles.iconRow}>
         <TouchableOpacity onPress={() => handleLike(index)} style={styles.iconButton}>
           <Icon
@@ -135,7 +142,7 @@ export default function Menu({ route, navigation }) {
         </TouchableOpacity>
       </View>
     </View>
-  );
+  );  
 
   return (
     <ImageBackground source={backgroundImage} style={styles.imageBackground}>

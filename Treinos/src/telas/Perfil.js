@@ -3,6 +3,8 @@ import { View, Text, StyleSheet, Image, TextInput, TouchableOpacity, Alert, Keyb
 import { useUser } from '../context/UserContext';
 import * as ImagePicker from 'expo-image-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { uploadImageToCloudinary } from "../utils/uploadImage";
+
 
 export default function Perfil({ navigation }) {
   const { usuarioLogado, setUsuarioLogado } = useUser();
@@ -34,7 +36,7 @@ export default function Perfil({ navigation }) {
           return;
         }
 
-        const response = await fetch(`http://192.168.100.3:3000/user/${id}`);
+        const response = await fetch(`http://192.168.1.4:3000/user/${id}`);
         if (response.ok) {
           const data = await response.json();
           data.dataNascimento = formatarDataParaUsuario(data.dataNascimento);
@@ -66,21 +68,41 @@ export default function Perfil({ navigation }) {
   };
 
   const handleEscolherFoto = async () => {
-    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (!permissionResult.granted) {
-      Alert.alert('Permissão necessária', 'Permita o acesso à galeria para alterar a foto.');
-      return;
-    }
-
     const pickerResult = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       aspect: [1, 1],
       quality: 1,
     });
-
+  
     if (!pickerResult.canceled) {
-      setFotoPerfil(pickerResult.assets[0].uri);
+      const localUri = pickerResult.assets[0].uri;
+  
+      const cloudinaryUrl = await uploadImageToCloudinary(localUri);
+      if (cloudinaryUrl) {
+        setFotoPerfil(cloudinaryUrl);
+        await atualizarFotoNoBanco(cloudinaryUrl);
+      }
+    }
+  };   
+
+  const atualizarFotoNoBanco = async (url) => {
+    try {
+      const response = await fetch(`http://192.168.1.4:3000/user/${usuarioLogado.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fotoPerfil: url }),
+      });
+  
+      if (response.ok) {
+        setUsuarioLogado({ ...usuarioLogado, fotoPerfil: url });
+        Alert.alert('Sucesso', 'Foto de perfil atualizada!');
+      } else {
+        Alert.alert('Erro', 'Erro ao atualizar foto.');
+      }
+    } catch (error) {
+      console.error('Erro ao atualizar foto:', error);
+      Alert.alert('Erro', 'Erro ao conectar ao servidor.');
     }
   };
 
@@ -105,7 +127,7 @@ export default function Perfil({ navigation }) {
     console.log('Enviando dados para o backend:', dadosParaAtualizar);
 
     try {
-      const response = await fetch(`http://192.168.100.3:3000/user/${usuarioLogado?.id}`, {
+      const response = await fetch(`http://192.168.1.4:3000/user/${usuarioLogado?.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(dadosParaAtualizar),
@@ -137,7 +159,11 @@ export default function Perfil({ navigation }) {
           <Text style={styles.title}>Perfil</Text>
           <TouchableOpacity onPress={handleEscolherFoto}>
             <Image
-              source={fotoPerfil ? { uri: fotoPerfil } : require('../../assets/logo.png')}
+              source={
+                fotoPerfil && fotoPerfil.startsWith("http") 
+                ? { uri: fotoPerfil } 
+                : require('../../assets/logo.png')
+              }
               style={styles.fotoPerfil}
             />
           </TouchableOpacity>

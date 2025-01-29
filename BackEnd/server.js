@@ -3,15 +3,15 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const mysql = require('mysql2/promise');
 const os = require('os');
-const { format } = require('date-fns');
+const { format } = require("date-fns");
 const app = express();
 const port = 3000;
-// Configuração da conexão com o PostgreSQL
+
 const pool = mysql.createPool({
     host: '127.0.0.1',
     port: 3306,
     user: 'root',
-    password: 'aluno',
+    password: 'enzo123',
     database: 'clubfit',
 });
 
@@ -70,9 +70,9 @@ app.post('/register-training', async (req, res) => {
   }
 
   try {
-    // Formatar as datas para o formato aceito pelo MySQL
-    const inicioFormatado = format(new Date(inicio), 'yyyy-MM-dd HH:mm:ss');
-    const fimFormatado = format(new Date(fim), 'yyyy-MM-dd HH:mm:ss');
+    // Formatando a data para dd/MM/yyyy HH:mm:ss antes de salvar no banco
+    const inicioFormatado = format(new Date(inicio), 'dd/MM/yyyy HH:mm:ss');
+    const fimFormatado = format(new Date(fim), 'dd/MM/yyyy HH:mm:ss');
 
     await pool.query(
       'INSERT INTO treinos (usuario_id, tipo, inicio, fim, legenda, fotos) VALUES (?, ?, ?, ?, ?, ?)',
@@ -273,5 +273,5 @@ app.get('/trainings', async (req, res) => {
 
 // Inicia o servidor
 app.listen(port, '0.0.0.0', () => {
-  console.log(`Servidor rodando em http://192.168.100.3:${port}`);
+  console.log(`Servidor rodando em http://192.168.1.4:${port}`);
 });
