@@ -1,11 +1,9 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const { format, parse } = require("date-fns");
-const { ptBR } = require("date-fns/locale");
 const cors = require('cors');
 const mysql = require('mysql2/promise');
 const os = require('os');
-
+const { format } = require("date-fns");
 const app = express();
 const port = 3000;
 
@@ -16,36 +14,6 @@ const pool = mysql.createPool({
     password: 'aluno',
     database: 'clubfit',
 });
-
-const usuariosFormatados = rows.map(usuario => {
-  let dataCriacao = new Date(usuario.data_criacao);
-  if (isNaN(dataCriacao.getTime())) {
-      dataCriacao = null; // Ou defina um valor default, caso necessário
-  }
-  
-  return {
-      ...usuario,
-      data_criacao: dataCriacao ? format(dataCriacao, "dd/MM/yyyy HH:mm:ss", { locale: ptBR }) : null
-  };
-});
-
-
-app.get('/usuarios', async (req, res) => {
-  try {
-      const [rows] = await pool.query("SELECT id, nome, data_criacao FROM usuarios");
-      
-      const usuariosFormatados = rows.map(usuario => ({
-          ...usuario,
-          data_criacao: format(new Date(usuario.data_criacao), "dd/MM/yyyy HH:mm:ss", { locale: ptBR })
-      }));
-
-      res.json(usuariosFormatados);
-  } catch (error) {
-      res.status(500).json({ erro: "Erro ao buscar usuários" });
-  }
-});
-
-
 
 // Middleware
 app.use(cors());
@@ -102,13 +70,10 @@ app.post('/register-training', async (req, res) => {
   }
 
   try {
-    // Converter string do formato brasileiro para Date
-    const inicioDate = parse(inicio, "dd/MM/yyyy HH:mm:ss", new Date(), { locale: ptBR });
-    const fimDate = parse(fim, "dd/MM/yyyy HH:mm:ss", new Date(), { locale: ptBR });
-
-    // Formatar para o formato aceito pelo MySQL
-    const inicioFormatado = format(inicioDate, "yyyy-MM-dd HH:mm:ss");
-    const fimFormatado = format(fimDate, "yyyy-MM-dd HH:mm:ss");
+    // Formatando a data para dd/MM/yyyy HH:mm:ss antes de salvar no banco
+    const inicioFormatado = format(new Date(inicio), 'yyyy-MM-dd HH:mm:ss');
+    const fimFormatado = format(new Date(fim), 'yyyy-MM-dd HH:mm:ss');
+    
 
     await pool.query(
       'INSERT INTO treinos (usuario_id, tipo, inicio, fim, legenda, fotos) VALUES (?, ?, ?, ?, ?, ?)',
@@ -183,16 +148,21 @@ app.delete('/curtidas/:usuario_id/:treino_id', (req, res) => {
 // Rota para adicionar comentário
 app.post('/comentarios', async (req, res) => {
   try {
-    const { treino_id, usuario_id, comentario } = req.body;
+    const { treino_id, usuario_id, comentario, data_criacao } = req.body;
+
+     // Validação para garantir que o comentário não seja vazio
+     if (!comentario || comentario.length < 1) {
+      return res.status(400).json({ message: 'Comentário não pode ser vazio.' });
+    }
 
     if (!treino_id || !usuario_id || !comentario) {
       return res.status(400).json({ message: 'Todos os campos são obrigatórios.' });
     }
 
-    // Simule um salvamento no banco de dados
-    await database.query(
-      'INSERT INTO comentarios (treino_id, usuario_id, comentario) VALUES (?, ?, ?)',
-      [treino_id, usuario_id, comentario]
+    // Salva o comentário no banco de dados
+    await pool.query(
+      'INSERT INTO comentarios (treino_id, usuario_id, comentario, data_criacao) VALUES (?, ?, ?, ?)',
+      [treino_id, usuario_id, comentario, data_criacao]
     );
 
     res.status(201).json({ message: 'Comentário adicionado com sucesso!' });
@@ -202,27 +172,26 @@ app.post('/comentarios', async (req, res) => {
   }
 });
 
+
 // Rota para buscar os comentários de um post
 // Rota para listar comentários de um treino específico
 app.get('/comentarios/:treinoId', async (req, res) => {
   const { treinoId } = req.params;
 
   try {
-    // Verificar se o treino existe
+    // Verifica se o treino existe
     const [treino] = await pool.query('SELECT * FROM treinos WHERE id = ?', [treinoId]);
     if (treino.length === 0) {
       return res.status(404).json({ error: 'Treino não encontrado.' });
     }
 
-    // Buscar comentários do treino
+    // Busca os comentários do treino
     const [comentarios] = await pool.query(
-      `
-      SELECT c.id, c.comentario, c.data_criacao, u.nome AS usuario_nome, u.fotoPerfil AS usuario_foto
+      `SELECT c.id, c.comentario, c.data_criacao, u.nome AS usuario_nome, u.fotoPerfil AS usuario_foto
       FROM comentarios c
       INNER JOIN usuarios u ON c.usuario_id = u.id
       WHERE c.treino_id = ?
-      ORDER BY c.data_criacao DESC
-      `,
+      ORDER BY c.data_criacao DESC`,
       [treinoId]
     );
 
@@ -232,6 +201,7 @@ app.get('/comentarios/:treinoId', async (req, res) => {
     res.status(500).json({ error: 'Erro ao buscar comentários.' });
   }
 });
+
 
 
 
@@ -296,8 +266,6 @@ app.get('/trainings', async (req, res) => {
 
     const formattedTrainings = trainings.map((training) => ({
       ...training,
-      inicio: format(new Date(training.inicio), "dd/MM/yyyy HH:mm:ss"),
-      fim: format(new Date(training.fim), "dd/MM/yyyy HH:mm:ss"),
       fotos: training.fotos ? JSON.parse(training.fotos) : [], // Converte JSON para array
     }));
 
@@ -307,7 +275,6 @@ app.get('/trainings', async (req, res) => {
     res.status(500).json({ error: 'Erro ao buscar treinos.' });
   }
 });
-
 
 
 // Inicia o servidor

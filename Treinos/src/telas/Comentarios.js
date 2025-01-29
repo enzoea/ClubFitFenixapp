@@ -5,20 +5,23 @@ import Icon from 'react-native-vector-icons/Ionicons'; // Ícone de envio
 
 export default function Comentarios({ route, navigation }) {
   const { post } = route.params; // Recebe o post via navegação
-  const [comentarios, setComentarios] = useState(post.comments || []); // Lista de comentários
+  const [comentarios, setComentarios] = useState(post?.comments || []); // Lista de comentários
   const [novoComentario, setNovoComentario] = useState(''); // Novo comentário
   const { usuarioLogado } = useUser(); // Acessa as informações do usuário logado
   const [feedGlobal, setFeedGlobal] = useState([]); // Adicionando o estado para feedGlobal
 
   useEffect(() => {
-    console.log('Dados no Menu:', feedGlobal); // Verifique os dados de feedGlobal
-  
+    // Verifica se há dados para atualizar o feedGlobal
     if (route.params?.feedAtualizado) {
       const fotosPassadas = route.params.fotos;
-      setFeedGlobal((prevFeed) => [
-        ...prevFeed,
-        { fotos: fotosPassadas },
-      ]);
+      if (fotosPassadas && Array.isArray(fotosPassadas)) {
+        setFeedGlobal((prevFeed) => [
+          ...prevFeed,
+          { fotos: fotosPassadas },
+        ]);
+      } else {
+        console.warn("Dados de fotos inválidos", fotosPassadas);
+      }
     }
   }, [route.params?.feedAtualizado]); // O useEffect depende da atualização de feedAtualizado
 
@@ -73,8 +76,8 @@ export default function Comentarios({ route, navigation }) {
       <View style={styles.postContainer}>
         <Text style={styles.usuario}>{post.usuario}</Text>
         <Text style={styles.treinoDetails}>Tipo de Treino: {post.tipo}</Text>
-<Text style={styles.treinoDetails}>Início: {new Date(post.inicio).toLocaleString()}</Text>
-<Text style={styles.treinoDetails}>Fim: {new Date(post.fim).toLocaleString()}</Text>
+        <Text style={styles.treinoDetails}>Início: {new Date(post.inicio).toLocaleString()}</Text>
+        <Text style={styles.treinoDetails}>Fim: {new Date(post.fim).toLocaleString()}</Text>
 
         {post.imagem && <Image source={{ uri: post.imagem }} style={styles.postImage} />}
         {post.legenda && <Text style={styles.legenda}>{post.legenda}</Text>} {/* Exibe a legenda do post */}

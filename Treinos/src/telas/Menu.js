@@ -8,7 +8,6 @@ import Icon from 'react-native-vector-icons/Ionicons';
 export default function Menu({ route, navigation }) {
   const [feedGlobal, setFeedGlobal] = useState([]);
 
-  // Usando useEffect para atualizar o feed com as fotos passadas de ControlePonto
   useEffect(() => {
     console.log('Dados no Menu:', feedGlobal);
     if (route.params?.feedAtualizado) {
@@ -18,7 +17,7 @@ export default function Menu({ route, navigation }) {
         { fotos: fotosPassadas },
       ]);
     }
-  }, [route.params?.feedAtualizado]);  // Reagindo à mudança dos parâmetros
+  }, [route.params?.feedAtualizado]);
 
   const carregarFeed = async () => {
     try {
@@ -31,7 +30,6 @@ export default function Menu({ route, navigation }) {
       alert('Erro ao carregar os treinos.');
     }
   };
-  
 
   useFocusEffect(
     React.useCallback(() => {
@@ -39,19 +37,16 @@ export default function Menu({ route, navigation }) {
     }, [])
   );
 
-  // Constantes para adicionar curtidas e comentários
   const handleLike = async (index) => {
     const post = feedGlobal[index];
-    const usuarioId = 1;  // Aqui você deve pegar o ID do usuário logado
-    
+    const usuarioId = 1;
+
     try {
       if (post.liked) {
-        // Se já está curtido, vamos remover a curtida
         await fetch(`http://192.168.100.5:3000/curtidas/${usuarioId}/${post.id}`, {
           method: 'DELETE',
         });
       } else {
-        // Se não está curtido, vamos adicionar a curtida
         await fetch('http://192.168.100.5:3000/curtidas', {
           method: 'POST',
           body: JSON.stringify({
@@ -64,8 +59,7 @@ export default function Menu({ route, navigation }) {
           },
         });
       }
-      
-      // Atualizando o estado local para refletir a mudança
+
       const updatedFeed = [...feedGlobal];
       updatedFeed[index].liked = !updatedFeed[index].liked;
       setFeedGlobal(updatedFeed);
@@ -74,7 +68,6 @@ export default function Menu({ route, navigation }) {
       alert('Erro ao curtir o post.');
     }
   };
-  
 
   const handleComment = (index) => {
     const updatedFeed = [...feedGlobal];
@@ -86,7 +79,6 @@ export default function Menu({ route, navigation }) {
 
   const renderItem = ({ item, index }) => (
     <View style={styles.postContainer}>
-      {/* Cabeçalho do post (foto de perfil + nome do usuário) */}
       <View style={styles.postHeader}>
         <Image
           source={
@@ -99,8 +91,7 @@ export default function Menu({ route, navigation }) {
         />
         <Text style={styles.userName}>{item.usuario || 'Usuário Desconhecido'}</Text>
       </View>
-  
-      {/* Detalhes do treino */}
+
       <Text style={styles.postContent}>Treino: {item.tipo || 'Sem tipo'}</Text>
       <Text style={styles.postTimestamp}>
         Início: {item.inicio ? new Date(item.inicio).toLocaleString() : 'N/A'}
@@ -109,8 +100,7 @@ export default function Menu({ route, navigation }) {
         Fim: {item.fim ? new Date(item.fim).toLocaleString() : 'N/A'}
       </Text>
       <Text style={styles.postContent}>{item.legenda || 'Sem legenda'}</Text>
-  
-      {/* Renderizando as fotos do treino */}
+
       {item.fotos && Array.isArray(item.fotos) && item.fotos.length > 0 ? (
         <View style={styles.fotosContainer}>
           {item.fotos.map((foto, i) => (
@@ -125,8 +115,7 @@ export default function Menu({ route, navigation }) {
       ) : (
         <Text style={styles.noImageText}>Sem fotos disponíveis.</Text>
       )}
-  
-      {/* Ícones de curtidas e comentários */}
+
       <View style={styles.iconRow}>
         <TouchableOpacity onPress={() => handleLike(index)} style={styles.iconButton}>
           <Icon
@@ -142,7 +131,7 @@ export default function Menu({ route, navigation }) {
         </TouchableOpacity>
       </View>
     </View>
-  );  
+  );
 
   return (
     <ImageBackground source={backgroundImage} style={styles.imageBackground}>
@@ -154,6 +143,15 @@ export default function Menu({ route, navigation }) {
         >
           <Text style={styles.newPostButtonText}>Registrar Novo Treino</Text>
         </TouchableOpacity>
+
+        {/* Botão para navegar para a tela Comentarios */}
+        <TouchableOpacity
+          style={styles.newPostButton}
+          onPress={() => navigation.navigate('Comentarios')} // Navegando para Comentarios
+        >
+          <Text style={styles.newPostButtonText}>Ir para Comentários</Text>
+        </TouchableOpacity>
+
         <Text style={styles.title}>Feed de Treinos</Text>
         <FlatList
           data={feedGlobal}
@@ -163,12 +161,10 @@ export default function Menu({ route, navigation }) {
             <Text style={styles.noDataText}>Nenhum treino disponível no momento.</Text>
           )}
         />
-
-
-              </View>
-            </ImageBackground>
-          );
-        }
+      </View>
+    </ImageBackground>
+  );
+}
 
 const styles = StyleSheet.create({
   imageBackground: {
@@ -197,13 +193,6 @@ const styles = StyleSheet.create({
   userName: { fontWeight: 'bold', fontSize: 16, color: '#febc02' },
   postContent: { fontSize: 14, color: '#fff', marginBottom: 5 },
   postTimestamp: { fontSize: 12, color: '#bbb', marginBottom: 10 },
-  likeButton: {
-    alignSelf: 'flex-start',
-    backgroundColor: '#febc02',
-    paddingVertical: 5,
-    paddingHorizontal: 10,
-    borderRadius: 5,
-  },
   iconRow: {
     flexDirection: 'row',
     justifyContent: 'flex-start',
@@ -234,8 +223,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 20,
   },
-  
-  likeButtonText: { fontSize: 12, fontWeight: 'bold', color: '#fff' },
   newPostButton: {
     backgroundColor: '#febc02',
     padding: 15,
@@ -246,3 +233,4 @@ const styles = StyleSheet.create({
   },
   newPostButtonText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
 });
+
