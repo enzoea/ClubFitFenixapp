@@ -148,7 +148,7 @@ app.delete('/curtidas/:usuario_id/:treino_id', (req, res) => {
 // Rota para adicionar comentário
 app.post('/comentarios', async (req, res) => {
   try {
-    const { treino_id, usuario_id, comentario, data_criacao } = req.body;
+    const { treino_id, usuario_id, comentario } = req.body;
 
      // Validação para garantir que o comentário não seja vazio
      if (!comentario || comentario.length < 1) {
@@ -161,8 +161,8 @@ app.post('/comentarios', async (req, res) => {
 
     // Salva o comentário no banco de dados
     await pool.query(
-      'INSERT INTO comentarios (treino_id, usuario_id, comentario, data_criacao) VALUES (?, ?, ?, ?)',
-      [treino_id, usuario_id, comentario, data_criacao]
+      'INSERT INTO comentarios (treino_id, usuario_id, comentario) VALUES (?, ?, ?)',
+      [treino_id, usuario_id, comentario]
     );
 
     res.status(201).json({ message: 'Comentário adicionado com sucesso!' });
@@ -181,21 +181,20 @@ app.get('/comentarios/:treinoId', async (req, res) => {
   try {
     // Verifica se o treino existe
     const [treino] = await pool.query('SELECT * FROM treinos WHERE id = ?', [treinoId]);
-    if (treino.length === 0) {
+    if (!treino || treino.length === 0) {
       return res.status(404).json({ error: 'Treino não encontrado.' });
     }
 
     // Busca os comentários do treino
     const [comentarios] = await pool.query(
-      `SELECT c.id, c.comentario, c.data_criacao, u.nome AS usuario_nome, u.fotoPerfil AS usuario_foto
+      `SELECT c.id, c.comentario, u.nome AS usuario_nome, u.fotoPerfil AS usuario_foto
       FROM comentarios c
       INNER JOIN usuarios u ON c.usuario_id = u.id
-      WHERE c.treino_id = ?
-      ORDER BY c.data_criacao DESC`,
+      WHERE c.treino_id = ?`,
       [treinoId]
     );
 
-    res.status(200).json({ treinoId, comentarios });
+    res.status(200).json({ comentarios });
   } catch (error) {
     console.error('Erro ao buscar comentários:', error);
     res.status(500).json({ error: 'Erro ao buscar comentários.' });

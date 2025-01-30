@@ -5,7 +5,7 @@ import Icon from 'react-native-vector-icons/Ionicons'; // Ícone de envio
 
 export default function Comentarios({ route, navigation }) {
   const { post } = route.params; // Recebe o post via navegação
-  const [comentarios, setComentarios] = useState(post?.comments || []); // Lista de comentários
+  const [comentarios, setComentarios] = useState([]); // Lista de comentários
   const [novoComentario, setNovoComentario] = useState(''); // Novo comentário
   const { usuarioLogado } = useUser(); // Acessa as informações do usuário logado
   const [feedGlobal, setFeedGlobal] = useState([]); // Adicionando o estado para feedGlobal
@@ -39,34 +39,23 @@ export default function Comentarios({ route, navigation }) {
             comentario: novoComentario,
           }),
         });
-
-        const text = await response.text();
-        console.log('Resposta do backend (texto):', text);
-
-        try {
-          const data = JSON.parse(text);
-
-          if (!response.ok) {
-            alert(`Erro ao adicionar comentário: ${data.message || 'Erro desconhecido'}`);
-            return;
-          }
-
-          const novoComentarioData = {
-            texto: novoComentario,
-            nomeUsuario: usuarioLogado?.nome || 'Usuário Anônimo',
-            fotoPerfil: usuarioLogado?.fotoPerfil,
-          };
-
-          setComentarios((prev) => [...prev, novoComentarioData]);
-          setNovoComentario('');
-        } catch (jsonError) {
-          console.error('Erro ao analisar JSON:', jsonError);
-          alert('O servidor retornou um formato inesperado.');
+      
+        if (!response.ok) {
+          throw new Error('Erro ao adicionar comentário');
         }
+      
+        const data = await response.json();
+        console.log('Comentário salvo no banco:', data);
+      
+        // Atualiza a lista de comentários
+        setComentarios((prev) => [...prev, data]);
+        setNovoComentario('');
+      
       } catch (error) {
         console.error('Erro no fetch:', error);
-        alert(`Erro ao adicionar comentário: ${error.message}`);
+        alert('Erro ao adicionar comentário.');
       }
+      
     }
   };
 
@@ -74,13 +63,18 @@ export default function Comentarios({ route, navigation }) {
     <View style={styles.container}>
       {/* Exibição do Post */}
       <View style={styles.postContainer}>
-        <Text style={styles.usuario}>{post.usuario}</Text>
-        <Text style={styles.treinoDetails}>Tipo de Treino: {post.tipo}</Text>
-        <Text style={styles.treinoDetails}>Início: {new Date(post.inicio).toLocaleString()}</Text>
-        <Text style={styles.treinoDetails}>Fim: {new Date(post.fim).toLocaleString()}</Text>
-
+        <Text style={styles.usuario}>{String(post.usuario || 'Usuário desconhecido')}</Text>
+        <Text style={styles.treinoDetails}>Tipo de Treino: {String(post.tipo || 'Não informado')}</Text>
+        <Text style={styles.treinoDetails}>
+          Início: {post.inicio ? new Date(post.inicio).toLocaleString() : 'Não informado'}
+        </Text>
+        <Text style={styles.treinoDetails}>
+          Fim: {post.fim ? new Date(post.fim).toLocaleString() : 'Não informado'}
+        </Text>
+  
         {post.imagem && <Image source={{ uri: post.imagem }} style={styles.postImage} />}
-        {post.legenda && <Text style={styles.legenda}>{post.legenda}</Text>} {/* Exibe a legenda do post */}
+        {post.legenda && <Text style={styles.legenda}>{String(post.legenda)}</Text>}
+  
         {Array.isArray(post.fotos) && post.fotos.length > 0 ? (
           <View style={styles.fotosContainer}>
             {post.fotos.map((foto, index) => (
@@ -96,7 +90,7 @@ export default function Comentarios({ route, navigation }) {
           <Text style={styles.noImageText}>Sem fotos disponíveis.</Text>
         )}
       </View>
-
+  
       {/* Lista de Comentários */}
       <Text style={styles.title}>Comentários</Text>
       <FlatList
@@ -107,19 +101,19 @@ export default function Comentarios({ route, navigation }) {
             <View style={styles.headerComentario}>
               <Image
                 source={
-                  item.fotoPerfil
+                  item.fotoPerfil && item.fotoPerfil !== ''
                     ? { uri: item.fotoPerfil }
                     : require('../../assets/logo.png')
                 }
                 style={styles.fotoPerfil}
               />
-              <Text style={styles.nomeUsuario}>{item.nomeUsuario}</Text>
+              <Text style={styles.nomeUsuario}>{String(item.nomeUsuario || 'Usuário Anônimo')}</Text>
             </View>
-            <Text>{item.texto}</Text>
+            <Text>{String(item.texto || '')}</Text>
           </View>
         )}
       />
-
+  
       {/* Campo de Digitação de Comentário */}
       <View style={styles.footer}>
         <TextInput
@@ -134,6 +128,7 @@ export default function Comentarios({ route, navigation }) {
       </View>
     </View>
   );
+  
 }
 
 const styles = StyleSheet.create({
