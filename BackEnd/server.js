@@ -150,8 +150,7 @@ app.post('/comentarios', async (req, res) => {
   try {
     const { treino_id, usuario_id, comentario } = req.body;
 
-     // Validação para garantir que o comentário não seja vazio
-     if (!comentario || comentario.length < 1) {
+    if (!comentario || comentario.length < 1) {
       return res.status(400).json({ message: 'Comentário não pode ser vazio.' });
     }
 
@@ -160,21 +159,22 @@ app.post('/comentarios', async (req, res) => {
     }
 
     // Salva o comentário no banco de dados
-    await pool.query(
+    const result = await pool.query(
       'INSERT INTO comentarios (treino_id, usuario_id, comentario) VALUES (?, ?, ?)',
       [treino_id, usuario_id, comentario]
     );
 
-    res.status(201).json({ message: 'Comentário adicionado com sucesso!' });
+    res.status(201).json({ 
+      message: 'Comentário adicionado com sucesso!',
+      comentario: { treino_id, usuario_id, comentario } // Envia o comentário adicionado
+    });
   } catch (error) {
     console.error('Erro ao processar requisição:', error);
     res.status(500).json({ message: 'Erro interno do servidor' });
   }
 });
 
-
 // Rota para buscar os comentários de um post
-// Rota para listar comentários de um treino específico
 app.get('/comentarios/:treinoId', async (req, res) => {
   const { treinoId } = req.params;
 
@@ -194,12 +194,18 @@ app.get('/comentarios/:treinoId', async (req, res) => {
       [treinoId]
     );
 
+    if (comentarios.length === 0) {
+      return res.status(200).json({ comentarios: [], message: 'Não há comentários para este treino.' });
+    }
+
     res.status(200).json({ comentarios });
   } catch (error) {
     console.error('Erro ao buscar comentários:', error);
     res.status(500).json({ error: 'Erro ao buscar comentários.' });
   }
 });
+
+
 
 
 

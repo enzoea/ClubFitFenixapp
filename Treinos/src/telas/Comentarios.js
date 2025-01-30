@@ -10,20 +10,18 @@ export default function Comentarios({ route, navigation }) {
   const { usuarioLogado } = useUser(); // Acessa as informações do usuário logado
   const [feedGlobal, setFeedGlobal] = useState([]); // Adicionando o estado para feedGlobal
 
+
+
   useEffect(() => {
-    // Verifica se há dados para atualizar o feedGlobal
-    if (route.params?.feedAtualizado) {
-      const fotosPassadas = route.params.fotos;
-      if (fotosPassadas && Array.isArray(fotosPassadas)) {
+      console.log('Dados no Menu:', feedGlobal);
+      if (route.params?.feedAtualizado) {
+        const fotosPassadas = route.params.fotos;
         setFeedGlobal((prevFeed) => [
           ...prevFeed,
           { fotos: fotosPassadas },
         ]);
-      } else {
-        console.warn("Dados de fotos inválidos", fotosPassadas);
       }
-    }
-  }, [route.params?.feedAtualizado]); // O useEffect depende da atualização de feedAtualizado
+    }, [route.params?.feedAtualizado]);
 
   const adicionarComentario = async () => {
     if (novoComentario.trim()) {
@@ -39,25 +37,25 @@ export default function Comentarios({ route, navigation }) {
             comentario: novoComentario,
           }),
         });
-      
+  
         if (!response.ok) {
           throw new Error('Erro ao adicionar comentário');
         }
-      
+  
         const data = await response.json();
         console.log('Comentário salvo no banco:', data);
-      
-        // Atualiza a lista de comentários
-        setComentarios((prev) => [...prev, data]);
+  
+        // Adiciona o comentário ao estado com base na estrutura da resposta
+        setComentarios((prev) => [...prev, data.comentario]); // Adicionando data.comentario ao estado
+  
         setNovoComentario('');
-      
       } catch (error) {
         console.error('Erro no fetch:', error);
         alert('Erro ao adicionar comentário.');
       }
-      
     }
   };
+  
 
   return (
     <View style={styles.container}>
