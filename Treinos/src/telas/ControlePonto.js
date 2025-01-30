@@ -80,7 +80,7 @@ export default function ControlePonto({ navigation, route }) {
     );
   
     try {
-      const response = await fetch('http://192.168.100.5:3000/register-training', {
+      const response = await fetch('http://192.168.100.113:3000/register-training', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
