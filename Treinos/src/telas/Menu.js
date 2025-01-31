@@ -43,11 +43,11 @@ export default function Menu({ route, navigation }) {
 
     try {
       if (post.liked) {
-        await fetch(`http://192.168.100.113:3000/curtidas/${usuarioId}/${post.id}`, {
+        await fetch(`http://192.168.100.5:3000/curtidas/${usuarioId}/${post.id}`, {
           method: 'DELETE',
         });
       } else {
-        await fetch('http://192.168.100.113:3000/curtidas', {
+        await fetch('http://192.168.100.5:3000/curtidas', {
           method: 'POST',
           body: JSON.stringify({
             usuario_id: usuarioId,
