@@ -121,29 +121,60 @@ app.post('/login', async (req, res) => {
 // Rota curtida
 app.post('/curtidas', (req, res) => {
   const { usuario_id, treino_id } = req.body;
-  console.log('Recebendo dados de curtida:', req.body); // Adicione este log
-  const query = 'INSERT INTO curtidas (usuario_id, treino_id) VALUES (?, ?)';
+  console.log('Recebendo dados de curtida:', req.body);
+
+  // Verificando se a curtida já existe
+  const checkQuery = 'SELECT * FROM curtidas WHERE usuario_id = ? AND treino_id = ?';
   
-  pool.query(query, [usuario_id, treino_id], (error, results) => { // Alterado db.query para pool.query
+  pool.query(checkQuery, [usuario_id, treino_id], (error, results) => {
     if (error) {
-      return res.status(500).json({ message: 'Erro ao adicionar curtida' });
+      return res.status(500).json({ message: 'Erro ao verificar curtida existente' });
     }
-    res.status(201).json({ message: 'Curtida adicionada com sucesso' });
+    
+    if (results.length > 0) {
+      // Curtida já existe, não permitir nova
+      return res.status(400).json({ message: 'Você já curtiu este treino!' });
+    }
+
+    // Se não existir, adicionar a curtida
+    const query = 'INSERT INTO curtidas (usuario_id, treino_id) VALUES (?, ?)';
+    pool.query(query, [usuario_id, treino_id], (error, results) => {
+      if (error) {
+        return res.status(500).json({ message: 'Erro ao adicionar curtida' });
+      }
+      res.status(201).json({ message: 'Curtida adicionada com sucesso' });
+    });
   });
 });
 
+
 app.delete('/curtidas/:usuario_id/:treino_id', (req, res) => {
   const { usuario_id, treino_id } = req.params;
-  console.log('Deletando curtida para:', { usuario_id, treino_id }); // Adicione este log
-  const query = 'DELETE FROM curtidas WHERE usuario_id = ? AND treino_id = ?';
-  
-  pool.query(query, [usuario_id, treino_id], (error, results) => { // Alterado db.query para pool.query
+  console.log('Deletando curtida para:', { usuario_id, treino_id });
+
+  // Verificando se a curtida existe
+  const checkQuery = 'SELECT * FROM curtidas WHERE usuario_id = ? AND treino_id = ?';
+  pool.query(checkQuery, [usuario_id, treino_id], (error, results) => {
     if (error) {
-      return res.status(500).json({ message: 'Erro ao remover curtida' });
+      return res.status(500).json({ message: 'Erro ao verificar curtida existente' });
     }
-    res.status(200).json({ message: 'Curtida removida com sucesso' });
+
+    if (results.length === 0) {
+      // Curtida não existe
+      return res.status(404).json({ message: 'Curtida não encontrada' });
+    }
+
+    // Caso exista, prossegue com a remoção
+    const query = 'DELETE FROM curtidas WHERE usuario_id = ? AND treino_id = ?';
+    pool.query(query, [usuario_id, treino_id], (error, results) => {
+      if (error) {
+        return res.status(500).json({ message: 'Erro ao remover curtida' });
+      }
+      res.status(200).json({ message: 'Curtida removida com sucesso' });
+    });
   });
 });
+
 
 
 
