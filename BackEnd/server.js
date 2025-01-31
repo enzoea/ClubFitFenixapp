@@ -145,6 +145,7 @@ app.delete('/curtidas/:usuario_id/:treino_id', (req, res) => {
 
 
 
+
 // Rota para adicionar comentário
 app.post('/comentarios', async (req, res) => {
   try {

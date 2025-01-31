@@ -10,7 +10,24 @@ export default function Comentarios({ route, navigation }) {
   const { usuarioLogado } = useUser(); // Acessa as informações do usuário logado
   const [feedGlobal, setFeedGlobal] = useState([]); // Adicionando o estado para feedGlobal
 
-
+  useEffect(() => {
+    const buscarComentarios = async () => {
+      try {
+        const response = await fetch(`http://192.168.100.5:3000/comentarios/${post.id}`);
+        const data = await response.json();
+        if (response.ok) {
+          setComentarios(data.comentarios); // Atualiza o estado com os comentários recebidos
+        } else {
+          console.error('Erro ao buscar comentários:', data.message);
+        }
+      } catch (error) {
+        console.error('Erro na requisição:', error);
+      }
+    };
+  
+    buscarComentarios();
+  }, [post.id]); // Chama a função sempre que o post mudar
+  
 
   useEffect(() => {
       console.log('Dados no Menu:', feedGlobal);
@@ -55,6 +72,8 @@ export default function Comentarios({ route, navigation }) {
       }
     }
   };
+
+  console.log("Comentários recebidos:", comentarios);
   
 
   return (
@@ -92,25 +111,23 @@ export default function Comentarios({ route, navigation }) {
       {/* Lista de Comentários */}
       <Text style={styles.title}>Comentários</Text>
       <FlatList
-        data={comentarios}
-        keyExtractor={(item, index) => item.id ? item.id.toString() : index.toString()}
-        renderItem={({ item }) => (
-          <View style={styles.comentario}>
-            <View style={styles.headerComentario}>
-              <Image
-                source={
-                  item.fotoPerfil && item.fotoPerfil !== ''
-                    ? { uri: item.fotoPerfil }
-                    : require('../../assets/logo.png')
-                }
-                style={styles.fotoPerfil}
-              />
-              <Text style={styles.nomeUsuario}>{String(item.nomeUsuario || 'Usuário Anônimo')}</Text>
-            </View>
-            <Text>{String(item.texto || '')}</Text>
-          </View>
-        )}
-      />
+  data={comentarios}
+  keyExtractor={(item) => `comentario-${item.id}`} // Garante unicidade
+  renderItem={({ item }) => (
+    <View style={styles.comentario}>
+      <View style={styles.headerComentario}>
+        <Image
+          source={item.usuario_foto ? { uri: item.usuario_foto } : require('../../assets/logo.png')}
+          style={styles.fotoPerfil}
+        />
+        <Text style={styles.nomeUsuario}>{item.usuario_nome || 'Usuário Anônimo'}</Text>
+      </View>
+      <Text>{item.comentario}</Text>
+    </View>
+  )}
+/>
+
+
   
       {/* Campo de Digitação de Comentário */}
       <View style={styles.footer}>
