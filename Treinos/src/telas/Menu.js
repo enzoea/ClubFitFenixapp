@@ -42,23 +42,26 @@ export default function Menu({ route, navigation }) {
     const usuarioId = 1;
 
     try {
+      let response;
       if (post.liked) {
-        await fetch(`http://192.168.100.5:3000/curtidas/${usuarioId}/${post.id}`, {
+        response = await fetch(`http://192.168.100.5:3000/curtidas/${usuarioId}/${post.id}`, {
           method: 'DELETE',
         });
       } else {
-        await fetch('http://192.168.100.5:3000/curtidas', {
+        response = await fetch('http://192.168.100.5:3000/curtidas', {
           method: 'POST',
           body: JSON.stringify({
             usuario_id: usuarioId,
             treino_id: post.id,
-            data_criacao: new Date(),
           }),
           headers: {
             'Content-Type': 'application/json',
           },
         });
       }
+      
+      const result = await response.json();
+      console.log('Resposta do backend:', result);  // Adicionando log da resposta
 
       const updatedFeed = [...feedGlobal];
       updatedFeed[index].liked = !updatedFeed[index].liked;
@@ -67,7 +70,9 @@ export default function Menu({ route, navigation }) {
       console.error('Erro ao lidar com a curtida:', error);
       alert('Erro ao curtir o post.');
     }
-  };
+};
+
+
 
   const handleComment = (index) => {
     const updatedFeed = [...feedGlobal];

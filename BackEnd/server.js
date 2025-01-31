@@ -118,11 +118,13 @@ app.post('/login', async (req, res) => {
 });
 
 //Rota curtida
+// Rota curtida
 app.post('/curtidas', (req, res) => {
-  const { usuario_id, treino_id, data_criacao } = req.body;
-  const query = 'INSERT INTO curtidas (usuario_id, treino_id, data_criacao) VALUES (?, ?, ?)';
+  const { usuario_id, treino_id } = req.body;
+  console.log('Recebendo dados de curtida:', req.body); // Adicione este log
+  const query = 'INSERT INTO curtidas (usuario_id, treino_id) VALUES (?, ?)';
   
-  db.query(query, [usuario_id, treino_id, data_criacao], (error, results) => {
+  pool.query(query, [usuario_id, treino_id], (error, results) => { // Alterado db.query para pool.query
     if (error) {
       return res.status(500).json({ message: 'Erro ao adicionar curtida' });
     }
@@ -130,18 +132,19 @@ app.post('/curtidas', (req, res) => {
   });
 });
 
-//rota deletar curtida
 app.delete('/curtidas/:usuario_id/:treino_id', (req, res) => {
   const { usuario_id, treino_id } = req.params;
+  console.log('Deletando curtida para:', { usuario_id, treino_id }); // Adicione este log
   const query = 'DELETE FROM curtidas WHERE usuario_id = ? AND treino_id = ?';
   
-  db.query(query, [usuario_id, treino_id], (error, results) => {
+  pool.query(query, [usuario_id, treino_id], (error, results) => { // Alterado db.query para pool.query
     if (error) {
       return res.status(500).json({ message: 'Erro ao remover curtida' });
     }
     res.status(200).json({ message: 'Curtida removida com sucesso' });
   });
 });
+
 
 
 
