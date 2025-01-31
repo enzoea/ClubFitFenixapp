@@ -21,7 +21,7 @@ export default function Menu({ route, navigation }) {
 
   const carregarFeed = async () => {
     try {
-      const response = await fetch('http://192.168.100.113:3000/trainings');
+      const response = await fetch('http://192.168.100.5:3000/trainings');
       const data = await response.json();
       console.log('Dados recebidos do servidor:', data); // Log para verificar o formato
       setFeedGlobal(data);
