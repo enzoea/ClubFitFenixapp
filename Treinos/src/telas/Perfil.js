@@ -88,7 +88,7 @@ export default function Perfil({ navigation }) {
 
   const atualizarFotoNoBanco = async (url) => {
     try {
-      const response = await fetch(`http:/192.168.0.102:3000/user/${usuarioLogado.id}`, {
+      const response = await fetch(`http://192.168.0.102:3000/user/${usuarioLogado.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ fotoPerfil: url }),
