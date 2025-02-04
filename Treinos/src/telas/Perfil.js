@@ -95,11 +95,11 @@ export default function Perfil({ navigation }) {
       });
   
       if (response.ok) {
-        setUsuarioLogado({ ...usuarioLogado, fotoPerfil: url });
-        Alert.alert('Sucesso', 'Foto de perfil atualizada!');
-      } else {
-        Alert.alert('Erro', 'Erro ao atualizar foto.');
+        const updatedUser = await response.json();
+        setUsuarioLogado(updatedUser);  // Atualizar o estado com o usuário atualizado
+        Alert.alert('Sucesso', 'Dados atualizados com sucesso!');
       }
+      
     } catch (error) {
       console.error('Erro ao atualizar foto:', error);
       Alert.alert('Erro', 'Erro ao conectar ao servidor.');

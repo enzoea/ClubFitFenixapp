@@ -275,20 +275,36 @@ app.put('/user/:id', async (req, res) => {
   const { id } = req.params;
   let { nome, email, senha, objetivo, telefone, dataNascimento, fotoPerfil } = req.body;
 
+  // Log para verificar os dados recebidos no backend
+  console.log('Dados recebidos no backend:', req.body);
+
+  // Verifique se todos os campos obrigatórios estão presentes
+  if (!nome || !email || !senha || !objetivo || !telefone || !dataNascimento) {
+    return res.status(400).json({ error: 'Todos os campos obrigatórios devem ser preenchidos!' });
+  }
+
+  // Formatação da data de nascimento (caso necessário)
   if (dataNascimento) {
     dataNascimento = dataNascimento.replace(/(\d{2})(\d{2})(\d{4})/, '$3-$2-$1');
+    console.log('Data de nascimento formatada:', dataNascimento); // Verificar a data de nascimento formatada
   }
 
   try {
+    // Consulta para atualizar o usuário
     const [result] = await pool.query(
       'UPDATE usuarios SET nome = ?, email = ?, senha = ?, objetivo = ?, telefone = ?, dataNascimento = ?, fotoPerfil = ? WHERE id = ?',
       [nome, email, senha, objetivo, telefone, dataNascimento, fotoPerfil, id]
     );
 
+    // Verificando o resultado da query
+    console.log('Resultado da query de atualização:', result);
+
     if (result.affectedRows > 0) {
+      // Se a atualização for bem-sucedida, obtenha o usuário atualizado
       const [updatedUser] = await pool.query('SELECT * FROM usuarios WHERE id = ?', [id]);
       res.status(200).json(updatedUser[0]);
     } else {
+      // Caso o usuário não seja encontrado (por exemplo, id inválido)
       res.status(404).json({ error: 'Usuário não encontrado.' });
     }
   } catch (error) {
@@ -296,6 +312,7 @@ app.put('/user/:id', async (req, res) => {
     res.status(500).json({ error: 'Erro interno do servidor.' });
   }
 });
+
 
 // Buscar todos os treinos do banco de dados
 // Buscar todos os treinos do banco de dados
