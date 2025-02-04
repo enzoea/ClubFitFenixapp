@@ -22,7 +22,7 @@ export default function Menu({ route, navigation }) {
   const carregarFeed = async () => {
     try {
       console.log("🔄 Solicitando treinos do servidor...");
-      const response = await fetch('http://192.168.1.10:3000/trainings');
+      const response = await fetch('http://192.168.0.102:3000/trainings');
   
       // Verifica se a resposta foi bem-sucedida
       if (!response.ok) {
@@ -65,11 +65,11 @@ export default function Menu({ route, navigation }) {
     try {
       let response;
       if (post.liked) {
-        response = await fetch(`http://192.168.1.10:3000/curtidas/${usuarioId}/${post.id}`, {
+        response = await fetch(`http://192.168.0.102:3000/curtidas/${usuarioId}/${post.id}`, {
           method: 'DELETE',
         });
       } else {
-        response = await fetch('http://192.168.1.10:3000/curtidas', {
+        response = await fetch('http://192.168.0.102:3000/curtidas', {
           method: 'POST',
           body: JSON.stringify({
             usuario_id: usuarioId,
