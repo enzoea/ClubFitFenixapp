@@ -21,22 +21,43 @@ export default function Menu({ route, navigation }) {
 
   const carregarFeed = async () => {
     try {
-      const response = await fetch('http://192.168.0.102:3000/trainings');
-      const data = await response.json();
-      console.log('Dados recebidos do servidor:', data); // Log para verificar o formato
-      setFeedGlobal(data);
+      console.log("🔄 Solicitando treinos do servidor...");
+      const response = await fetch('http://192.168.1.10:3000/trainings');
+  
+      // Verifica se a resposta foi bem-sucedida
+      if (!response.ok) {
+        console.error(`❌ Erro HTTP: ${response.status} - ${response.statusText}`);
+        alert(`Erro ao carregar os treinos: ${response.statusText}`);
+        return;
+      }
+  
+      // Obtém a resposta como texto para depuração
+      const text = await response.text();
+      console.log("📡 Resposta bruta do servidor:", text);
+  
+      // Tenta converter para JSON
+      try {
+        const data = JSON.parse(text);
+        console.log('✅ Dados recebidos do servidor:', data);
+  
+        setFeedGlobal(data);
+      } catch (jsonError) {
+        console.error('❌ Erro ao analisar JSON:', jsonError);
+        console.error('🚨 Resposta completa do servidor:', text);
+        alert('Erro ao carregar os treinos. A resposta do servidor não é um JSON válido.');
+      }
     } catch (error) {
-      console.error('Erro ao carregar o feed:', error);
-      alert('Erro ao carregar os treinos.');
+      console.error('❌ Erro ao carregar o feed:', error);
+      alert('Erro ao carregar os treinos. Problema de conexão.');
     }
-  };
+  };  
 
   useFocusEffect(
     React.useCallback(() => {
       carregarFeed();
     }, [])
   );
-
+  /*
   const handleLike = async (index) => {
     const post = feedGlobal[index];
     const usuarioId = 1;
@@ -44,11 +65,11 @@ export default function Menu({ route, navigation }) {
     try {
       let response;
       if (post.liked) {
-        response = await fetch(`http://192.168.0.102:3000/curtidas/${usuarioId}/${post.id}`, {
+        response = await fetch(`http://192.168.1.10:3000/curtidas/${usuarioId}/${post.id}`, {
           method: 'DELETE',
         });
       } else {
-        response = await fetch('http://192.168.0.102:3000/curtidas', {
+        response = await fetch('http://192.168.1.10:3000/curtidas', {
           method: 'POST',
           body: JSON.stringify({
             usuario_id: usuarioId,
@@ -71,9 +92,9 @@ export default function Menu({ route, navigation }) {
       alert('Erro ao curtir o post.');
     }
 };
+*/
 
-
-
+/*
   const handleComment = (index) => {
     const updatedFeed = [...feedGlobal];
     updatedFeed[index].comments = (updatedFeed[index].comments || 0) + 1;
@@ -81,7 +102,7 @@ export default function Menu({ route, navigation }) {
     const post = feedGlobal[index];
     navigation.navigate('Comentarios', { post, index });
   };
-
+*/
   const renderItem = ({ item, index }) => (
     <View style={styles.postContainer}>
       <View style={styles.postHeader}>
@@ -120,7 +141,13 @@ export default function Menu({ route, navigation }) {
       ) : (
         <Text style={styles.noImageText}>Sem fotos disponíveis.</Text>
       )}
+      
 
+    
+    </View>
+  );
+  /*
+      Linhas abaixo estavam no espaço do view acima, inserir em nova atualização
       <View style={styles.iconRow}>
         <TouchableOpacity onPress={() => handleLike(index)} style={styles.iconButton}>
           <Icon
@@ -135,9 +162,7 @@ export default function Menu({ route, navigation }) {
           <Text>{item.comments || 0}</Text>
         </TouchableOpacity>
       </View>
-    </View>
-  );
-
+  */
   return (
     <ImageBackground source={backgroundImage} style={styles.imageBackground}>
       <View style={styles.container}>
@@ -147,14 +172,6 @@ export default function Menu({ route, navigation }) {
           onPress={() => navigation.navigate('ControlePonto')}
         >
           <Text style={styles.newPostButtonText}>Registrar Novo Treino</Text>
-        </TouchableOpacity>
-
-        {/* Botão para navegar para a tela Comentarios */}
-        <TouchableOpacity
-          style={styles.newPostButton}
-          onPress={() => navigation.navigate('Comentarios')} // Navegando para Comentarios
-        >
-          <Text style={styles.newPostButtonText}>Ir para Comentários</Text>
         </TouchableOpacity>
 
         <Text style={styles.title}>Feed de Treinos</Text>

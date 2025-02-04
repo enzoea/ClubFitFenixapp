@@ -44,18 +44,23 @@ export default function ControlePonto({ navigation, route }) {
       Alert.alert('Erro', 'Por favor, selecione o tipo de treino antes de iniciar.');
       return;
     }
-
+  
+    const agora = new Date().toISOString();
+    atualizarEstado('inicio', agora);
+    atualizarEstado('fim', null);
+  
     const foto = await tirarFoto();
     if (foto) {
       const cloudinaryUrl = await uploadImageToCloudinary(foto);
       if (cloudinaryUrl) {
-        atualizarEstado('fotos', [...treino.fotos, cloudinaryUrl]);
+        setTreino(prev => ({
+          ...prev,
+          fotos: [...prev.fotos, cloudinaryUrl],
+          inicio: agora, 
+        }));
       }
     }
-
-    atualizarEstado('inicio', new Date().toISOString());
-    atualizarEstado('fim', null);
-  };
+  };  
 
   const handleFinalizarTreino = async () => {
     if (!treino.inicio || !treino.tipo) {
@@ -69,27 +74,34 @@ export default function ControlePonto({ navigation, route }) {
       return;
     }
   
-    // 🔥 Convertendo imagens locais para URLs do Cloudinary antes de salvar no banco
-    const uploadedFotos = await Promise.all(
-      treino.fotos.map(async (foto) => {
-        if (foto.startsWith("file://")) {
-          return await uploadImageToCloudinary(foto); // Enviando ao Cloudinary
-        }
-        return foto; // Caso já seja URL do Cloudinary, mantém a mesma
-      })
-    );
+    // Captura a foto de finalização antes de registrar o treino
+    const fotoFinalizacao = await tirarFoto();
+    if (!fotoFinalizacao) {
+      Alert.alert('Erro', 'Você precisa tirar uma foto para finalizar o treino.');
+      return;
+    }
   
+    // Enviar a foto final para o Cloudinary
+    const cloudinaryUrl = await uploadImageToCloudinary(fotoFinalizacao);
+    if (cloudinaryUrl) {
+      setTreino(prev => ({
+        ...prev,
+        fotos: [...prev.fotos, cloudinaryUrl], // Adiciona a foto de finalização ao estado
+      }));
+    }
+  
+    // Enviar os dados do treino para o banco de dados
     try {
-      const response = await fetch('http://192.168.0.102:3000/register-training', {
+      const response = await fetch('http://192.168.1.10:3000/register-training', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           usuarioId: parseInt(usuarioId, 10),
           tipo: treino.tipo,
-          inicio: new Date(treino.inicio).toISOString(),
+          inicio: treino.inicio,
           fim: new Date().toISOString(),
           legenda: treino.legenda,
-          fotos: uploadedFotos, // 🔥 Agora somente URLs do Cloudinary são salvas
+          fotos: [...treino.fotos, cloudinaryUrl], // Garante que todas as fotos sejam enviadas
         }),
       });
   
@@ -103,7 +115,7 @@ export default function ControlePonto({ navigation, route }) {
       console.error('Erro de conexão:', error);
       Alert.alert('Erro', 'Erro ao conectar ao servidor.');
     }
-  };  
+  }; 
 
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
@@ -141,6 +153,15 @@ export default function ControlePonto({ navigation, route }) {
               {treino.fim ? `Fim: ${new Date(treino.fim).toLocaleString()}` : 'Treino ainda não finalizado'}
             </Text>
 
+            <TouchableOpacity
+              style={styles.button}
+              onPress={treino.inicio ? handleFinalizarTreino : handleIniciarTreino}
+            >
+              <Text style={styles.buttonText}>
+                {treino.inicio ? 'Finalizar Treino' : 'Iniciar Treino'}
+              </Text>
+            </TouchableOpacity>
+
             {treino.fotos.length > 0 && (
               <View style={styles.fotosContainer}>
                 {treino.fotos.map((foto, index) => (
@@ -153,14 +174,6 @@ export default function ControlePonto({ navigation, route }) {
               </View>
             )}
 
-            <TouchableOpacity
-              style={styles.button}
-              onPress={treino.inicio ? handleFinalizarTreino : handleIniciarTreino}
-            >
-              <Text style={styles.buttonText}>
-                {treino.inicio ? 'Finalizar Treino' : 'Iniciar Treino'}
-              </Text>
-            </TouchableOpacity>
           </View>
         </ImageBackground>
       </ScrollView>
@@ -180,6 +193,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     alignItems: 'center',
     paddingTop: 0,
+    paddingBottom: 32,
     paddingHorizontal: 0,
   },
   barraMenu: {
@@ -225,6 +239,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     alignItems: 'center',
     marginTop: 20,
+    marginBottom: 20,
     width: 300,
   },
   buttonText: {

@@ -13,7 +13,7 @@ export default function Comentarios({ route, navigation }) {
   useEffect(() => {
     const buscarComentarios = async () => {
       try {
-        const response = await fetch(`http://192.168.0.102:3000/comentarios/${post.id}`);
+        const response = await fetch(`http://192.168.1.10:3000/comentarios/${post.id}`);
         const data = await response.json();
         if (response.ok) {
           setComentarios(data.comentarios); // Atualiza o estado com os comentários recebidos
@@ -43,7 +43,7 @@ export default function Comentarios({ route, navigation }) {
   const adicionarComentario = async () => {
     if (novoComentario.trim()) {
       try {
-        const response = await fetch('http://192.168.0.102:3000/comentarios', {
+        const response = await fetch('http://192.168.1.10:3000/comentarios', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

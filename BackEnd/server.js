@@ -11,7 +11,7 @@ const pool = mysql.createPool({
     host: '127.0.0.1',
     port: 3306,
     user: 'root',
-    password: 'aluno',
+    password: 'enzo123',
     database: 'clubfit',
 });
 
@@ -298,28 +298,38 @@ app.put('/user/:id', async (req, res) => {
 });
 
 // Buscar todos os treinos do banco de dados
+// Buscar todos os treinos do banco de dados
 app.get('/trainings', async (req, res) => {
   try {
     const [trainings] = await pool.query(
       'SELECT t.*, u.nome AS usuario, u.fotoPerfil FROM treinos t JOIN usuarios u ON t.usuario_id = u.id ORDER BY t.inicio DESC'
     );
 
-    const formattedTrainings = trainings.map((training) => ({
-      ...training,
-      fotos: training.fotos ? JSON.parse(training.fotos) : [], // Converte JSON para array
-    }));
+    const formattedTrainings = trainings.map((training) => {
+      let fotosArray;
+      try {
+        fotosArray = training.fotos ? JSON.parse(training.fotos) : [];
+      } catch (error) {
+        console.error(`Erro ao converter fotos para JSON no treino ${training.id}:`, error);
+        fotosArray = []; // Garante que não quebre o app
+      }
+
+      return {
+        ...training,
+        fotos: fotosArray,
+      };
+    });
 
     res.status(200).json(formattedTrainings);
   } catch (error) {
     console.error('Erro ao buscar treinos:', error);
-    res.status(500).json({ error: 'Erro ao buscar treinos.' });
+    res.status(500).json({ error: 'Erro ao buscar treinos no banco de dados.' });
   }
 });
 
-
 // Inicia o servidor
 app.listen(port, '0.0.0.0', () => {
-  console.log(`Servidor rodando em http://192.168.0.102:${port}`);
+  console.log(`Servidor rodando em http://192.168.1.10:${port}`);
 
 
 });

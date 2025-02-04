@@ -17,7 +17,7 @@ export default function Cadastro({ navigation }) {
   useEffect(() => {
     const fetchServerIP = async () => {
       try {
-        const response = await fetch('http://192.168.0.102:3000/api/ip');
+        const response = await fetch('http://192.168.1.10:3000/api/ip');
         const data = await response.json();
         setServerIP(data.ip);
       } catch (error) {
@@ -36,7 +36,7 @@ export default function Cadastro({ navigation }) {
     }
   //verificar o ${serverIP}, pois ele não esta armazenando na minha maquina
     try {
-      const response = await fetch(`http://192.168.0.102:3000/register`, {
+      const response = await fetch(`http://192.168.1.10:3000/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
