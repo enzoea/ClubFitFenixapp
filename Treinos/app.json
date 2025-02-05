@@ -5,6 +5,14 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/logo.png",
+    "plugins": [
+      [
+        "expo-notifications",
+        {
+          "mode": "production"
+        }
+      ]
+    ],
     "splash": {
       "image": "./assets/logo.png",
       "resizeMode": "contain",

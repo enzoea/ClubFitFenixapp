@@ -4,6 +4,9 @@ import { useFocusEffect } from '@react-navigation/native';
 import BarraMenu from './componentes/BarraMenu';
 import backgroundImage from '../../assets/background-club.png';
 import Icon from 'react-native-vector-icons/Ionicons';
+import * as Notification from 'expo-notifications';
+import * as Permissions from 'expo-permissions';
+
 
 export default function Menu({ route, navigation }) {
   const [feedGlobal, setFeedGlobal] = useState([]);
@@ -18,6 +21,50 @@ export default function Menu({ route, navigation }) {
       ]);
     }
   }, [route.params?.feedAtualizado]);
+// parte de notificação
+const checkNotificationPermission = async () => {
+  const { status } = await Notifications.getPermissionsAsync();
+  console.log('Status da permissão:', status);
+};
+
+const solicitarPermissaoNotificacao = async () => {
+  const { status } = await Notifications.requestPermissionsAsync();
+  if (status !== 'granted') {
+    alert('Permissão para notificações negada!');
+  }
+};
+
+const getExpoPushToken = async () => {
+  const token = await Notifications.getExpoPushTokenAsync();
+  console.log('Expo Push Token:', token);
+};
+
+const agendarNotificacaoDiaria = async () => {
+  await Notifications.cancelAllScheduledNotificationsAsync(); // Evita notificações duplicadas
+
+  await Notifications.scheduleNotificationAsync({
+    content: {
+      title: 'Hora de Treinar! 💪',
+      body: 'Mantenha o foco e registre seu progresso no app! 📊',
+    },
+    trigger: {
+      hour: 15,
+      minute: 17,
+      repeats: true,
+    },
+  });
+};
+
+useEffect(() => {
+  const setupNotifications = async () => {
+    await solicitarPermissaoNotificacao();
+    await agendarNotificacaoDiaria();
+    await checkNotificationPermission();
+    await getExpoPushToken();
+  };
+
+  setupNotifications();
+}, []);
 
   const carregarFeed = async () => {
     try {
