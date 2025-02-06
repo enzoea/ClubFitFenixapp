@@ -48,8 +48,8 @@ const agendarNotificacaoDiaria = async () => {
       body: 'Mantenha o foco e registre seu progresso no app! 📊',
     },
     trigger: {
-      hour: 16,
-      minute: 10,
+      hour: 15,
+      minute: 17,
       repeats: true,
     },
   });
