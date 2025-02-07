@@ -13,6 +13,20 @@ CREATE TABLE IF NOT EXISTS usuarios (
   dataNascimento DATE NOT NULL
 );
 
+CREATE TABLE profissionais (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  nome VARCHAR(255) NOT NULL,
+  telefone VARCHAR(20) NOT NULL,
+  email VARCHAR(255) NOT NULL UNIQUE,
+  dataNascimento DATE NOT NULL,
+  objetivo TEXT NOT NULL,
+  senha VARCHAR(255) NOT NULL,
+  registro VARCHAR(50) NOT NULL,
+  profissao VARCHAR(50) NOT NULL,
+  createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
 -- Tabela de curtidas
 CREATE TABLE IF NOT EXISTS curtidas (
   id INT AUTO_INCREMENT PRIMARY KEY,
