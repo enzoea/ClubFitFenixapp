@@ -123,6 +123,10 @@ export default function Cadastro({ navigation }) {
                 <TouchableOpacity style={styles.button} onPress={handleCadastro}>
                     <Text style={styles.buttonText}>Cadastrar</Text>
                 </TouchableOpacity>
+                <TouchableOpacity style={styles.profButton} onPress={() => navigation.navigate('CadastroProf')}>
+                    <Text style={styles.profButtonText}>Cadastrar como Profissional</Text>
+                </TouchableOpacity>
+
             </View>
         </ImageBackground>
       </ScrollView>
@@ -136,6 +140,21 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
+    profButton: {
+      marginTop: 10,
+      padding: 10,
+      borderRadius: 5,
+      borderWidth: 1,
+      borderColor: '#febc02',
+      alignItems: 'center',
+      width: 300,
+    },
+    profButtonText: {
+      color: '#febc02',
+      fontWeight: 'bold',
+      fontSize: 16,
+    },
+    
     container: {
         flex: 1,
         alignItems: 'center',

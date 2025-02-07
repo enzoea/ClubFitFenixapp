@@ -7,7 +7,9 @@ import Menu from './src/telas/Menu';
 import ControlePonto from './src/telas/ControlePonto';
 import Perfil from './src/telas/Perfil';
 import Comentarios from './src/telas/Comentarios';
+import ComentarioProf from './src/telas/CadastroProf';
 import { UserProvider } from './src/context/UserContext';
+import CadastroProf from './src/telas/CadastroProf';
 
 const Stack = createStackNavigator();
 
@@ -22,6 +24,7 @@ export default function App() {
           <Stack.Screen name="ControlePonto" component={ControlePonto} options={{ title: 'Controle de Ponto' }} />
           <Stack.Screen name="Perfil" component={Perfil} options={{ title: 'Perfil' }} />
           <Stack.Screen name="Comentarios" component={Comentarios} options={{ title: 'Comentarios' }} />
+          <Stack.Screen name= "CadastroProf" component={CadastroProf} options={{title: 'CadastroProf'}} />
 
         </Stack.Navigator>
       </NavigationContainer>
