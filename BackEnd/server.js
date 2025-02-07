@@ -61,6 +61,22 @@ app.post('/register', async (req, res) => {
   }
 });
 
+// Rota para cadastro de profissional
+app.post('/register/profissional', (req, res) => {
+  const { nome, telefone, email, dataNascimento, objetivo, senha, registro, profissao } = req.body;
+
+  // Inserir os dados na tabela 'profissionais'
+  const query = `INSERT INTO profissionais (nome, telefone, email, dataNascimento, objetivo, senha, registro, profissao) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+
+  pool.query(query, [nome, telefone, email, dataNascimento, objetivo, senha, registro, profissao], (err, results) => {
+    if (err) {
+      console.error('Erro ao inserir dados:', err);
+      return res.status(500).json({ error: 'Erro ao cadastrar profissional.' });
+    }
+    res.status(200).json({ message: 'Profissional cadastrado com sucesso!' });
+  });
+});
+
 // Rota de registro de treinos
 app.post('/register-training', async (req, res) => {
   const { usuarioId, tipo, inicio, fim, legenda, fotos } = req.body;

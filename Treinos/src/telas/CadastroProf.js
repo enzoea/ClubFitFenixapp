@@ -19,7 +19,7 @@ export default function CadastroProf({ navigation }) {
       alert('Preencha todos os campos obrigatórios!');
       return;
     }
-    
+  
     try {
       const response = await fetch('http://192.168.0.102:3000/register/profissional', {
         method: 'POST',
@@ -41,6 +41,7 @@ export default function CadastroProf({ navigation }) {
       alert('Erro ao conectar ao servidor.');
     }
   };
+  
 
   return (
     <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">

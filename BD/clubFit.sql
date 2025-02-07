@@ -72,6 +72,7 @@ CREATE TABLE IF NOT EXISTS comentarios (
 SELECT * FROM usuarios;
 SELECT * FROM treinos;
 SELECT * FROM treino_fotos;
+SELECT * FROM profissionais;
 SELECT * FROM comentarios;
 ALTER TABLE usuarios ADD COLUMN fotoPerfil VARCHAR(255);
 ALTER TABLE treinos ADD COLUMN fotos VARCHAR(500);
