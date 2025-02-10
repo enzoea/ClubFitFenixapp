@@ -10,6 +10,9 @@ import Comentarios from './src/telas/Comentarios';
 import ComentarioProf from './src/telas/CadastroProf';
 import { UserProvider } from './src/context/UserContext';
 import CadastroProf from './src/telas/CadastroProf';
+import Nutricionista from './src/telas/Nutricionista';
+import Personal from './src/telas/Personal';
+
 
 const Stack = createStackNavigator();
 
@@ -25,6 +28,8 @@ export default function App() {
           <Stack.Screen name="Perfil" component={Perfil} options={{ title: 'Perfil' }} />
           <Stack.Screen name="Comentarios" component={Comentarios} options={{ title: 'Comentarios' }} />
           <Stack.Screen name= "CadastroProf" component={CadastroProf} options={{title: 'CadastroProf'}} />
+          <Stack.Screen name='Nutricionista' component={Nutricionista} options={{title:'Nutricionista'}} />
+          <Stack.Screen name='Personal' component={Personal} options={{title: 'Personal'}} />
 
         </Stack.Navigator>
       </NavigationContainer>
