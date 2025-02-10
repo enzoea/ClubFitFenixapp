@@ -3,7 +3,6 @@ import { View, Text, StyleSheet, FlatList, TouchableOpacity, ImageBackground, Im
 import { useFocusEffect } from '@react-navigation/native';
 import BarraMenu from './componentes/BarraMenu';
 import backgroundImage from '../../assets/background-club.png';
-import Icon from 'react-native-vector-icons/Ionicons';
 
 export default function Menu({ route, navigation }) {
   const [feedGlobal, setFeedGlobal] = useState([]);
@@ -39,7 +38,6 @@ export default function Menu({ route, navigation }) {
       try {
         const data = JSON.parse(text);
         console.log('✅ Dados recebidos do servidor:', data);
-  
         setFeedGlobal(data);
       } catch (jsonError) {
         console.error('❌ Erro ao analisar JSON:', jsonError);
@@ -57,52 +55,7 @@ export default function Menu({ route, navigation }) {
       carregarFeed();
     }, [])
   );
-  /*
-  const handleLike = async (index) => {
-    const post = feedGlobal[index];
-    const usuarioId = 1;
 
-    try {
-      let response;
-      if (post.liked) {
-        response = await fetch(`http://192.168.0.102:3000/curtidas/${usuarioId}/${post.id}`, {
-          method: 'DELETE',
-        });
-      } else {
-        response = await fetch('http://192.168.0.102:3000/curtidas', {
-          method: 'POST',
-          body: JSON.stringify({
-            usuario_id: usuarioId,
-            treino_id: post.id,
-          }),
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-      }
-      
-      const result = await response.json();
-      console.log('Resposta do backend:', result);  // Adicionando log da resposta
-
-      const updatedFeed = [...feedGlobal];
-      updatedFeed[index].liked = !updatedFeed[index].liked;
-      setFeedGlobal(updatedFeed);
-    } catch (error) {
-      console.error('Erro ao lidar com a curtida:', error);
-      alert('Erro ao curtir o post.');
-    }
-};
-*/
-
-/*
-  const handleComment = (index) => {
-    const updatedFeed = [...feedGlobal];
-    updatedFeed[index].comments = (updatedFeed[index].comments || 0) + 1;
-    setFeedGlobal(updatedFeed);
-    const post = feedGlobal[index];
-    navigation.navigate('Comentarios', { post, index });
-  };
-*/
   const renderItem = ({ item, index }) => (
     <View style={styles.postContainer}>
       <View style={styles.postHeader}>
@@ -141,38 +94,37 @@ export default function Menu({ route, navigation }) {
       ) : (
         <Text style={styles.noImageText}>Sem fotos disponíveis.</Text>
       )}
-      
-
-    
     </View>
   );
-  /*
-      Linhas abaixo estavam no espaço do view acima, inserir em nova atualização
-      <View style={styles.iconRow}>
-        <TouchableOpacity onPress={() => handleLike(index)} style={styles.iconButton}>
-          <Icon
-            name={item.liked ? 'heart' : 'heart-outline'}
-            size={24}
-            color={item.liked ? 'red' : 'gray'}
-          />
-          <Text>{item.liked ? 1 : 0}</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => handleComment(index)} style={styles.iconButton}>
-          <Icon name="chatbubble-outline" size={24} color="gray" />
-          <Text>{item.comments || 0}</Text>
-        </TouchableOpacity>
-      </View>
-  */
+
   return (
     <ImageBackground source={backgroundImage} style={styles.imageBackground}>
       <View style={styles.container}>
         <BarraMenu />
+
         <TouchableOpacity
           style={styles.newPostButton}
           onPress={() => navigation.navigate('ControlePonto')}
         >
           <Text style={styles.newPostButtonText}>Registrar Novo Treino</Text>
         </TouchableOpacity>
+
+        {/* Botões para as telas Nutricionista e Personal */}
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => navigation.navigate('Nutricionista')}
+          >
+            <Text style={styles.buttonText}>Nutricionista</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => navigation.navigate('Personal')}
+          >
+            <Text style={styles.buttonText}>Personal</Text>
+          </TouchableOpacity>
+        </View>
 
         <Text style={styles.title}>Feed de Treinos</Text>
         <FlatList
@@ -202,6 +154,22 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: '#fff',
   },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginVertical: 20,
+  },
+  button: {
+    backgroundColor: '#febc02',
+    padding: 15,
+    borderRadius: 5,
+    margin: 10,
+  },
+  buttonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
   postContainer: {
     backgroundColor: '#1c1c1c',
     borderRadius: 10,
@@ -215,29 +183,12 @@ const styles = StyleSheet.create({
   userName: { fontWeight: 'bold', fontSize: 16, color: '#febc02' },
   postContent: { fontSize: 14, color: '#fff', marginBottom: 5 },
   postTimestamp: { fontSize: 12, color: '#bbb', marginBottom: 10 },
-  iconRow: {
-    flexDirection: 'row',
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-    marginTop: 10,
-  },
   postImage: {
     width: '100%',
     height: 200,
     borderRadius: 10,
     marginTop: 10,
     resizeMode: 'cover',
-  },
-  iconButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginRight: 15,
-  },
-  noImageText: {
-    fontSize: 14,
-    color: '#bbb',
-    textAlign: 'center',
-    marginTop: 10,
   },
   noDataText: {
     fontSize: 16,
@@ -255,4 +206,3 @@ const styles = StyleSheet.create({
   },
   newPostButtonText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
 });
-
