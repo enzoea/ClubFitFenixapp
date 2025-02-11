@@ -116,13 +116,13 @@ app.post('/login', async (req, res) => {
 
   try {
     const [rows] = await pool.query(
-      'SELECT id, nome, email, fotoPerfil FROM usuarios WHERE email = ? AND senha = ?',
+      'SELECT id, nome, email, fotoPerfil, profissao FROM usuarios WHERE email = ? AND senha = ?',
       [email, senha]
     );
 
     if (rows.length > 0) {
       console.log('Usuário autenticado:', rows[0]); // Log do usuário encontrado
-      res.status(200).json(rows[0]);
+      res.status(200).json(rows[0]); // Retorna o usuário com o campo profissao
     } else {
       console.log('Credenciais inválidas:', { email, senha }); // Log para credenciais incorretas
       res.status(401).json({ error: 'Email ou senha incorretos.' });
@@ -132,6 +132,7 @@ app.post('/login', async (req, res) => {
     res.status(500).json({ error: 'Erro ao autenticar usuário no servidor.' });
   }
 });
+
 
 //Rota curtida
 // Rota curtida

@@ -76,3 +76,4 @@ SELECT * FROM profissionais;
 SELECT * FROM comentarios;
 ALTER TABLE usuarios ADD COLUMN fotoPerfil VARCHAR(255);
 ALTER TABLE treinos ADD COLUMN fotos VARCHAR(500);
+ALTER TABLE usuarios ADD COLUMN profissao VARCHAR(255);

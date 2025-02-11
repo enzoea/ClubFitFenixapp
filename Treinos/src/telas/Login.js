@@ -28,7 +28,15 @@ export default function Login({ navigation }) {
         console.log('Usuário autenticado:', usuario); // Log para verificar o retorno
         await AsyncStorage.setItem('usuarioId', usuario.id.toString());
         setUsuarioLogado(usuario);
-        navigation.navigate('Menu');
+  
+        // Verificar o tipo de usuário e navegar para a tela correspondente
+        if (usuario.profissao === 'Nutricionista') {
+          navigation.navigate('Nutricionista');
+        } else if (usuario.profissao === 'Personal Trainer') {
+          navigation.navigate('Personal');
+        } else {
+          navigation.navigate('Menu');
+        }
       } else {
         const errorResponse = await response.json();
         console.error('Erro do servidor:', errorResponse); // Log para verificar o erro
@@ -38,7 +46,8 @@ export default function Login({ navigation }) {
       console.error('Erro de conexão:', error);
       Alert.alert('Erro', 'Erro ao conectar ao servidor.');
     }
-  };  
+  };
+  
 
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
