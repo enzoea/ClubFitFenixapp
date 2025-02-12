@@ -12,7 +12,8 @@ import { UserProvider } from './src/context/UserContext';
 import CadastroProf from './src/telas/CadastroProf';
 import Nutricionista from './src/telas/Nutricionista';
 import Personal from './src/telas/Personal';
-
+import FichaTreino from './src/telas/FichaTreino';
+import Treino from './src/telas/Treino';
 
 const Stack = createStackNavigator();
 
@@ -30,6 +31,8 @@ export default function App() {
           <Stack.Screen name= "CadastroProf" component={CadastroProf} options={{title: 'CadastroProf'}} />
           <Stack.Screen name='Nutricionista' component={Nutricionista} options={{title:'Nutricionista'}} />
           <Stack.Screen name='Personal' component={Personal} options={{title: 'Personal'}} />
+          <Stack.Screen name='FichaTreino' component={FichaTreino} options={{title: "FichaTreino"}} />
+          <Stack.Screen name='Treino' component={Treino} options={{title: "Treino"}} />
 
         </Stack.Navigator>
       </NavigationContainer>

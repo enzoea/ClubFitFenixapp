@@ -8,13 +8,13 @@ export default function Personal({ navigation }) {
       <Text style={styles.text}>Aqui você pode criar planos de treino, acompanhar o progresso dos alunos e muito mais.</Text>
 
       {/* Botão para acessar alguma funcionalidade */}
-      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('CriarTreino')}>
+      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('FichaTreino')}>
         <Text style={styles.buttonText}>Criar Plano de Treino</Text>
       </TouchableOpacity>
 
       {/* Botão para acessar o perfil */}
-      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Perfil')}>
-        <Text style={styles.buttonText}>Ver Perfil</Text>
+      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Treino')}>
+        <Text style={styles.buttonText}>Ver Treino</Text>
       </TouchableOpacity>
     </View>
   );

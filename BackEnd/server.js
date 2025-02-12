@@ -194,6 +194,51 @@ app.delete('/curtidas/:usuario_id/:treino_id', (req, res) => {
 
 
 
+// Rota para buscar as fichas de treino de um usuário específico
+app.get('/fichas-treino/:usuarioId', async (req, res) => {
+  const { usuarioId } = req.params;
+
+  try {
+    // Verifica se o usuário existe
+    const [usuario] = await pool.query('SELECT * FROM usuarios WHERE id = ?', [usuarioId]);
+    if (!usuario || usuario.length === 0) {
+      return res.status(404).json({ error: 'Usuário não encontrado.' });
+    }
+
+    // Busca os treinos do usuário
+    const [treinos] = await pool.query(
+      'SELECT t.*, u.nome AS usuario_nome, u.fotoPerfil AS usuario_foto FROM treinos t JOIN usuarios u ON t.usuario_id = u.id WHERE t.usuario_id = ? ORDER BY t.inicio DESC',
+      [usuarioId]
+    );
+
+    // Se não houver treinos para o usuário
+    if (treinos.length === 0) {
+      return res.status(200).json({ treinos: [], message: 'Nenhum treino registrado para este usuário.' });
+    }
+
+    // Formata as fotos e prepara os dados para enviar
+    const formattedTreinos = treinos.map((treino) => {
+      let fotosArray;
+      try {
+        fotosArray = treino.fotos ? JSON.parse(treino.fotos) : [];
+      } catch (error) {
+        console.error(`Erro ao converter fotos para JSON no treino ${treino.id}:`, error);
+        fotosArray = []; // Garante que não quebre o app
+      }
+
+      return {
+        ...treino,
+        fotos: fotosArray,
+      };
+    });
+
+    // Retorna os treinos com sucesso
+    res.status(200).json({ treinos: formattedTreinos });
+  } catch (error) {
+    console.error('Erro ao buscar fichas de treino:', error);
+    res.status(500).json({ error: 'Erro ao buscar fichas de treino.' });
+  }
+});
 
 
 
@@ -328,6 +373,33 @@ app.put('/user/:id', async (req, res) => {
     console.error('Erro ao atualizar usuário:', error);
     res.status(500).json({ error: 'Erro interno do servidor.' });
   }
+});
+
+app.use(bodyParser.json());  // Para permitir que o Express entenda os dados no formato JSON
+
+// Rota para salvar treino
+app.post('/treino', (req, res) => {
+  const { id_ficha, nome_exercicio, series, repeticoes, carga, observacoes } = req.body;
+
+  if (!id_ficha || !nome_exercicio || !series || !repeticoes) {
+    return res.status(400).json({ error: 'Dados obrigatórios faltando' });
+  }
+
+  // SQL para inserir os dados na tabela exercicios_ficha
+  const query = `
+    INSERT INTO exercicios_ficha (id_ficha, nome_exercicio, series, repeticoes, carga, observacoes)
+    VALUES (?, ?, ?, ?, ?, ?)
+  `;
+
+  connection.execute(query, [id_ficha, nome_exercicio, series, repeticoes, carga, observacoes], (err, result) => {
+    if (err) {
+      console.error('Erro ao salvar treino:', err);
+      return res.status(500).json({ error: 'Erro ao salvar o treino' });
+    }
+
+    console.log('Treino salvo com sucesso!');
+    res.status(201).json({ message: 'Treino salvo com sucesso!', id: result.insertId });
+  });
 });
 
 
