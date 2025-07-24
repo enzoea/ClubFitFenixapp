@@ -429,8 +429,20 @@ app.get('/trainings', async (req, res) => {
 });
 
 // Inicia o servidor
-app.listen(port, '0.0.0.0', () => {
+const server = app.listen(port, '0.0.0.0', () => {
   console.log(`Servidor rodando em http://192.168.0.102:${port}`);
 
 
 });
+
+server.on('error', (err) =>{
+console.error('Erro ao iniciar o servidor:', err.message)
+  if (err.code === 'EADDRINUSE') {
+    console.error(`Porta ${port} ja esta em uso`);
+  } else if (err.code === 'EACCES') {
+    console.error(`permissao negada para usar a porta ${port}`)
+  }
+
+  process.exit(1);
+
+})
