@@ -1,19 +1,14 @@
 const express = require('express');
+const dotenv = require('dotenv'); 
+dotenv.config();
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const mysql = require('mysql2/promise');
 const os = require('os');
 const { format } = require("date-fns");
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 
-const pool = mysql.createPool({
-    host: '127.0.0.1',
-    port: 3306,
-    user: 'root',
-    password: 'aluno',
-    database: 'clubfit',
-});
+
 
 // Middleware
 app.use(cors());
