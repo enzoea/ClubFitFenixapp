@@ -1,0 +1,104 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Usuario {
+  id             Int           @id @default(autoincrement())
+  nome           String
+  email          String        @unique
+  senha          String
+  objetivo       String
+  telefone       String
+  dataNascimento DateTime
+  data_criacao   DateTime      @default(now())
+  treinos        Treino[]
+  curtidas       Curtida[]
+  comentarios    Comentario[]
+  fichas         FichaTreino[]
+}
+
+model Profissional {
+  id             Int           @id @default(autoincrement())
+  nome           String
+  telefone       String
+  email          String        @unique
+  dataNascimento DateTime
+  objetivo       String
+  senha          String
+  registro       String
+  profissao      String
+  data_criacao   DateTime      @default(now())
+  fichas         FichaTreino[]
+}
+
+model FichaTreino {
+  id           Int             @id @default(autoincrement())
+  id_profissional Int
+  id_usuario   Int
+  objetivo     String?
+  data_criacao DateTime        @default(now())
+
+  profissional Profissional @relation(fields: [id_profissional], references: [id], onDelete: Cascade)
+  usuario      Usuario      @relation(fields: [id_usuario], references: [id], onDelete: Cascade)
+  exercicios   ExercicioFicha[]
+}
+
+model Treino {
+  id          Int          @id @default(autoincrement())
+  usuario_id  Int
+  tipo        String
+  inicio      DateTime
+  fim         DateTime
+  legenda     String?
+
+  usuario     Usuario     @relation(fields: [usuario_id], references: [id])
+  fotos       TreinoFoto[]
+  curtidas    Curtida[]
+  comentarios Comentario[]
+}
+
+model ExercicioFicha {
+  id          Int      @id @default(autoincrement())
+  id_ficha    Int
+  nome_exercicio String
+  series      Int
+  repeticoes  Int
+  carga       String?
+  observacoes String?
+
+  ficha       FichaTreino @relation(fields: [id_ficha], references: [id], onDelete: Cascade)
+}
+
+model Curtida {
+  id          Int      @id @default(autoincrement())
+  usuario_id  Int
+  treino_id   Int
+  data_criacao DateTime @default(now())
+
+  usuario     Usuario   @relation(fields: [usuario_id], references: [id])
+  treino      Treino    @relation(fields: [treino_id], references: [id])
+}
+
+model Comentario {
+  id           Int      @id @default(autoincrement())
+  usuario_id   Int
+  treino_id    Int
+  comentario   String
+  data_criacao DateTime @default(now())
+
+  usuario      Usuario  @relation(fields: [usuario_id], references: [id])
+  treino       Treino   @relation(fields: [treino_id], references: [id])
+}
+
+model TreinoFoto {
+  id        Int     @id @default(autoincrement())
+  treino_id Int
+  foto_url  String
+
+  treino    Treino  @relation(fields: [treino_id], references: [id])
+}
