@@ -10,7 +10,7 @@ interface IUsuario {
     objetivo: string;
     telefone: string;
     dataNascimento: Date;
-    
+
     
 }
 
@@ -27,6 +27,14 @@ export class Usuario {
             }
         });
     console.log(`Usuario ${usuario.nome} cadastrado com sucesso!`);
-    return novoUsuario
+    return novoUsuario;
+    }
+
+    static async LoginUser(email: string): Promise<Usuario | null> {
+        const user = await prisma.usuario.findUnique({
+            where: {email},
+        });
+
+        return user;
     }
 }
