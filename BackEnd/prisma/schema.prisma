@@ -14,13 +14,16 @@ model Usuario {
   senha          String
   objetivo       String
   telefone       String
-  dataNascimento DateTime
+  dataNascimento DateTime @map("datanascimento")
   data_criacao   DateTime      @default(now())
   treinos        Treino[]
   curtidas       Curtida[]
   comentarios    Comentario[]
   fichas         FichaTreino[]
+
+ @@map("usuarios")   // aqui diz que a tabela no banco se chama "usuarios"
 }
+
 
 model Profissional {
   id             Int           @id @default(autoincrement())

@@ -9,24 +9,24 @@ interface IUsuario {
     senha: string;
     objetivo: string;
     telefone: string;
-    dataNascimento: Date;
+    dataNascimento: Date ;
 
     
 }
 
 export class Usuario {
-    static async RegisterUser(usuario: IUsuario): Promise<IUsuario> {
+    static async RegisterUser(usuarios: IUsuario): Promise<IUsuario> {
         const novoUsuario = await prisma.usuario.create({
             data: {
-                nome: usuario.nome,
-                email: usuario.email,
-                senha: usuario.senha,
-                objetivo: usuario.objetivo,
-                telefone: usuario.telefone,
-                dataNascimento: usuario.dataNascimento
+                nome: usuarios.nome,
+                email: usuarios.email,
+                senha: usuarios.senha,
+                objetivo: usuarios.objetivo,
+                telefone: usuarios.telefone,
+                dataNascimento: usuarios.dataNascimento 
             }
         });
-    console.log(`Usuario ${usuario.nome} cadastrado com sucesso!`);
+    console.log(`Usuario ${usuarios.nome} cadastrado com sucesso!`);
     return novoUsuario;
     }
 

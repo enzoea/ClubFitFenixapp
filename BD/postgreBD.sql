@@ -5,12 +5,14 @@ create table Usuarios(
 	senha varchar(100) not null,
 	objetivo varchar(255) not null,
 	telefone varchar(15) not null,
-	dataNascimento DATE not null,
-	
+	dataNascimento DATE not null
 );
 
 alter table Usuarios
 add column data_criacao timestamp default current_timestamp;
+
+ALTER TABLE "Usuarios" RENAME TO usuarios;
+
 
 select * from Usuarios
 

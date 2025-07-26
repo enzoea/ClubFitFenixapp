@@ -4,6 +4,7 @@ import { Usuario } from "../models/Usuario";
 export const RegisterUserController = async (req: Request, res: Response) =>  {
     const {nome, email, senha, objetivo, telefone, dataNascimento} = req.body;
     console.log(`Cadastrando usuario: ${nome}, email: ${email}`);
+    console.log('req.body: ', req.body)
 
     if (!nome || !email){
         res.status(400).json({error: 'Nome e email são obrigatório'});
