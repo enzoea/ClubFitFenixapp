@@ -4,11 +4,14 @@ import bodyParser from 'body-parser';
 import cors from 'cors';
 import os from 'os';
 import { format } from 'date-fns';
+import router from './routes/Usuario.routes';
+
 
 dotenv.config();
 
 const app = express();
 const port: number= Number(process.env.PORT || 3000);
+app.use('/api', router);
 
 // Middleware
 app.use(cors());
