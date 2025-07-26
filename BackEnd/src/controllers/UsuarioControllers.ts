@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { Usuario } from "../models/Usuario";
 
-export const LoginUserControllers = async (req: Request, res: Response) =>  {
+export const RegisterUserController = async (req: Request, res: Response) =>  {
     const {nome, email, senha, objetivo, telefone, dataNascimento} = req.body;
     console.log(`Cadastrando usuario: ${nome}, email: ${email}`);
 
