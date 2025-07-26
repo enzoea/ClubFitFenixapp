@@ -33,7 +33,7 @@ app.get('/api/ip', (req, res) => {
 });
 
 // Rota de cadastro
-app.post('/register', async (req, res) => {
+/* app.post('/register', async (req, res) => {
   const { nome, email, senha, objetivo, telefone, dataNascimento } = req.body;
 
   if (!nome || !email || !senha || !objetivo || !telefone || !dataNascimento) {
@@ -54,7 +54,7 @@ app.post('/register', async (req, res) => {
       res.status(500).json({ error: 'Erro ao registrar usuário.' });
     }
   }
-});
+}); */
 
 // Rota para cadastro de profissional
 app.post('/register/profissional', (req, res) => {

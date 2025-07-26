@@ -30,7 +30,7 @@ export class Usuario {
     return novoUsuario;
     }
 
-    static async LoginUser(email: string): Promise<Usuario | null> {
+    static async LoginUser(email: string): Promise<IUsuario | null> {
         const user = await prisma.usuario.findUnique({
             where: {email},
         });
