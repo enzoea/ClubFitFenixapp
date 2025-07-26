@@ -1,4 +1,6 @@
 import { PrismaClient } from "@prisma/client";
+import jwt from 'bcrypt'
+import bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
 
@@ -16,11 +18,15 @@ interface IUsuario {
 
 export class Usuario {
     static async RegisterUser(usuarios: IUsuario): Promise<IUsuario> {
+
+        const senhaCriptogradada = await bcrypt.hash(usuarios.senha, 10)
+
+
         const novoUsuario = await prisma.usuario.create({
             data: {
                 nome: usuarios.nome,
                 email: usuarios.email,
-                senha: usuarios.senha,
+                senha: senhaCriptogradada,
                 objetivo: usuarios.objetivo,
                 telefone: usuarios.telefone,
                 dataNascimento: usuarios.dataNascimento 
