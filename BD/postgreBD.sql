@@ -1,4 +1,4 @@
-create table Usuarios(
+create table usuarios(
 	id serial primary key,
 	nome varchar(100) not null,
 	email varchar(100) unique not null,
@@ -8,10 +8,8 @@ create table Usuarios(
 	dataNascimento DATE not null
 );
 
-alter table Usuarios
+alter table usuarios
 add column data_criacao timestamp default current_timestamp;
-
-ALTER TABLE "Usuarios" RENAME TO usuarios;
 
 
 select * from Usuarios
