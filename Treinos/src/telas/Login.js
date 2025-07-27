@@ -17,7 +17,7 @@ export default function Login({ navigation }) {
   
     try {
       console.log('Enviando para o servidor:', { email, senha }); // Log para depuração
-      const response = await fetch('http://192.168.0.102:3000/login', {
+      const response = await fetch('http://192.168.0.102:3000/api/user/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, senha }),
@@ -26,7 +26,7 @@ export default function Login({ navigation }) {
       if (response.ok) {
         const usuario = await response.json();
         console.log('Usuário autenticado:', usuario); // Log para verificar o retorno
-        await AsyncStorage.setItem('usuarioId', usuario.id.toString());
+        await AsyncStorage.setItem('usuarioId', usuario.user.id.toString());
         setUsuarioLogado(usuario);
   
         // Verificar o tipo de usuário e navegar para a tela correspondente
