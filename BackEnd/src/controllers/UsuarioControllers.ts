@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
 import { Usuario } from "../models/Usuario";
-import bcrypto from 'bcrypt';
 import bcrypt from 'bcrypt';
 import jwt from "jsonwebtoken";
 const secret_key = process.env.JWT_SECRET || 'chave_super_secreta';
@@ -61,5 +60,20 @@ export const LoginUserController = async (req: Request, res: Response) => {
     }catch(error){
         console.error("Erro ao fazer login", error);
         return res.status(500).json({ message: "Erro interno do servidor"});
+    }
+};
+
+export const getUserByIDControllers = async (req: Request, res: Response) =>{
+    const id = parseInt(req.params.id, 10);
+
+    try{
+        const user = await Usuario.getUserByID(Number(id));
+        if(user){
+            res.json(user);
+        } else{
+            res.status(404).json({ message: 'Usuario não encontrado'});
+        }
+    }catch(error){
+        res.status(500).json({ message: 'Erro ao buscar ao usuario', error})
     }
 }

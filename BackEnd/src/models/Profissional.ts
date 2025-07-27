@@ -38,4 +38,14 @@ export class Profissional{
         console.log(`O ${profissionais.nome} foi adicionado com sucesso!`);
         return novoProf;
     }
+
+    static async LoginProf (email: string): Promise<IProfissional | null>{
+        const user = prisma.profissional.findUnique({where: {email},});
+        return user;
+    }
+
+    static async getUserByID (id: number): Promise<IProfissional | null>{
+        const user = prisma.profissional.findUnique({where: {id}, });
+        return user;
+    }
 }

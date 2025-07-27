@@ -43,4 +43,12 @@ export class Usuario {
 
         return user;
     }
+
+    static async getUserByID (id: number): Promise<IUsuario | null> {
+        const user = await prisma.usuario.findUnique({
+            where: {id},
+        });
+
+        return user;
+    }
 }
