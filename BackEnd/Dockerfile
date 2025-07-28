@@ -1,17 +1,23 @@
-# Usa imagem oficial do Node.js
+# Dockerfile
 FROM node:18
 
-# Define diretório de trabalho
+# Diretório de trabalho dentro do container
 WORKDIR /app
 
-# Copia os arquivos
+# Copia os arquivos package.json e package-lock.json
 COPY package*.json ./
+
+# Instala as dependências
 RUN npm install
 
+# Copia o restante da aplicação
 COPY . .
 
-# Expõe a porta usada pelo backend (ajuste conforme seu app)
-EXPOSE 3001
+# Gera os clientes Prisma
+RUN npx prisma generate
+
+# Expõe a porta
+EXPOSE 3000
 
 # Comando para iniciar o servidor
 CMD ["npm", "run", "dev"]
