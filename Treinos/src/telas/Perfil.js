@@ -28,33 +28,30 @@ export default function Perfil({ navigation }) {
   };
 
   useEffect(() => {
-    const carregarDadosUsuario = async () => {
-      try {
-        const id = usuarioLogado?.id;
-        if (!id) {
-          console.error('Usuário não está logado ou ID ausente.');
-          return;
-        }
+  const carregarDadosUsuario = async () => {
+    try {
+      if (!usuarioLogado?.id) return;
 
-        const response = await fetch(`http://192.168.0.102:3000/api/user/${id}`);
-        if (response.ok) {
-          const data = await response.json();
-          data.dataNascimento = formatarDataParaUsuario(data.dataNascimento);
-          setDadosUsuario(data);
-          setForm(data);
-          setFotoPerfil(data.fotoPerfil);
-        } else {
-          console.error('Erro ao buscar dados do usuário:', response.status);
-        }
-      } catch (error) {
-        console.error('Erro de conexão ao buscar usuário:', error);
+      const response = await fetch(`http://192.168.0.102:3000/api/user/${usuarioLogado.id}`);
+      if (response.ok) {
+        const data = await response.json();
+        data.dataNascimento = formatarDataParaUsuario(data.dataNascimento);
+        setDadosUsuario(data);
+        setForm(data);
+        setFotoPerfil(data.fotoPerfil);
+      } else {
+        console.error('Erro ao buscar dados do usuário:', response.status);
       }
-    };
-
-    if (usuarioLogado?.id) {
-      carregarDadosUsuario();
+    } catch (error) {
+      console.error('Erro de conexão ao buscar usuário:', error);
+    } finally {
+      setLoadingUsuario(false);
     }
-  }, [usuarioLogado]);
+  };
+
+  carregarDadosUsuario();
+}, [usuarioLogado]);
+
 
   const handleLogout = async () => {
     try {
