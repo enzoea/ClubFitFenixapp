@@ -57,8 +57,10 @@ export class Usuario {
             dadosAtualizados.senha = await bcrypt.hash(dadosAtualizados.senha, 10);
         }
 
-        const userAtualizado = await prisma.usuario.uptade({
+        const userAtualizado = await prisma.usuario.update({
             where: {id},
+            data: dadosAtualizados,
+            
         });
 
         return userAtualizado;
