@@ -6,7 +6,8 @@ import os from 'os';
 import { format } from 'date-fns';
 import router from './routes/Usuario.routes';
 
-
+// para rodar o sistema use o : docker-compose up --build 
+// na raiz do CLUBFITFENIXAPP
 dotenv.config();
 
 const app = express();
