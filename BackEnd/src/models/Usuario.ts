@@ -1,5 +1,4 @@
 import { PrismaClient } from "@prisma/client";
-import jwt from 'bcrypt'
 import bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
@@ -51,4 +50,21 @@ export class Usuario {
 
         return user;
     }
+
+    static async upatdeUser (id: number, dadosAtualizados: Partial<IUsuario>): Promise<IUsuario>{
+
+        if(dadosAtualizados.senha){
+            dadosAtualizados.senha = await bcrypt.hash(dadosAtualizados.senha, 10);
+        }
+
+        const userAtualizado = await prisma.usuario.uptade({
+            where: {id},
+        });
+
+        return userAtualizado;
+
+
+    }
+
+    
 }
