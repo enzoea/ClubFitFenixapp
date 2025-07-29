@@ -51,7 +51,7 @@ export class Usuario {
         return user;
     }
 
-    static async upatdeUser (id: number, dadosAtualizados: Partial<IUsuario>): Promise<IUsuario>{
+    static async updateUser (id: number, dadosAtualizados: Partial<IUsuario>): Promise<IUsuario>{
 
         if(dadosAtualizados.senha){
             dadosAtualizados.senha = await bcrypt.hash(dadosAtualizados.senha, 10);

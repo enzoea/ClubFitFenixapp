@@ -77,3 +77,26 @@ export const getUserByIDControllers = async (req: Request, res: Response) =>{
         res.status(500).json({ message: 'Erro ao buscar ao usuario', error})
     }
 }
+
+export const UpdateProfControllers = async (req: Request, res: Response) => {
+
+    const id = parseInt(req.params.id);
+    const {nome, email, senha, objetivo, telefone, dataNascimento} = req.body;
+
+    try{
+        console.log(`Atualizando usuario com id: ${id} `);
+        console.log(`Dados recebidos: ${req.body}`)
+
+        if (isNaN(id)) {
+  return res.status(400).json({ mensagem: "ID inválido" });
+}
+
+        const userAtt = await Usuario.updateUser(id, {nome, email, senha, objetivo, telefone, dataNascimento});
+        console.log(`Atualização do usuario ${userAtt}`)
+
+        return res.status(200).json({ mensagem: 'Usuário atualizando com sucesso!', usuario: userAtt});
+    } catch(error){
+        console.error("Erro ao atualziar o usuario: ", error);
+        res.status(500).json({ message: 'Erro ao atualizar o usuario: ', error})
+    }
+}
