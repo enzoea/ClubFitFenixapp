@@ -48,4 +48,27 @@ export class Profissional{
         const user = prisma.profissional.findUnique({where: {id}, });
         return user;
     }
+
+    static async uptadeProf (id: number, atualizandoDados: Partial<IProfissional>): Promise<IProfissional> {
+        if(atualizandoDados.senha){
+            atualizandoDados.senha = await bcrypt.hash(atualizandoDados.senha, 10)
+
+        }
+
+        const userAtt = prisma.profissional.update({
+            where: {id},
+            data: atualizandoDados,
+
+        })
+
+        return userAtt;
+    }
+
+    static async deleleProf (id: number): Promise<IProfissional>{
+        const userDelete = prisma.profissional.delete({
+            where: {id},
+        })
+
+        return userDelete;
+    }
 }

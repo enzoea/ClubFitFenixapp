@@ -60,12 +60,20 @@ export class Usuario {
         const userAtualizado = await prisma.usuario.update({
             where: {id},
             data: dadosAtualizados,
-            
+
         });
 
         return userAtualizado;
 
 
+    }
+
+    static async deleteUser(id: number): Promise<IUsuario>{
+        const userDelete = prisma.usuario.delete({
+            where: {id}
+        });
+
+        return userDelete;
     }
 
     
