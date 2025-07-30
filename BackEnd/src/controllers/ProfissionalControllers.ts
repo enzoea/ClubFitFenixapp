@@ -25,4 +25,43 @@ export const RegisterProfControllers = async (req: Request, res: Response) => {
         res.status(500).json({error: 'Erro ao cadastrar usuario'})
     }
 
-} 
+};
+
+export const LoginProfController = async (req: Request , res: Response) => {
+    try{
+
+        const {email, senha} = req.body;
+
+        if(!email || !senha){
+            return res.status(400).json({ message: 'Email e senha são obrigatório'})
+        }
+
+        const login = await Profissional.LoginProf(email);
+
+        if(!login){
+            return res.status(404).json({ message: "Usuario não encontrado"})
+        }
+
+        console.log(`Senha armazenada no banco: ${login.senha}`);
+
+        const senhaCorreta = await bcrypt.compare(senha, login.senha);
+
+        if(!senhaCorreta){
+            return res.status(403).json({ message: 'Senha incorreta'})
+        }
+
+        const { senha: _, ...loginSemSenha} = login;
+
+        const token = jwt.sign({id: login.id, email: login.email}, secret_key, { expiresIn: "1h"});
+
+        return res.status(200).json({ user: loginSemSenha, token});
+
+
+
+    }catch(error){
+        
+        console.error("Erro ao fazer login", error);
+
+        return res.status(500).json({ message: "erro interno do servidor"});
+    }
+}

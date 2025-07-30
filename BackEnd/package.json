@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
-  "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
+  "dev": "nodemon --watch src --exec ts-node src/server.ts",
   "migrate:dev": "npx prisma migrate dev",
   "migrate:deploy": "npx prisma migrate deploy",
   "generate": "npx prisma generate",
