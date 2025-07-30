@@ -12,7 +12,7 @@ alter table usuarios
 add column data_criacao timestamp default current_timestamp;
 
 
-select * from usuarios
+select * from usuarios;
 
 create table profissionais (
 	id serial primary key,

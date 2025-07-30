@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { Usuario } from "../models/Usuario";
 import bcrypt from 'bcrypt';
 import jwt from "jsonwebtoken";
+import { Prisma } from "@prisma/client";
 const secret_key = process.env.JWT_SECRET || 'chave_super_secreta';
 
 export const RegisterUserController = async (req: Request, res: Response) =>  {
@@ -19,6 +20,9 @@ export const RegisterUserController = async (req: Request, res: Response) =>  {
         res.status(201).json(novoUser);
 
     } catch (error) {
+        if (error instanceof Prisma.PrismaClientInitializationError && error.message === 'P2002'){
+            return res.status(409).json({error: 'Email já cadastrado'})
+        }
         console.error("Erro ao cadastrar usuário:", error);
         const MensagemError = error instanceof Error ? error.message : 'Erro desconhecido';
         console.log(`Error: ${error} ${MensagemError}`);
