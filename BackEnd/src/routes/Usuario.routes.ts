@@ -1,13 +1,13 @@
 import  Express  from "express";
 import { RegisterUserController, LoginUserController, getUserByIDControllers, UpdateProfControllers } from "../controllers/UsuarioControllers";
 
-const router = Express.Router();
+const userRouter = Express.Router();
 
-router.post('/user/register', RegisterUserController);
-router.post('/user/login', LoginUserController);
-router.get('/user/:id', getUserByIDControllers);
-router.put('/user/update/:id', UpdateProfControllers);
+userRouter.post('/register', RegisterUserController);
+userRouter.post('/login', LoginUserController);
+userRouter.get('/:id', getUserByIDControllers);
+userRouter.put('/update/:id', UpdateProfControllers);
 
-export default router
+export default userRouter;
 
 
