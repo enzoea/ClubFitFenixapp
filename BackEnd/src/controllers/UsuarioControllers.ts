@@ -103,4 +103,16 @@ export const UpdateProfControllers = async (req: Request, res: Response) => {
         console.error("Erro ao atualziar o usuario: ", error);
         res.status(500).json({ message: 'Erro ao atualizar o usuario: ', error})
     }
+};
+
+export const deleteUserCOntrollers = async(req: Request, res: Response) => {
+    const id = parseInt(req.params.id);
+    const{nome} = req.body;
+
+    try{
+        const user = await Usuario.deleteUser(id);
+        res.status(200).json({ message: `usuario ${req.body} excluido com sucesso!!`})
+    }catch(error){
+        res.status(500).json({ message: `Erro ao excluir Usuario ${error}`})
+    }
 }
