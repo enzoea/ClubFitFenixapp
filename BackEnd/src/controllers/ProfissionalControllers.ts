@@ -64,4 +64,23 @@ export const LoginProfController = async (req: Request , res: Response) => {
 
         return res.status(500).json({ message: "erro interno do servidor"});
     }
+};
+
+export const getUserByIdControllers = async (req: Request, res: Response) => {
+    const id = parseInt(req.params.id, 10);
+
+
+    try{
+        const byid = await Profissional.getUserByID(Number(id));
+
+        if(byid){
+            res.json(byid);
+            
+        }else{
+            res.status(404).json({ message: 'Profissional não encontrado'});
+        }
+    }catch(error){
+        res.status(500).json({ message: 'Erro ao buscar ao usuario', error});
+
+    }
 }

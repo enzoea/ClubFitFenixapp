@@ -129,13 +129,14 @@ export const deleteUserCOntrollers = async(req: Request, res: Response) => {
 };
 
 export const getUserAllControllers = async(req: Request, res: Response) => {
-    try{
+    try {
         const user = await Usuario.getUserAll();
+        
+        console.log('Usuarios encontrados:', user);
 
         res.status(200).json(user);
 
-
-    }catch(error){
+    } catch(error) {
         console.log(`Error ao buscar usuario: ${error}`);
 
         res.status(500).json({ message: `Erro aos buscar o usuario ${error}`})
