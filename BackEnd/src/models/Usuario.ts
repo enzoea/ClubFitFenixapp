@@ -53,7 +53,7 @@ export class Usuario {
 
     static async getUserAll(): Promise<IUsuario[]>{
 
-        const user = await prisma.usuario.findMany({});
+        const user = await prisma.usuario.findMany();
 
         console.log(`Usuarios encontrados ${user}`)
         return user;
