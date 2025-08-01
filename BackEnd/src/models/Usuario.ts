@@ -51,6 +51,14 @@ export class Usuario {
         return user;
     }
 
+    static async getUserAll(): Promise<IUsuario[]>{
+
+        const user = await prisma.usuario.findMany({});
+
+        console.log(`Usuarios encontrados ${user}`)
+        return user;
+    }
+
     static async updateUser (id: number, dadosAtualizados: Partial<IUsuario>): Promise<IUsuario>{
 
         if(dadosAtualizados.senha){

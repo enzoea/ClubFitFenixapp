@@ -17,12 +17,16 @@ export const RegisterUserController = async (req: Request, res: Response) =>  {
 
     try {
         const novoUser = await Usuario.RegisterUser({nome, email, senha, objetivo, telefone, dataNascimento});
+
         res.status(201).json(novoUser);
 
     } catch (error) {
+
         if (error instanceof Prisma.PrismaClientInitializationError && error.message === 'P2002'){
             return res.status(409).json({error: 'Email já cadastrado'})
-        }
+
+        };
+    
         console.error("Erro ao cadastrar usuário:", error);
         const MensagemError = error instanceof Error ? error.message : 'Erro desconhecido';
         console.log(`Error: ${error} ${MensagemError}`);
@@ -72,8 +76,10 @@ export const getUserByIDControllers = async (req: Request, res: Response) =>{
 
     try{
         const user = await Usuario.getUserByID(Number(id));
+
         if(user){
             res.json(user);
+
         } else{
             res.status(404).json({ message: 'Usuario não encontrado'});
         }
@@ -112,6 +118,11 @@ export const deleteUserCOntrollers = async(req: Request, res: Response) => {
     try{
         const user = await Usuario.deleteUser(id);
         res.status(200).json({ message: `usuario ${req.body} excluido com sucesso!!`})
+        console.log(`Usuario ${nome} excluido com sucesso!`)
+
+        if(!user){
+            res.status(400).json({ message: 'Esse usuario não existe'})
+        }
     }catch(error){
         res.status(500).json({ message: `Erro ao excluir Usuario ${error}`})
     }
