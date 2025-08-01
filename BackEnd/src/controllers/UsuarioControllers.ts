@@ -126,4 +126,18 @@ export const deleteUserCOntrollers = async(req: Request, res: Response) => {
     }catch(error){
         res.status(500).json({ message: `Erro ao excluir Usuario ${error}`})
     }
+};
+
+export const getUserAllControllers = async(req: Request, res: Response) => {
+    try{
+        const user = await Usuario.getUserAll();
+
+        res.status(200).json(user);
+
+
+    }catch(error){
+        console.log(`Error ao buscar usuario: ${error}`);
+
+        res.status(500).json({ message: `Erro aos buscar o usuario ${error}`})
+    }
 }
