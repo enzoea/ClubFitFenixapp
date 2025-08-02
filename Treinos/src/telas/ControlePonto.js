@@ -92,7 +92,7 @@ export default function ControlePonto({ navigation, route }) {
   
     // Enviar os dados do treino para o banco de dados
     try {
-      const response = await fetch('http://192.168.0.102:3000/register-training', {
+      const response = await fetch('http://192.168.0.102:3000/api/training/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

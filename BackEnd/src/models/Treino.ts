@@ -13,14 +13,19 @@ interface ITreino {
 
 export class Treinos {
     static async PlayTreining(dados: ITreino): Promise<ITreino> {
+        console.log('dados.usuario_id dentro do PlayTreining:', dados.usuario_id);
+
+        
 
         const novoTreino = await prisma.treino.create({
             data: {
-                usuario_id: dados.usuario_id,
                 tipo: dados.tipo,
                 inicio: new Date(),
                 fim: new Date(),
-                legenda: dados.legenda
+                legenda: dados.legenda,
+                usuario:{
+                    connect: { id: dados.usuario_id}
+                }
 
             }
         });
