@@ -88,7 +88,7 @@ export const getUserByIDControllers = async (req: Request, res: Response) =>{
     }
 }
 
-export const UpdateProfControllers = async (req: Request, res: Response) => {
+export const UpdateUserControllers = async (req: Request, res: Response) => {
 
     const id = parseInt(req.params.id);
     const {nome, email, senha, objetivo, telefone, dataNascimento} = req.body;

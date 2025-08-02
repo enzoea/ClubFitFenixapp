@@ -75,7 +75,7 @@ export const getUserByIdControllers = async (req: Request, res: Response) => {
 
         if(byid){
             res.json(byid);
-            
+
         }else{
             res.status(404).json({ message: 'Profissional não encontrado'});
         }
@@ -84,3 +84,43 @@ export const getUserByIdControllers = async (req: Request, res: Response) => {
 
     }
 }
+
+export const UpdateUserControllers = async (req: Request, res: Response) => {
+
+    const id = parseInt(req.params.id);
+    const {nome, telefone, email, dataNascimento, objetivo, senha, registro, profissao} = req.body;
+
+    try{
+        console.log(`Atualizando usuario com id: ${id} `);
+        console.log(`Dados recebidos: ${req.body}`)
+
+        if (isNaN(id)) {
+  return res.status(400).json({ mensagem: "ID inválido" });
+}
+
+        const userAtt = await Profissional.uptadeProf(id, {nome, telefone, email, dataNascimento, objetivo, senha, registro, profissao});
+        console.log(`Atualização do usuario ${userAtt}`)
+
+        return res.status(200).json({ mensagem: 'Usuário atualizando com sucesso!', usuario: userAtt});
+    } catch(error){
+        console.error("Erro ao atualziar o usuario: ", error);
+        res.status(500).json({ message: 'Erro ao atualizar o usuario: ', error})
+    }
+};
+
+export const deleteUserCOntrollers = async(req: Request, res: Response) => {
+    const id = parseInt(req.params.id);
+    const{nome} = req.body;
+
+    try{
+        const user = await Profissional.deleleProf(id);
+        res.status(200).json({ message: `usuario ${req.body} excluido com sucesso!!`})
+        console.log(`Usuario ${nome} excluido com sucesso!`)
+
+        if(!user){
+            res.status(400).json({ message: 'Esse usuario não existe'})
+        }
+    }catch(error){
+        res.status(500).json({ message: `Erro ao excluir Usuario ${error}`})
+    }
+};
