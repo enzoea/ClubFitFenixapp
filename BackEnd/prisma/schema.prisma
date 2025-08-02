@@ -65,6 +65,8 @@ model Treino {
   fotos       TreinoFoto[]
   curtidas    Curtida[]
   comentarios Comentario[]
+
+  @@map("treinos") // 👈 isso garante que Prisma usa a tabela `treinos` no banco
 }
 
 model ExercicioFicha {

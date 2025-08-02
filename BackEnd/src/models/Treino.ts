@@ -12,7 +12,7 @@ interface ITreino {
 }
 
 export class Treinos {
-    static async inciarTreino(dados: Omit<ITreino, 'id' | 'inicio' | 'fim'>): Promise<ITreino> {
+    static async PlayTreining(dados: ITreino): Promise<ITreino> {
 
         const novoTreino = await prisma.treino.create({
             data: {

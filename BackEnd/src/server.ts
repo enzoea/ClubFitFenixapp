@@ -64,44 +64,9 @@ server.on('error', (err: NodeJS.ErrnoException) => {
 
 
 // Rota de cadastro
-/* app.post('/register', async (req, res) => {
-  const { nome, email, senha, objetivo, telefone, dataNascimento } = req.body;
+/* 
 
-  if (!nome || !email || !senha || !objetivo || !telefone || !dataNascimento) {
-    return res.status(400).json({ error: 'Todos os campos são obrigatórios.' });
-  }
 
-  try {
-    const [result] = await pool.query(
-      'INSERT INTO usuarios (nome, email, senha, objetivo, telefone, dataNascimento) VALUES (?, ?, ?, ?, ?, ?)',
-      [nome, email, senha, objetivo, telefone, dataNascimento]
-    );
-    res.status(201).json({ id: result.insertId, nome, email });
-  } catch (error) {
-    console.error('Erro ao registrar usuário:', error);
-    if (error.code === 'ER_DUP_ENTRY') {
-      res.status(409).json({ error: 'Email já registrado.' });
-    } else {
-      res.status(500).json({ error: 'Erro ao registrar usuário.' });
-    }
-  }
-}); 
-
-// Rota para cadastro de profissional
-app.post('/register/profissional', (req, res) => {
-  const { nome, telefone, email, dataNascimento, objetivo, senha, registro, profissao } = req.body;
-
-  // Inserir os dados na tabela 'profissionais'
-  const query = `INSERT INTO profissionais (nome, telefone, email, dataNascimento, objetivo, senha, registro, profissao) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
-
-  pool.query(query, [nome, telefone, email, dataNascimento, objetivo, senha, registro, profissao], (err, results) => {
-    if (err) {
-      console.error('Erro ao inserir dados:', err);
-      return res.status(500).json({ error: 'Erro ao cadastrar profissional.' });
-    }
-    res.status(200).json({ message: 'Profissional cadastrado com sucesso!' });
-  });
-});
 
 // Rota de registro de treinos
 app.post('/register-training', async (req, res) => {
@@ -130,34 +95,7 @@ app.post('/register-training', async (req, res) => {
 });
 
 
-// Rota de login
-app.post('/login', async (req, res) => {
-  const { email, senha } = req.body;
 
-  if (!email || !senha) {
-    return res.status(400).json({ error: 'Todos os campos são obrigatórios.' });
-  }
-
-  console.log('Recebendo credenciais:', { email, senha }); // Log para depuração
-
-  try {
-    const [rows] = await pool.query(
-      'SELECT id, nome, email, fotoPerfil, profissao FROM usuarios WHERE email = ? AND senha = ?',
-      [email, senha]
-    );
-
-    if (rows.length > 0) {
-      console.log('Usuário autenticado:', rows[0]); // Log do usuário encontrado
-      res.status(200).json(rows[0]); // Retorna o usuário com o campo profissao
-    } else {
-      console.log('Credenciais inválidas:', { email, senha }); // Log para credenciais incorretas
-      res.status(401).json({ error: 'Email ou senha incorretos.' });
-    }
-  } catch (error) {
-    console.error('Erro ao autenticar usuário:', error);
-    res.status(500).json({ error: 'Erro ao autenticar usuário no servidor.' });
-  }
-});
 
 
 //Rota curtida
@@ -331,32 +269,6 @@ app.get('/comentarios/:treinoId', async (req, res) => {
 
 
 
-
-
-
-
-// Middleware de log
-app.use((req, res, next) => {
-  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
-  next();
-});
-
-// Rota para buscar dados do usuário logado
-app.get('/user/:id', async (req, res) => {
-  const { id } = req.params;
-
-  try {
-    const [rows] = await pool.query('SELECT * FROM usuarios WHERE id = ?', [id]);
-    if (rows.length > 0) {
-      res.status(200).json(rows[0]);
-    } else {
-      res.status(404).json({ error: 'Usuário não encontrado.' });
-    }
-  } catch (error) {
-    console.error('Erro ao buscar usuário:', error);
-    res.status(500).json({ error: 'Erro interno do servidor.' });
-  }
-});
 
 // Rota para alterar informações do usuario na tela perfil.js
 app.put('/user/:id', async (req, res) => {
