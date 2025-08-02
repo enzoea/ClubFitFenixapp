@@ -59,7 +59,7 @@ model Treino {
   tipo        String
   inicio      DateTime
   fim         DateTime
-  legenda     String?
+  legenda     String? @db.VarChar(255) // <-- altere aqui
 
   usuario     Usuario     @relation(fields: [usuario_id], references: [id])
   fotos       TreinoFoto[]

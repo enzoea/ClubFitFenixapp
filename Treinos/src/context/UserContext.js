@@ -14,7 +14,7 @@ export const UserProvider = ({ children }) => {
           console.log('Nenhum usuário encontrado no AsyncStorage');
           return;
         }
-        const response = await fetch(`http://192.168.0.102:3000/user/${id}`);
+        const response = await fetch(`http://192.168.0.102:3000/api/user/${id}`);
         if (response.ok) {
           const usuario = await response.json();
           setUsuarioLogado(usuario);

@@ -86,6 +86,9 @@ CREATE TABLE IF NOT EXISTS treino_fotos (
   FOREIGN KEY (treino_id) REFERENCES treinos(id)
 );
 
+ALTER TABLE treinos
+ALTER COLUMN legenda TYPE VARCHAR(255);
+
 
 SELECT * FROM usuarios;
 SELECT * FROM treinos;

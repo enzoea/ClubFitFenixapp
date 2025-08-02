@@ -21,7 +21,7 @@ export default function CadastroProf({ navigation }) {
     }
   
     try {
-      const response = await fetch('http://192.168.0.102:3000/register/profissional', {
+      const response = await fetch('http://192.168.0.102:3000/api/prof/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
