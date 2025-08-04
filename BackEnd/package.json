@@ -1,7 +1,7 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "main": "server.js",
+  "main": "server.ts",
   "scripts": {
   "dev": "nodemon --watch src --exec ts-node src/server.ts",
   "migrate:dev": "npx prisma migrate dev",
