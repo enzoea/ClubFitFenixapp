@@ -1,7 +1,24 @@
+// React
 import React, { useState, useEffect  } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ImageBackground, Image, KeyboardAvoidingView, ScrollView, Platform } from 'react-native';
-import logo from '../../assets/logo.png';
+
+// React Native
+import { View, Text, TouchableOpacity, StyleSheet, ImageBackground, Image } from 'react-native';
+
+// Componentes
+import InputField from '../componentes/InputField';
+import ScreenContainer from '../componentes/ScreenContainer';
+import Title from '../componentes/Title';
+import ButtonPrimary from '../componentes/ButtonPrimary';
+import ButtonSecondary from '../componentes/ButtonSecondary';
+
+// Contexto
 import { useUser } from '../context/UserContext';
+
+// Utils / API
+import { apiPost } from '../lib/api';
+
+// Assets
+import logo from '../../assets/logo.png';
 
 export default function Cadastro({ navigation }) {
   const { usuarios, addUsuario, setUsuarioLogado } = useUser();
@@ -36,101 +53,74 @@ export default function Cadastro({ navigation }) {
     }
   //verificar o ${serverIP}, pois ele não esta armazenando na minha maquina
     try {
-      const response = await fetch(`http://192.168.0.102:3000/api/user/register`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ nome, email, senha, objetivo, telefone, dataNascimento }),
-      });
-  
-      if (response.ok) {
-        alert('Usuário cadastrado com sucesso!');
-        navigation.navigate('Login');
-      } else {
-        const error = await response.json();
-        alert(error.error || 'Erro ao cadastrar usuário.');
-      }
+      await apiPost('/api/user/register', { nome, email, senha, objetivo, telefone, dataNascimento });
+      alert('Usuário cadastrado com sucesso!');
+      navigation.navigate('Login');
     } catch (error) {
       console.error('Erro de conexão:', error);
       alert('Erro ao conectar ao servidor.');
     }
-  };  
+  };
 
   return (
-    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled">
-        <ImageBackground
-            source={require('../../assets/background-club.png')}
-            style={styles.imageBackground}
-        >
-        
-            <View style={styles.container}>
-                
-                <Text style={styles.title}>Cadastro</Text>
-                <Text style={styles.text}>Nome</Text>
-                <TextInput
-                    style={styles.input}
-                    placeholder="Nome"
-                    placeholderTextColor="#febc02"
-                    value={nome}
-                    onChangeText={setNome}
-                />
-                <Text style={styles.text}>Telefone</Text>
-                <TextInput
-                    style={styles.input}
-                    placeholder="Telefone"
-                    placeholderTextColor="#febc02"
-                    value={telefone}
-                    keyboardType="phone-pad"
-                    onChangeText={setTelefone}
-                />
-                <Text style={styles.text}>Email</Text>
-                <TextInput
-                    style={styles.input}
-                    placeholder="Email"
-                    placeholderTextColor="#febc02"
-                    value={email}
-                    keyboardType="email-address"
-                    autoCapitalize="none"
-                    onChangeText={setEmail}
-                />
-                <Text style={styles.text}>Data de Nascimento</Text>
-                <TextInput
-                    style={styles.input}
-                    placeholder="xx/xx/xxxx"
-                    placeholderTextColor="#febc02"
-                    value={dataNascimento}
-                    onChangeText={setDataNascimento}
-                />
-                <Text style={styles.text}>Objetivos na Academia</Text>
-                <TextInput
-                    style={styles.input}
-                    placeholder="Ex: Ganhar massa"
-                    placeholderTextColor="#febc02"
-                    value={objetivo}
-                    onChangeText={setObjetivo}
-                />
-                <Text style={styles.text}>Senha</Text>
-                <TextInput
-                    style={styles.input}
-                    placeholder="Senha"
-                    placeholderTextColor="#febc02"
-                    secureTextEntry
-                    value={senha}
-                    onChangeText={setSenha}
-                />
-                <TouchableOpacity style={styles.button} onPress={handleCadastro}>
-                    <Text style={styles.buttonText}>Cadastrar</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.profButton} onPress={() => navigation.navigate('CadastroProf')}>
-                    <Text style={styles.profButtonText}>Cadastrar como Profissional</Text>
-                </TouchableOpacity>
-
-            </View>
-        </ImageBackground>
-      </ScrollView>
-    </KeyboardAvoidingView>
+    <ImageBackground
+      source={require('../../assets/background-club.png')}
+      style={styles.imageBackground}
+    >
+      <ScreenContainer centered>
+        <View style={styles.container}>
+          <Title>Cadastro</Title>
+          <InputField
+            label="Nome"
+            placeholder="Nome"
+            value={nome}
+            onChangeText={setNome}
+            style={styles.input}
+          />
+          <InputField
+            label="Telefone"
+            placeholder="Telefone"
+            value={telefone}
+            keyboardType="phone-pad"
+            onChangeText={setTelefone}
+            style={styles.input}
+          />
+          <InputField
+            label="Email"
+            placeholder="Email"
+            value={email}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            onChangeText={setEmail}
+            style={styles.input}
+          />
+          <InputField
+            label="Data de Nascimento"
+            placeholder="xx/xx/xxxx"
+            value={dataNascimento}
+            onChangeText={setDataNascimento}
+            style={styles.input}
+          />
+          <InputField
+            label="Objetivos na Academia"
+            placeholder="Ex: Ganhar massa"
+            value={objetivo}
+            onChangeText={setObjetivo}
+            style={styles.input}
+          />
+          <InputField
+            label="Senha"
+            placeholder="Senha"
+            secure
+            value={senha}
+            onChangeText={setSenha}
+            style={styles.input}
+          />
+          <ButtonPrimary title="Cadastrar" onPress={handleCadastro} />
+          <ButtonSecondary title="Cadastrar como Profissional" onPress={() => navigation.navigate('CadastroProf')} />
+        </View>
+      </ScreenContainer>
+    </ImageBackground>
   );
 }
 // testando
@@ -161,13 +151,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         padding: 20,
     },
-    title: {
-        fontSize: 22,
-        fontWeight: 'bold',
-        marginBottom: 20,
-        textAlign: 'center',
-        color: '#ffffff',
-    },
+    // título padronizado via componente Title
     
     text:{
         fontSize: 16,
@@ -185,18 +169,7 @@ const styles = StyleSheet.create({
         color: '#ffffff',
         textAlign: 'center',
       },
-    button: {
-        backgroundColor: '#febc02',
-        padding: 15,
-        borderRadius: 5,
-        alignItems: 'center',
-        width: 300,
-    },
-    buttonText: {
-        color: '#fff',
-        fontWeight: 'bold',
-        fontSize: 16,
-    },
+    // botão primário agora via componente ButtonPrimary
     logo: {
         width: 150,
         height: 150,

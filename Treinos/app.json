@@ -3,6 +3,7 @@
     "name": "ClubFitFênix",
     "slug": "ClubFitFênix",
     "version": "1.0.0",
+    "platforms": ["ios", "android", "web"],
     "orientation": "portrait",
     "icon": "./assets/logo.png",
     "splash": {
@@ -27,6 +28,9 @@
     },
     "web": {
       "favicon": "./assets/logo.png"
+    },
+    "extra": {
+      "apiBaseUrl": "http://localhost:3000"
     },
     "newArchEnabled": true
   }

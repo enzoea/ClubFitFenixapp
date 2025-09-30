@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, FlatList, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { useUser } from '../context/UserContext'; // Importa o contexto de usuário
 import Icon from 'react-native-vector-icons/Ionicons'; // Ícone de envio
+import { apiGet, apiPost } from '../lib/api';
+import PostHeader from '../componentes/PostHeader';
 
 export default function Comentarios({ route, navigation }) {
   const { post } = route.params; // Recebe o post via navegação
@@ -13,15 +15,10 @@ export default function Comentarios({ route, navigation }) {
   useEffect(() => {
     const buscarComentarios = async () => {
       try {
-        const response = await fetch(`http://192.168.0.102:3000/comentarios/${post.id}`);
-        const data = await response.json();
-        if (response.ok) {
-          setComentarios(data.comentarios); // Atualiza o estado com os comentários recebidos
-        } else {
-          console.error('Erro ao buscar comentários:', data.message);
-        }
+        const data = await apiGet(`/comentarios/${post.id}`);
+        setComentarios(data.comentarios || []);
       } catch (error) {
-        console.error('Erro na requisição:', error);
+        console.error('Erro ao buscar comentários:', error);
       }
     };
   
@@ -43,31 +40,15 @@ export default function Comentarios({ route, navigation }) {
   const adicionarComentario = async () => {
     if (novoComentario.trim()) {
       try {
-        const response = await fetch('http://192.168.0.102:3000/comentarios', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            treino_id: post.id,
-            usuario_id: usuarioLogado?.id,
-            comentario: novoComentario,
-          }),
+        const data = await apiPost('/comentarios', {
+          treino_id: post.id,
+          usuario_id: usuarioLogado?.id,
+          comentario: novoComentario,
         });
-  
-        if (!response.ok) {
-          throw new Error('Erro ao adicionar comentário');
-        }
-  
-        const data = await response.json();
-        console.log('Comentário salvo no banco:', data);
-  
-        // Adiciona o comentário ao estado com base na estrutura da resposta
-        setComentarios((prev) => [...prev, data.comentario]); // Adicionando data.comentario ao estado
-  
+        setComentarios((prev) => [...prev, data.comentario]);
         setNovoComentario('');
       } catch (error) {
-        console.error('Erro no fetch:', error);
+        console.error('Erro ao adicionar comentário:', error);
         alert('Erro ao adicionar comentário.');
       }
     }
@@ -80,7 +61,7 @@ export default function Comentarios({ route, navigation }) {
     <View style={styles.container}>
       {/* Exibição do Post */}
       <View style={styles.postContainer}>
-        <Text style={styles.usuario}>{String(post.usuario || 'Usuário desconhecido')}</Text>
+        <PostHeader nome={String(post.usuario)} foto={post.fotoPerfil} />
         <Text style={styles.treinoDetails}>Tipo de Treino: {String(post.tipo || 'Não informado')}</Text>
         <Text style={styles.treinoDetails}>
           Início: {post.inicio ? new Date(post.inicio).toLocaleString() : 'Não informado'}

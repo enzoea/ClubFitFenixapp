@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, ImageBackground, Image } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import backgroundImage from '../../assets/background-club.png';  // Manter o fundo de imagem que você já está usando
+import { apiGet, apiDelete } from '../lib/api';
 
 export default function GerenciarFichas({ navigation }) {
   const [fichas, setFichas] = useState([]);
@@ -13,15 +14,7 @@ export default function GerenciarFichas({ navigation }) {
   const carregarFichas = async () => {
     try {
       console.log("🔄 Carregando fichas de treino...");
-      const response = await fetch('http://192.168.0.102:3000/fichas');
-  
-      if (!response.ok) {
-        console.error(`❌ Erro HTTP: ${response.status} - ${response.statusText}`);
-        alert('Erro ao carregar as fichas.');
-        return;
-      }
-  
-      const data = await response.json();
+      const data = await apiGet('/fichas');
       console.log('✅ Fichas recebidas:', data);
       setFichas(data);
     } catch (error) {
@@ -54,16 +47,7 @@ export default function GerenciarFichas({ navigation }) {
 
   const excluirFicha = async (id) => {
     try {
-      const response = await fetch(`http://192.168.0.102:3000/fichas/${id}`, {
-        method: 'DELETE',
-      });
-
-      if (!response.ok) {
-        console.error(`❌ Erro ao excluir a ficha: ${response.status}`);
-        alert('Erro ao excluir a ficha.');
-        return;
-      }
-
+      await apiDelete(`/fichas/${id}`);
       setFichas(fichas.filter(ficha => ficha.id !== id));
       alert('Ficha excluída com sucesso!');
     } catch (error) {

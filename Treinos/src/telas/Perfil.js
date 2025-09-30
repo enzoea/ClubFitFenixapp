@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Image, TextInput, TouchableOpacity, Alert, KeyboardAvoidingView, ScrollView, Platform } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity, Alert, KeyboardAvoidingView, ScrollView, Platform } from 'react-native';
+import InputField from '../componentes/InputField';
 import { useUser } from '../context/UserContext';
 import * as ImagePicker from 'expo-image-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { uploadImageToCloudinary } from "../utils/uploadImage";
+import { apiAuthGet, apiAuthPut } from '../lib/api';
 
 
 export default function Perfil({ navigation }) {
@@ -28,29 +30,25 @@ export default function Perfil({ navigation }) {
   };
 
   useEffect(() => {
-  const carregarDadosUsuario = async () => {
-    try {
-      if (!usuarioLogado?.id) return;
+    const carregarDadosUsuario = async () => {
+      try {
+        const id = usuarioLogado?.id || usuarioLogado?.user?.id;
+        if (!id) return;
 
-      const response = await fetch(`http://192.168.0.102:3000/api/user/${usuarioLogado.id}`);
-      if (response.ok) {
-        const data = await response.json();
+        const data = await apiAuthGet(`/api/user/${id}`);
         data.dataNascimento = formatarDataParaUsuario(data.dataNascimento);
         setDadosUsuario(data);
         setForm(data);
         setFotoPerfil(data.fotoPerfil);
-      } else {
-        console.error('Erro ao buscar dados do usuário:', response.status);
+      } catch (error) {
+        console.error('Erro de conexão ao buscar usuário:', error);
+      } finally {
+        setLoadingUsuario(false);
       }
-    } catch (error) {
-      console.error('Erro de conexão ao buscar usuário:', error);
-    } finally {
-      setLoadingUsuario(false);
-    }
-  };
+    };
 
-  carregarDadosUsuario();
-}, [usuarioLogado]);
+    carregarDadosUsuario();
+  }, [usuarioLogado]);
 
 
   const handleLogout = async () => {
@@ -85,17 +83,11 @@ export default function Perfil({ navigation }) {
 
   const atualizarFotoNoBanco = async (url) => {
     try {
-      const response = await fetch(`http://192.168.0.102:3000/api/user/${usuarioLogado.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ fotoPerfil: url }),
-      });
-  
-      if (response.ok) {
-        const updatedUser = await response.json();
-        setUsuarioLogado(updatedUser);  // Atualizar o estado com o usuário atualizado
-        Alert.alert('Sucesso', 'Dados atualizados com sucesso!');
-      }
+      const id = usuarioLogado?.id || usuarioLogado?.user?.id;
+      if (!id) return;
+      const updatedUser = await apiAuthPut(`/api/user/${id}`, { fotoPerfil: url });
+      setUsuarioLogado(updatedUser);
+      Alert.alert('Sucesso', 'Dados atualizados com sucesso!');
       
     } catch (error) {
       console.error('Erro ao atualizar foto:', error);
@@ -170,8 +162,9 @@ export default function Perfil({ navigation }) {
                 <View key={campo} style={styles.fieldContainer}>
                   <Text style={styles.label}>{campo.charAt(0).toUpperCase() + campo.slice(1)}:</Text>
                   {editando ? (
-                    <TextInput
+                    <InputField
                       style={styles.input}
+                      placeholder={campo.charAt(0).toUpperCase() + campo.slice(1)}
                       value={form[campo] || ''}
                       onChangeText={(value) =>
                         setForm({
@@ -191,16 +184,16 @@ export default function Perfil({ navigation }) {
               {editando && (
                 <>
                   <Text style={styles.label}>Nova Senha:</Text>
-                  <TextInput
+                  <InputField
                     style={styles.input}
-                    secureTextEntry
+                    secure
                     value={novaSenha}
                     onChangeText={setNovaSenha}
                   />
                   <Text style={styles.label}>Confirmar Nova Senha:</Text>
-                  <TextInput
+                  <InputField
                     style={styles.input}
-                    secureTextEntry
+                    secure
                     value={confirmarSenha}
                     onChangeText={setConfirmarSenha}
                   />

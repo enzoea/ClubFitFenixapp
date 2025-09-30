@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { View, TextInput, Button, StyleSheet, Text, Alert } from 'react-native';
+import { View, Button, StyleSheet, Text, Alert } from 'react-native';
+import InputField from '../componentes/InputField';
+import { apiPost } from '../lib/api';
 
 export default function CriarExercicio({ navigation }) {
   const [nomeExercicio, setNomeExercicio] = useState('');
@@ -16,29 +18,16 @@ export default function CriarExercicio({ navigation }) {
     }
 
     try {
-      const response = await fetch('http://192.168.0.102:3000/treino', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          id_ficha: idFicha,
-          nome_exercicio: nomeExercicio,
-          series: parseInt(series),
-          repeticoes: parseInt(repeticoes),
-          carga: carga,
-          observacoes: observacoes,
-        }),
+      const data = await apiPost('/treino', {
+        id_ficha: idFicha,
+        nome_exercicio: nomeExercicio,
+        series: parseInt(series),
+        repeticoes: parseInt(repeticoes),
+        carga: carga,
+        observacoes: observacoes,
       });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        Alert.alert('Sucesso', data.message);
-        navigation.goBack();  // Volta para a tela anterior
-      } else {
-        Alert.alert('Erro', data.error || 'Erro ao salvar o exercício');
-      }
+      Alert.alert('Sucesso', data.message || 'Treino salvo com sucesso!');
+      navigation.goBack();
     } catch (error) {
       console.error('Erro ao salvar o exercício:', error);
       Alert.alert('Erro', 'Erro ao salvar o exercício');
@@ -49,14 +38,16 @@ export default function CriarExercicio({ navigation }) {
     <View style={styles.container}>
       <Text style={styles.header}>Criar Novo Exercício</Text>
 
-      <TextInput
+      <InputField
+        label="Nome do Exercício"
         style={styles.input}
         placeholder="Nome do Exercício"
         value={nomeExercicio}
         onChangeText={setNomeExercicio}
       />
 
-      <TextInput
+      <InputField
+        label="Séries"
         style={styles.input}
         placeholder="Séries"
         keyboardType="numeric"
@@ -64,7 +55,8 @@ export default function CriarExercicio({ navigation }) {
         onChangeText={setSeries}
       />
 
-      <TextInput
+      <InputField
+        label="Repetições"
         style={styles.input}
         placeholder="Repetições"
         keyboardType="numeric"
@@ -72,14 +64,16 @@ export default function CriarExercicio({ navigation }) {
         onChangeText={setRepeticoes}
       />
 
-      <TextInput
+      <InputField
+        label="Carga (kg)"
         style={styles.input}
         placeholder="Carga (kg)"
         value={carga}
         onChangeText={setCarga}
       />
 
-      <TextInput
+      <InputField
+        label="Observações"
         style={styles.input}
         placeholder="Observações"
         value={observacoes}
