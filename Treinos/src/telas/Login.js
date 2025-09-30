@@ -50,6 +50,7 @@ export default function Login({ navigation }) {
   
 
   return (
+<<<<<<< Updated upstream
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <ScrollView contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled">
         
@@ -93,6 +94,41 @@ export default function Login({ navigation }) {
           </ImageBackground>
         </ScrollView>
       </KeyboardAvoidingView>
+=======
+    <ImageBackground
+      source={require('../../assets/background-club.png')}
+      style={styles.imageBackground}
+    >
+      <ScreenContainer centered>
+        <View style={styles.container}>
+          <Image source={logo} style={styles.logo} />
+          <Title>Club Fit Fênix</Title>
+          <InputField
+            label="Email"
+            placeholder="Email"
+            placeholderTextColor="#FFFFFF"
+            keyboardType="email-address"
+            autoCapitalize="none"
+            value={email}
+            onChangeText={setEmail}
+            style={styles.input}
+          />
+          <InputField
+            label="Senha"
+            placeholder="Senha"
+            placeholderTextColor="#FFFFFF"
+            secure
+            value={senha}
+            onChangeText={setSenha}
+            style={styles.input}
+          />
+          <ButtonPrimary title="Entrar" onPress={handleLogin} />
+          <ButtonSecondary title="Não tenho uma conta" onPress={() => navigation.navigate('Cadastro', { usuarios: [] })} />
+          <Text style={styles.credit}>Desenvolvido por Enzo Martins</Text>
+        </View>
+      </ScreenContainer>
+    </ImageBackground>
+>>>>>>> Stashed changes
   );
 }
 
@@ -126,7 +162,7 @@ const styles = StyleSheet.create({
     borderColor: '#ccc',
     padding: 10,
     borderRadius: 5,
-    marginBottom: 15,
+    marginBottom: 5,
     width: 300,
     color: '#ffffff',
   },
