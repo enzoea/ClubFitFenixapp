@@ -3,9 +3,11 @@ import { View, Text, TouchableOpacity, TextInput, StyleSheet, Alert, ImageBackgr
 import { Picker } from '@react-native-picker/picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import backgroundImage from '../../assets/background-club.png';
-import BarraMenu from './componentes/BarraMenu';
+import BarraMenu from '../componentes/BarraMenu';
+import InputField from '../componentes/InputField';
 import * as ImagePicker from 'expo-image-picker';
 import { uploadImageToCloudinary } from "../utils/uploadImage";
+import { apiAuthPost } from '../lib/api';
 
 
 export default function ControlePonto({ navigation, route }) {
@@ -92,30 +94,21 @@ export default function ControlePonto({ navigation, route }) {
   
     // Enviar os dados do treino para o banco de dados
     try {
-      const response = await fetch('http://192.168.0.102:3000/api/training/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          usuarioId: parseInt(usuarioId, 10),
-          tipo: treino.tipo,
-          inicio: treino.inicio,
-          fim: new Date().toISOString(),
-          legenda: treino.legenda,
-          fotos: [...treino.fotos, cloudinaryUrl], // Garante que todas as fotos sejam enviadas
-        }),
+      await apiAuthPost('/api/training/register', {
+        usuarioId: parseInt(usuarioId, 10),
+        tipo: treino.tipo,
+        inicio: treino.inicio,
+        fim: new Date().toISOString(),
+        legenda: treino.legenda,
+        fotos: [...treino.fotos, cloudinaryUrl],
       });
-  
-      if (response.ok) {
-        Alert.alert('Sucesso', 'Treino registrado com sucesso!');
-        navigation.navigate('Menu', { feedAtualizado: true });
-      } else {
-        Alert.alert('Erro', 'Erro ao registrar treino.');
-      }
+      Alert.alert('Sucesso', 'Treino registrado com sucesso!');
+      navigation.navigate('Menu', { feedAtualizado: true });
     } catch (error) {
       console.error('Erro de conexão:', error);
       Alert.alert('Erro', 'Erro ao conectar ao servidor.');
     }
-  }; 
+  };
 
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
@@ -138,11 +131,12 @@ export default function ControlePonto({ navigation, route }) {
               <Picker.Item label="Esporte Radical" value="esporteRadical" />
             </Picker>
 
-            <TextInput
-              style={styles.input}
+            <InputField
+              label="Legenda"
               placeholder="Escreva uma legenda sobre o treino"
               value={treino.legenda}
               onChangeText={(text) => atualizarEstado('legenda', text)}
+              style={styles.input}
             />
 
             <Text style={styles.texto}>

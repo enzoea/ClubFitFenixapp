@@ -5,6 +5,8 @@ import cors from 'cors';
 import os from 'os';
 import { format } from 'date-fns';
 import router from './routes';
+import comentariosRouter from './routes/Comentarios.routes';
+import { GetTrainings } from './controllers/TreinoControllers';
 
 
 // para rodar o sistema use o : docker-compose up --build 
@@ -15,6 +17,7 @@ const app = express();
 const port: number= Number(process.env.PORT || 3000);
 app.use(express.json());
 app.use('/api', router);
+// Removido: rotas duplicadas fora de /api para padronização
 
 
   
@@ -46,7 +49,8 @@ app.get('/api/ip', (req: Request, res: Response) => {
 
 // Iniciar servidor
 const server = app.listen(port, '0.0.0.0', () => {
-  console.log(`Servidor rodando em http://192.168.0.102:${port}`);
+  const ip = getLocalIPAddress();
+  console.log(`Servidor rodando em http://${ip}:${port}`);
 });
 
 // Tratamento de erro ao iniciar o servidor

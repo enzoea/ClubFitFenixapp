@@ -1,11 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, ImageBackground, Image } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import BarraMenu from './componentes/BarraMenu';
+import BarraMenu from '../componentes/BarraMenu';
 import backgroundImage from '../../assets/background-club.png';
+import PostHeader from '../componentes/PostHeader';
+import ButtonPrimary from '../componentes/ButtonPrimary';
+import EmptyState from '../componentes/EmptyState';
+import { apiGet } from '../lib/api';
 
 export default function Menu({ route, navigation }) {
   const [feedGlobal, setFeedGlobal] = useState([]);
+  const [page, setPage] = useState(1);
+  const [limit] = useState(10);
+  const [hasMore, setHasMore] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     console.log('Dados no Menu:', feedGlobal);
@@ -18,58 +27,54 @@ export default function Menu({ route, navigation }) {
     }
   }, [route.params?.feedAtualizado]);
 
-  const carregarFeed = async () => {
+  const carregarFeed = async (reset = false) => {
+    if (loading) return;
     try {
-      console.log("🔄 Solicitando treinos do servidor...");
-      const response = await fetch('http://192.168.0.102:3000/trainings');
-  
-      // Verifica se a resposta foi bem-sucedida
-      if (!response.ok) {
-        console.error(`❌ Erro HTTP: ${response.status} - ${response.statusText}`);
-        alert(`Erro ao carregar os treinos: ${response.statusText}`);
-        return;
-      }
-  
-      // Obtém a resposta como texto para depuração
-      const text = await response.text();
-      console.log("📡 Resposta bruta do servidor:", text);
-  
-      // Tenta converter para JSON
-      try {
-        const data = JSON.parse(text);
-        console.log('✅ Dados recebidos do servidor:', data);
-        setFeedGlobal(data);
-      } catch (jsonError) {
-        console.error('❌ Erro ao analisar JSON:', jsonError);
-        console.error('🚨 Resposta completa do servidor:', text);
-        alert('Erro ao carregar os treinos. A resposta do servidor não é um JSON válido.');
-      }
+      setLoading(true);
+      const targetPage = reset ? 1 : page;
+      const data = await apiGet(`/api/trainings?page=${targetPage}&limit=${limit}`);
+      console.log('✅ Dados paginados recebidos do servidor:', data);
+
+      const newItems = Array.isArray(data?.items) ? data.items : [];
+      setFeedGlobal((prev) => (reset ? newItems : [...prev, ...newItems]));
+      setHasMore(Boolean(data?.hasMore));
+      setPage(targetPage + 1);
     } catch (error) {
       console.error('❌ Erro ao carregar o feed:', error);
       alert('Erro ao carregar os treinos. Problema de conexão.');
+    } finally {
+      setLoading(false);
+      if (reset) setRefreshing(false);
     }
-  };  
+  };
 
   useFocusEffect(
     React.useCallback(() => {
-      carregarFeed();
+      // Resetar o feed ao focar a tela
+      setFeedGlobal([]);
+      setPage(1);
+      setHasMore(true);
+      carregarFeed(true);
     }, [])
   );
 
+  const onEndReached = () => {
+    if (hasMore && !loading) {
+      carregarFeed(false);
+    }
+  };
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    setFeedGlobal([]);
+    setPage(1);
+    setHasMore(true);
+    carregarFeed(true);
+  };
+
   const renderItem = ({ item, index }) => (
     <View style={styles.postContainer}>
-      <View style={styles.postHeader}>
-        <Image
-          source={
-            item.fotoPerfil && item.fotoPerfil.startsWith("http")
-              ? { uri: item.fotoPerfil }
-              : require('../../assets/logo.png')
-          }
-          style={styles.userImage}
-          onError={() => console.warn(`Erro ao carregar foto de perfil: ${item.fotoPerfil}`)}
-        />
-        <Text style={styles.userName}>{item.usuario || 'Usuário Desconhecido'}</Text>
-      </View>
+      <PostHeader nome={item.usuario} foto={item.fotoPerfil} />
 
       <Text style={styles.postContent}>Treino: {item.tipo || 'Sem tipo'}</Text>
       <Text style={styles.postTimestamp}>
@@ -102,12 +107,11 @@ export default function Menu({ route, navigation }) {
       <View style={styles.container}>
         <BarraMenu />
 
-        <TouchableOpacity
-          style={styles.newPostButton}
+        <ButtonPrimary
+          title="Registrar Novo Treino"
           onPress={() => navigation.navigate('ControlePonto')}
-        >
-          <Text style={styles.newPostButtonText}>Registrar Novo Treino</Text>
-        </TouchableOpacity>
+          style={styles.newPostButton}
+        />
 
         {/* Botões para as telas Nutricionista e Personal */}
         <View style={styles.buttonContainer}>
@@ -131,8 +135,15 @@ export default function Menu({ route, navigation }) {
           data={feedGlobal}
           keyExtractor={(item, index) => item.id?.toString() || index.toString()}
           renderItem={renderItem}
+          onEndReached={onEndReached}
+          onEndReachedThreshold={0.5}
+          refreshing={refreshing}
+          onRefresh={onRefresh}
           ListEmptyComponent={() => (
-            <Text style={styles.noDataText}>Nenhum treino disponível no momento.</Text>
+            <EmptyState message="Nenhum treino disponível no momento." />
+          )}
+          ListFooterComponent={() => (
+            loading ? <Text style={styles.noDataText}>Carregando...</Text> : (!hasMore ? <Text style={styles.noDataText}>Fim do feed</Text> : null)
           )}
         />
       </View>

@@ -1,8 +1,27 @@
+// React
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet, ImageBackground,  KeyboardAvoidingView, Alert, ScrollView, Platform } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import logo from '../../assets/logo.png';
+
+// React Native
+import { View, Text, TouchableOpacity, Image, StyleSheet, ImageBackground, Alert } from 'react-native';
+
+// Componentes
+import InputField from '../componentes/InputField';
+import ScreenContainer from '../componentes/ScreenContainer';
+import Title from '../componentes/Title';
+import ButtonPrimary from '../componentes/ButtonPrimary';
+import ButtonSecondary from '../componentes/ButtonSecondary';
+
+// Contexto
 import { useUser } from '../context/UserContext';
+
+// Utils / API
+import { apiPost } from '../lib/api';
+
+// Terceiros
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+// Assets
+import logo from '../../assets/logo.png';
 
 export default function Login({ navigation }) {
   const { setUsuarioLogado } = useUser();
@@ -16,31 +35,22 @@ export default function Login({ navigation }) {
     }
   
     try {
-      console.log('Enviando para o servidor:', { email, senha }); // Log para depuração
-      const response = await fetch('http://192.168.0.102:3000/api/user/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, senha }),
-      });
-  
-      if (response.ok) {
-        const usuario = await response.json();
-        console.log('Usuário autenticado:', usuario); // Log para verificar o retorno
-        await AsyncStorage.setItem('usuarioId', usuario.user.id.toString());
-        setUsuarioLogado(usuario);
-  
-        // Verificar o tipo de usuário e navegar para a tela correspondente
-        if (usuario.profissao === 'Nutricionista') {
-          navigation.navigate('Nutricionista');
-        } else if (usuario.profissao === 'Personal Trainer') {
-          navigation.navigate('Personal');
-        } else {
-          navigation.navigate('Menu');
-        }
+      console.log('Enviando para o servidor:', { email, senha });
+      const usuario = await apiPost('/api/user/login', { email, senha });
+      console.log('Usuário autenticado:', usuario);
+      await AsyncStorage.setItem('usuarioId', usuario.user.id.toString());
+      if (usuario?.token) {
+        await AsyncStorage.setItem('token', usuario.token);
+      }
+      setUsuarioLogado(usuario);
+
+      // Verificar o tipo de usuário e navegar para a tela correspondente
+      if (usuario.profissao === 'Nutricionista') {
+        navigation.navigate('Nutricionista');
+      } else if (usuario.profissao === 'Personal Trainer') {
+        navigation.navigate('Personal');
       } else {
-        const errorResponse = await response.json();
-        console.error('Erro do servidor:', errorResponse); // Log para verificar o erro
-        Alert.alert('Erro', errorResponse.error || 'Credenciais inválidas.');
+        navigation.navigate('Menu');
       }
     } catch (error) {
       console.error('Erro de conexão:', error);
@@ -50,7 +60,6 @@ export default function Login({ navigation }) {
   
 
   return (
-<<<<<<< Updated upstream
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <ScrollView contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled">
         
@@ -94,7 +103,7 @@ export default function Login({ navigation }) {
           </ImageBackground>
         </ScrollView>
       </KeyboardAvoidingView>
-=======
+
     <ImageBackground
       source={require('../../assets/background-club.png')}
       style={styles.imageBackground}
@@ -128,7 +137,6 @@ export default function Login({ navigation }) {
         </View>
       </ScreenContainer>
     </ImageBackground>
->>>>>>> Stashed changes
   );
 }
 
@@ -143,13 +151,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: 20,
   },
-  title: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    marginBottom: 20,
-    textAlign: 'center',
-    color: '#ffffff'
-  },
+  // title movido para componente Title
   credit: {
     fontSize: 12,
     fontWeight: 'bold',
@@ -166,33 +168,7 @@ const styles = StyleSheet.create({
     width: 300,
     color: '#ffffff',
   },
-  button: {
-    backgroundColor: '#febc02',
-    padding: 15,
-    borderRadius: 5,
-    alignItems: 'center',
-    width: 300,
-  },
-  buttonText: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 16,
-  },
-  button2: {
-    borderColor: '#febc02',
-    borderWidth: 2,
-    padding: 15,
-    marginTop: 16,
-    marginBottom: 32,
-    borderRadius: 5,
-    alignItems: 'center',
-    width: 300,
-  },
-  buttonText2: {
-    color: '#febc02',
-    fontWeight: 'bold',
-    fontSize: 16,
-  },
+  // botões substituídos por componentes ButtonPrimary/Secondary
   logo: {
     width: 150,
     height: 150,
