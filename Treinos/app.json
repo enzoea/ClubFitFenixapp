@@ -32,6 +32,6 @@
     "extra": {
       "apiBaseUrl": "http://localhost:3000"
     },
-    "newArchEnabled": true
+    "newArchEnabled": false
   }
 }
