@@ -18,14 +18,7 @@ export default function Menu({ route, navigation }) {
 
   useEffect(() => {
     console.log('Dados no Menu:', feedGlobal);
-    if (route.params?.feedAtualizado) {
-      const fotosPassadas = route.params.fotos;
-      setFeedGlobal((prevFeed) => [
-        ...prevFeed,
-        { fotos: fotosPassadas },
-      ]);
-    }
-  }, [route.params?.feedAtualizado]);
+  }, [feedGlobal]);
 
   const carregarFeed = async (reset = false) => {
     if (loading) return;

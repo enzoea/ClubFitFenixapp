@@ -18,7 +18,7 @@ export default function CriarExercicio({ navigation }) {
     }
 
     try {
-      const data = await apiPost('/treino', {
+      const data = await apiPost('/api/treino', {
         id_ficha: idFicha,
         nome_exercicio: nomeExercicio,
         series: parseInt(series),

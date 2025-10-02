@@ -1,12 +1,10 @@
 import { Request, Response } from "express";
-import { Prisma, PrismaClient } from "@prisma/client";
+import prisma from "../lib/prisma";
 import { Treinos } from "../models/Treino";
-
-const prisma = new PrismaClient();
 
 export const RegisterTreino = async (req: Request, res: Response) => {
 
-    const {usuarioId, tipo, inicio, fim, legenda} = req.body;
+    const {usuarioId, tipo, inicio, fim, legenda, fotos} = req.body;
 
     console.log('req.body: ', req.body);
 
@@ -20,11 +18,12 @@ export const RegisterTreino = async (req: Request, res: Response) => {
 
 
         const newTreing = await Treinos.PlayTreining({
-      usuario_id: usuarioId,
-      tipo,
+      usuario_id: Number(usuarioId),
+      tipo: String(tipo),
       inicio: new Date(inicio),
       fim: fim ? new Date(fim) : undefined,
-      legenda,
+      legenda: legenda ?? null,
+      fotos: Array.isArray(fotos) ? fotos : [],
     });
 
         res.status(201).json(newTreing);
@@ -59,7 +58,7 @@ export const GetTrainings = async (req: Request, res: Response) => {
       prisma.treino.count(),
     ]);
 
-    const items = trainings.map((t) => ({
+    const items = trainings.map((t: any) => ({
       id: t.id,
       tipo: t.tipo,
       inicio: t.inicio,
@@ -67,8 +66,10 @@ export const GetTrainings = async (req: Request, res: Response) => {
       legenda: t.legenda || null,
       usuario: t.usuario?.nome || "",
       fotoPerfil: undefined,
-      fotos: Array.isArray(t.fotos) ? t.fotos.map((f) => f.foto_url) : [],
+      fotos: Array.isArray(t.fotos) ? t.fotos.map((f: any) => f.foto_url) : [],
     }));
+
+    console.log('Treinos mapeados para feed (ids -> qtde fotos):', items.map((i: any) => ({ id: i.id, fotos: i.fotos.length })));
 
     const hasMore = skip + items.length < total;
 

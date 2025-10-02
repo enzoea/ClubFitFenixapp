@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, FlatList, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { useUser } from '../context/UserContext'; // Importa o contexto de usuário
-import Icon from 'react-native-vector-icons/Ionicons'; // Ícone de envio
+import { Ionicons } from '@expo/vector-icons'; // Ícone de envio compatível com Expo
 import { apiGet, apiPost } from '../lib/api';
 import PostHeader from '../componentes/PostHeader';
 
@@ -15,7 +15,7 @@ export default function Comentarios({ route, navigation }) {
   useEffect(() => {
     const buscarComentarios = async () => {
       try {
-        const data = await apiGet(`/comentarios/${post.id}`);
+        const data = await apiGet(`/api/comentarios/${post.id}`);
         setComentarios(data.comentarios || []);
       } catch (error) {
         console.error('Erro ao buscar comentários:', error);
@@ -40,7 +40,7 @@ export default function Comentarios({ route, navigation }) {
   const adicionarComentario = async () => {
     if (novoComentario.trim()) {
       try {
-        const data = await apiPost('/comentarios', {
+        const data = await apiPost('/api/comentarios', {
           treino_id: post.id,
           usuario_id: usuarioLogado?.id,
           comentario: novoComentario,
@@ -119,7 +119,7 @@ export default function Comentarios({ route, navigation }) {
           onChangeText={setNovoComentario}
         />
         <TouchableOpacity onPress={adicionarComentario} style={styles.sendButton}>
-          <Icon name="arrow-forward" size={30} color="#fff" />
+            <Ionicons name="arrow-forward" size={30} color="#fff" />
         </TouchableOpacity>
       </View>
     </View>

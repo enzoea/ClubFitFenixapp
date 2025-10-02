@@ -1,7 +1,15 @@
 import Constants from 'expo-constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Platform } from 'react-native';
 
-const baseUrl = (Constants?.expoConfig?.extra?.apiBaseUrl) || 'http://localhost:3000';
+// Base URL da API: usa app.json quando presente. Em Android emulador, converte 'localhost' para '10.0.2.2'.
+const configuredUrl = (Constants?.expoConfig?.extra?.apiBaseUrl) || 'http://localhost:3000';
+const baseUrl = (() => {
+  if (Platform.OS === 'android' && /localhost(:\d+)?/i.test(configuredUrl)) {
+    return configuredUrl.replace('localhost', '10.0.2.2');
+  }
+  return configuredUrl;
+})();
 
 const buildUrl = (path) => {
   if (!path) return baseUrl;

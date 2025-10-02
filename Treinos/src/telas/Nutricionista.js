@@ -8,7 +8,7 @@ export default function Nutricionista({ navigation }) {
       <Text style={styles.text}>Aqui você pode criar planos de dieta, monitorar seus pacientes e muito mais.</Text>
 
       {/* Botão para acessar alguma funcionalidade */}
-      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('CriarPlano')}>
+      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Perfil')}>
         <Text style={styles.buttonText}>Criar Plano de Dieta</Text>
       </TouchableOpacity>
 

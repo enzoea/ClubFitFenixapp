@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, ImageBackground, Image } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import backgroundImage from '../../assets/background-club.png';  // Manter o fundo de imagem que você já está usando
-import { apiGet, apiDelete } from '../lib/api';
+import { apiGet } from '../lib/api';
 
 export default function GerenciarFichas({ navigation }) {
   const [fichas, setFichas] = useState([]);
@@ -13,48 +13,36 @@ export default function GerenciarFichas({ navigation }) {
 
   const carregarFichas = async () => {
     try {
-      console.log("🔄 Carregando fichas de treino...");
-      const data = await apiGet('/fichas');
-      console.log('✅ Fichas recebidas:', data);
-      setFichas(data);
+      console.log("🔄 Carregando treinos para gerenciamento...");
+      const data = await apiGet('/api/trainings');
+      console.log('✅ Dados paginados recebidos do servidor:', data);
+      setFichas(Array.isArray(data?.items) ? data.items : []);
     } catch (error) {
-      console.error('❌ Erro ao carregar as fichas:', error);
-      alert('Erro de conexão ao carregar as fichas.');
+      console.error('❌ Erro ao carregar os treinos:', error);
+      alert('Erro de conexão ao carregar os treinos.');
     }
   };
 
   const renderItem = ({ item }) => (
     <View style={styles.fichaContainer}>
-      <Text style={styles.fichaTitulo}>Objetivo: {item.objetivo || 'Sem objetivo definido'}</Text>
-      <Text style={styles.fichaData}>Criado em: {new Date(item.criado_em).toLocaleString()}</Text>
-      <Text style={styles.fichaStatus}>Status: {item.status === 'ativa' ? 'Ativa' : 'Inativa'}</Text>
+      <Text style={styles.fichaTitulo}>Usuário: {item.usuario || 'Sem nome'}</Text>
+      <Text style={styles.fichaData}>Tipo: {item.tipo}</Text>
+      <Text style={styles.fichaData}>Início: {new Date(item.inicio).toLocaleString()}</Text>
+      <Text style={styles.fichaData}>Fim: {item.fim ? new Date(item.fim).toLocaleString() : '—'}</Text>
+      <Text style={styles.fichaStatus}>Legenda: {item.legenda || 'Sem legenda'}</Text>
 
-      <TouchableOpacity
-        style={styles.editarButton}
-        onPress={() => navigation.navigate('EditarFicha', { fichaId: item.id })}
-      >
-        <Text style={styles.buttonText}>Editar</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity
-        style={styles.deletarButton}
-        onPress={() => excluirFicha(item.id)}
-      >
-        <Text style={styles.buttonText}>Excluir</Text>
-      </TouchableOpacity>
+      {item.fotos && item.fotos.length > 0 ? (
+        <View style={styles.fotosContainer}>
+          {item.fotos.map((foto, idx) => (
+            <Image key={idx} source={{ uri: foto }} style={styles.foto} />
+          ))}
+        </View>
+      ) : (
+        <Text style={styles.noDataText}>Sem fotos disponíveis.</Text>
+      )}
     </View>
   );
 
-  const excluirFicha = async (id) => {
-    try {
-      await apiDelete(`/fichas/${id}`);
-      setFichas(fichas.filter(ficha => ficha.id !== id));
-      alert('Ficha excluída com sucesso!');
-    } catch (error) {
-      console.error('❌ Erro ao excluir ficha:', error);
-      alert('Erro de conexão ao excluir a ficha.');
-    }
-  };
 
   return (
     <ImageBackground source={backgroundImage} style={styles.imageBackground}>
@@ -66,7 +54,7 @@ export default function GerenciarFichas({ navigation }) {
           keyExtractor={(item) => item.id.toString()}
           renderItem={renderItem}
           ListEmptyComponent={() => (
-            <Text style={styles.noDataText}>Nenhuma ficha disponível no momento.</Text>
+            <Text style={styles.noDataText}>Nenhum treino disponível no momento.</Text>
           )}
         />
       </View>
@@ -112,6 +100,18 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#bbb',
     marginBottom: 10,
+  },
+  fotosContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginTop: 10,
+  },
+  foto: {
+    width: 80,
+    height: 80,
+    borderRadius: 6,
+    marginRight: 8,
+    marginBottom: 8,
   },
   editarButton: {
     backgroundColor: '#febc02',
